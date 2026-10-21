@@ -1,0 +1,46 @@
+{
+  "local_test_only": true,
+  "database": "PostgreSQL16",
+  "redis_configured": true,
+  "api_health": {
+    "status": "ok",
+    "test_mode": true,
+    "version": "1.0.0",
+    "external_submission_adapters": [],
+    "queue": "durable-database",
+    "llm_configured": false
+  },
+  "dashboard_json_success": true,
+  "opportunities_json_success": true,
+  "demo_status": "submitted",
+  "confirmation_id": "TEST-6C26AD06366D",
+  "uploaded_resume_verified": true,
+  "screenshot_png_verified": true,
+  "duplicate_prevented": true,
+  "master_profile_unchanged": true,
+  "demo_excluded_from_real_metrics": true,
+  "final_backend_source_readonly_snapshot": true,
+  "generated_at_utc": "2026-10-21T01:23:16.212465+00:00",
+  "all_five_services_healthy": true,
+  "docker_frontend_http_200": true,
+  "docker_frontend_same_origin_auth_csrf_dashboard": true,
+  "docker_frontend_port": 13000,
+  "api_port": 18000,
+  "backend_source_tree_sha256": "d81c244ed055907314f1d67139fdd59442c60ba83d76a76fce9acb97fcdc15c6",
+  "managed_proxy_runtime_ca_readonly_mount": true,
+  "tls_verification_enabled": true,
+  "public_greenhouse_api_from_container_http_200": true,
+  "validation_override_not_shipped_as_default": true,
+  "services": {
+    "backend-1": "running healthy",
+    "worker-1": "running",
+    "frontend-1": "running healthy",
+    "postgres-1": "running healthy",
+    "redis-1": "running healthy"
+  },
+  "cleanup": {
+    "isolated_validation_containers_stopped": true,
+    "persistent_volumes_preserved": true,
+    "images_preserved": true
+  }
+}

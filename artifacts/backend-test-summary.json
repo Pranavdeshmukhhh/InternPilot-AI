@@ -1,0 +1,18 @@
+{
+  "generated_from": "backend-tests.xml",
+  "tests": 167,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 80.838,
+  "modules": {
+    "tests.test_api_worker": 7,
+    "tests.test_automation": 14,
+    "tests.test_discovery": 27,
+    "tests.test_documents": 16,
+    "tests.test_llm": 19,
+    "tests.test_matching": 72,
+    "tests.test_service_guards": 12
+  },
+  "external_application_submissions": 0
+}

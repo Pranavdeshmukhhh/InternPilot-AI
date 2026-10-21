@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-21T12:48:26.368640+00:00",
+  "source_files_hashed": 37,
+  "application_source_sha256": "18fb4affcdc5c814568db1d26b64e2e930cbb774e0fb2d7e269dc3f733632980",
+  "backend": {
+    "tests": 364,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "junit_seconds": 126.877,
+    "ruff_passed": true,
+    "pip_check_passed": true
+  },
+  "frontend": {
+    "lint_passed": true,
+    "typecheck_passed": true,
+    "production_build_passed": true,
+    "next_version": "15.5.28",
+    "postcss_version": "8.5.31",
+    "audit_known_vulnerabilities": 0,
+    "build_id": "Pn5kv7mjI6dK8kfEqvRqP"
+  },
+  "browser": {
+    "checks": 20,
+    "passed": true,
+    "mobile_width": 390,
+    "real_public_listings_observed_in_this_run": 6
+  },
+  "postgres": {
+    "previous_versions": [
+      1
+    ],
+    "versions": [
+      1,
+      2,
+      3
+    ],
+    "preserved_users": 2,
+    "preserved_documents": 2,
+    "tls_verified": true,
+    "migration_idempotent": true,
+    "reopened_from_new_process": true,
+    "external_submissions": 0,
+    "cloud_deployment": false
+  },
+  "compose_configuration_validated": true,
+  "current_compose_images_rebuilt": false,
+  "external_applications_submitted": 0,
+  "personal_documents_uploaded_externally": 0,
+  "live_provider_messages_sent": 0,
+  "deployed": false,
+  "git_commands": 0
+}

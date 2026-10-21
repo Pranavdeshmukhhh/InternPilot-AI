@@ -1,0 +1,527 @@
+[
+  {
+    "title": "Forward Deployed Infrastructure Engineer, Internship - US Government",
+    "url": "https://jobs.lever.co/palantir/3db7e40a-28e0-4ad1-96c5-93de5bc96aa9",
+    "requirements": {
+      "graduation_years": [
+        2028
+      ],
+      "graduation_constraints": [
+        {
+          "years": [
+            2028
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "excluded_graduation_years": [],
+      "graduation_min": null,
+      "graduation_max": null,
+      "degree_levels": [],
+      "degree_groups": [],
+      "countries": [],
+      "country_groups": [],
+      "excluded_countries": [],
+      "work_authorization": "Active US Security clearance, or eligibility and willingness to obtain a US Security clearance prior to start of internship",
+      "min_experience_years": null,
+      "skills": [
+        "C++",
+        "Java",
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "required_skill_groups": [
+        [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java",
+          "C++"
+        ]
+      ],
+      "evidence": [
+        {
+          "field": "unsupported_requirement",
+          "quote": "What We Require"
+        },
+        {
+          "field": "work_authorization",
+          "quote": "Active US Security clearance, or eligibility and willingness to obtain a US Security clearance prior to start of internship"
+        },
+        {
+          "field": "required_skills",
+          "quote": "Strong proficiency with one or more programming languages, such as Python, Java, Go, C++, TypeScript/JavaScript, or similar"
+        },
+        {
+          "field": "graduation_years",
+          "quote": "Must be planning on graduating in 2028."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If you are applying for one of these roles, you must work from the state in which you are employed."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If the posting is specified as Onsite, you are required to work from an office."
+        }
+      ],
+      "uncertain": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed."
+      ],
+      "preferences": []
+    },
+    "evaluation": {
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  },
+  {
+    "title": "Forward Deployed Infrastructure Engineer, Internship - US Government",
+    "url": "https://jobs.lever.co/palantir/8f362a1f-1eff-4327-94c1-ff46e2101c69",
+    "requirements": {
+      "graduation_years": [
+        2028
+      ],
+      "graduation_constraints": [
+        {
+          "years": [
+            2028
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "excluded_graduation_years": [],
+      "graduation_min": null,
+      "graduation_max": null,
+      "degree_levels": [],
+      "degree_groups": [],
+      "countries": [],
+      "country_groups": [],
+      "excluded_countries": [],
+      "work_authorization": "Active US Security clearance, or eligibility and willingness to obtain a US Security clearance prior to start of internship",
+      "min_experience_years": null,
+      "skills": [
+        "C++",
+        "Java",
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "required_skill_groups": [
+        [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java",
+          "C++"
+        ]
+      ],
+      "evidence": [
+        {
+          "field": "unsupported_requirement",
+          "quote": "What We Require"
+        },
+        {
+          "field": "work_authorization",
+          "quote": "Active US Security clearance, or eligibility and willingness to obtain a US Security clearance prior to start of internship"
+        },
+        {
+          "field": "required_skills",
+          "quote": "Strong proficiency with one or more programming languages, such as Python, Java, Go, C++, TypeScript/JavaScript, or similar"
+        },
+        {
+          "field": "graduation_years",
+          "quote": "Must be planning on graduating in 2028."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If you are applying for one of these roles, you must work from the state in which you are employed."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If the posting is specified as Onsite, you are required to work from an office."
+        }
+      ],
+      "uncertain": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed."
+      ],
+      "preferences": []
+    },
+    "evaluation": {
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  },
+  {
+    "title": "Forward Deployed Software Engineer, Internship",
+    "url": "https://jobs.lever.co/palantir/1b6f1d82-d459-4dea-8bc2-8d2ffe6f881a",
+    "requirements": {
+      "graduation_years": [
+        2027
+      ],
+      "graduation_constraints": [
+        {
+          "years": [
+            2027
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "excluded_graduation_years": [],
+      "graduation_min": null,
+      "graduation_max": null,
+      "degree_levels": [],
+      "degree_groups": [],
+      "countries": [],
+      "country_groups": [],
+      "excluded_countries": [],
+      "work_authorization": "Si vous pensez avoir \u00e9t\u00e9 contact\u00e9 par un escroc, nous vous conseillons de cesser toute communication avec la personne et d\u2019envisager de la signaler aux autorit\u00e9s comp\u00e9tentes, telles que l\u2019Internet Crime Complaint Center (IC3) du FBI aux \u00c9tats-Unis.",
+      "min_experience_years": null,
+      "skills": [
+        "C++",
+        "Data Structures",
+        "Java",
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "required_skill_groups": [
+        [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java",
+          "C++"
+        ]
+      ],
+      "evidence": [
+        {
+          "field": "unsupported_requirement",
+          "quote": "Capacit\u00e9 d\u00e9montr\u00e9e \u00e0 apprendre continuellement, \u00e0 travailler de mani\u00e8re autonome et \u00e0 prendre des d\u00e9cisions avec un minimum de direction."
+        },
+        {
+          "field": "work_authorization",
+          "quote": "Si vous pensez avoir \u00e9t\u00e9 contact\u00e9 par un escroc, nous vous conseillons de cesser toute communication avec la personne et d\u2019envisager de la signaler aux autorit\u00e9s comp\u00e9tentes, telles que l\u2019Internet Crime Complaint Center (IC3) du FBI aux \u00c9tats-Unis."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "What We Require"
+        },
+        {
+          "field": "required_skills",
+          "quote": "Proficiency with one or more programming languages, such as Python, Java, C++, TypeScript/JavaScript, or similar."
+        },
+        {
+          "field": "graduation_years",
+          "quote": "Must be planning on graduating in 2027."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If you are applying for one of these roles, you must work from the city and or country in which you are employed."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If the posting is specified as Onsite, you are required to work from an office."
+        }
+      ],
+      "uncertain": [
+        "Unparsed mandatory condition requires human verification: Capacit\u00e9 d\u00e9montr\u00e9e \u00e0 apprendre continuellement, \u00e0 travailler de mani\u00e8re autonome et \u00e0 prendre des d\u00e9cisions avec un minimum de direction.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed."
+      ],
+      "preferences": []
+    },
+    "evaluation": {
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: Capacit\u00e9 d\u00e9montr\u00e9e \u00e0 apprendre continuellement, \u00e0 travailler de mani\u00e8re autonome et \u00e0 prendre des d\u00e9cisions avec un minimum de direction.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Paris, France; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  },
+  {
+    "title": "Forward Deployed Software Engineer, Internship - AUS Government",
+    "url": "https://jobs.lever.co/palantir/395a4483-fc3d-4b77-a500-501923fd0976",
+    "requirements": {
+      "graduation_years": [
+        2027
+      ],
+      "graduation_constraints": [
+        {
+          "years": [
+            2027
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "excluded_graduation_years": [],
+      "graduation_min": null,
+      "graduation_max": null,
+      "degree_levels": [],
+      "degree_groups": [],
+      "countries": [],
+      "country_groups": [],
+      "excluded_countries": [],
+      "work_authorization": "Active Australian Security clearance or eligibility and willingness to obtain an Australian Security clearance.",
+      "min_experience_years": null,
+      "skills": [
+        "C++",
+        "Data Structures",
+        "Java",
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "required_skill_groups": [
+        [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java",
+          "C++"
+        ]
+      ],
+      "evidence": [
+        {
+          "field": "required_skills",
+          "quote": "Proficiency with one or more programming languages, such as Python, Java, C++, TypeScript/JavaScript, or similar."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "What We Require"
+        },
+        {
+          "field": "work_authorization",
+          "quote": "Active Australian Security clearance or eligibility and willingness to obtain an Australian Security clearance."
+        },
+        {
+          "field": "graduation_years",
+          "quote": "Must be planning on graduating in 2027."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If you are applying for one of these roles, you must work from the city and or country in which you are employed."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If the posting is specified as Onsite, you are required to work from an office."
+        }
+      ],
+      "uncertain": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed."
+      ],
+      "preferences": []
+    },
+    "evaluation": {
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Sydney, Australia; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  },
+  {
+    "title": "Forward Deployed Software Engineer, Internship - Commercial",
+    "url": "https://jobs.lever.co/palantir/2ad0ab10-34c3-410d-883b-8052864a95cd",
+    "requirements": {
+      "graduation_years": [
+        2027,
+        2028
+      ],
+      "graduation_constraints": [
+        {
+          "years": [
+            2027,
+            2028
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "excluded_graduation_years": [],
+      "graduation_min": null,
+      "graduation_max": null,
+      "degree_levels": [],
+      "degree_groups": [],
+      "countries": [],
+      "country_groups": [],
+      "excluded_countries": [],
+      "work_authorization": null,
+      "min_experience_years": null,
+      "skills": [
+        "AI",
+        "C++",
+        "Data Structures",
+        "Java",
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "required_skill_groups": [
+        [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java",
+          "C++"
+        ]
+      ],
+      "evidence": [
+        {
+          "field": "unsupported_requirement",
+          "quote": "This requires walking many miles in a customer\u2019s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "This requires a ruthless commitment to truth-seeking and prioritizing real outcomes."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "What We Require"
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "Ability to speak fluent Korean and English is a requirement."
+        },
+        {
+          "field": "required_skills",
+          "quote": "Proficiency with one or more programming languages, such as Python, Java, C++, TypeScript/JavaScript, or similar."
+        },
+        {
+          "field": "graduation_years",
+          "quote": "Must be graduating in 2027 or 2028."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If you are applying for one of these roles, you must work from the city and or country in which you are employed."
+        },
+        {
+          "field": "unsupported_requirement",
+          "quote": "If the posting is specified as Onsite, you are required to work from an office."
+        }
+      ],
+      "uncertain": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer\u2019s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: Ability to speak fluent Korean and English is a requirement.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed."
+      ],
+      "preferences": []
+    },
+    "evaluation": {
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer\u2019s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: Ability to speak fluent Korean and English is a requirement.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Seoul, South Korea; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  }
+]

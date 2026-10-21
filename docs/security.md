@@ -1,0 +1,19 @@
+# Security and consent boundaries
+
+Candidate profiles, document payloads and browser session state are encrypted with a Fernet key held outside the database. Local fallback key files use restricted permissions. Passwords are scrypt hashes with random salts. Session identifiers are random opaque values whose digests are stored server-side. Cookies are HTTP-only and same-site; HTTPS deployments must enable secure cookies. API mutations require a session-bound CSRF token.
+
+Authorization checks scope candidate information, documents, applications, notifications and audit records to the current account. Server-side provider keys are not returned to the dashboard. Logs should describe actions and field names rather than contact values, passwords, session cookies or document contents.
+
+Verified profile fields are the only source of candidate facts for generated documents and supported application answers. Imported resumes and LLM extractions do not become verified automatically. Optional LLM requests contain public job descriptions; they do not contain the candidate resume or profile. Model output is structured, evidence-checked and advisory.
+
+Auto Apply is off by default and requires explicit user activation and restrictive rules. A policy must allow the employer and exact origin and require a minimum score, daily limit and verified eligibility. Unsupported adapters, unverified answers, sensitive/legal questions, CAPTCHA/MFA, emergency stop and uncertain outcomes all prevent automatic submission. The worker rechecks current policy immediately before any supported submit action.
+
+Applications are unique per candidate/opportunity. The worker persists state before external side effects. It records a pre-submit screenshot, retains confirmation evidence and uses an uncertain state when a click/request has no authoritative confirmation. Restart recovery does not blindly retry a possibly successful submission.
+
+Network readers reject private and reserved destinations and validate redirect targets. Browser routing limits allowed origins and blocks unapproved destinations; only the exact configured local test origin may use a private address in explicit test mode. DNS checks occur before connecting; a malicious hostname can still change its answer between validation and the client's connection. A shared or public deployment must enforce destination IP rules at connection time with an outbound proxy/firewall. The local portal is absent when `TEST_MODE=false`. Do not enable test mode on an internet-facing installation.
+
+External-page preparation requires Chromium's sandbox. If the host/container cannot provide the sandbox, the worker pauses instead of silently disabling it. Only the exact isolated local fixture runs without Chromium sandboxing in restricted CI/Docker; JavaScript is disabled on external preparation pages and background mutation requests are blocked.
+
+This is an implemented baseline, not an independent penetration-test report. A remote/shared deployment needs threat modeling, operator access controls, TLS, secrets rotation procedures, abuse/rate-limit review, encrypted backups, retention/deletion policy, dependency patching and validation in that environment. The Docker socket and host account remain powerful trust boundaries.
+
+Individual upload and message approval is stricter than the mode/policy switch. Upload approval binds the exact document, candidate facts and listing; outbound approval binds the previewed body and destination. Notification destinations and outbox payloads are encrypted. Changed settings replace unattempted drafts with new identifiers, invalidating old previews. Account password rotation and emergency local recovery revoke existing sessions. Upload/send checkpoints survive crashes and prevent automatic replay.

@@ -1,0 +1,88 @@
+{
+  "frontend": "http://127.0.0.1:3000",
+  "checks": [
+    {
+      "name": "UI registration and authenticated dashboard",
+      "passed": true
+    },
+    {
+      "name": "Profile editing, comma-separated skills, explicit verification and persistence",
+      "passed": true
+    },
+    {
+      "name": "Assisted mode saved; Auto Apply remains inactive",
+      "passed": true
+    },
+    {
+      "name": "Actual configured source health renders",
+      "passed": true
+    },
+    {
+      "name": "Local browser demo confirms upload, submission, screenshot and confirmation",
+      "passed": true
+    },
+    {
+      "name": "Repeated local demo action preserves the same application and receipt",
+      "passed": true
+    },
+    {
+      "name": "Application list labels synthetic test and displays authoritative confirmation",
+      "passed": true
+    },
+    {
+      "name": "Authenticated document download",
+      "passed": true
+    },
+    {
+      "name": "JobSpy-format import works in UI and a repeated import deduplicates",
+      "passed": true
+    },
+    {
+      "name": "Paid-opportunity filter excludes unknown compensation and updates pagination",
+      "passed": true
+    },
+    {
+      "name": "Explorer search, pagination, bookmark and saved detail workflows",
+      "passed": true
+    },
+    {
+      "name": "Saved opportunities and dark theme persist after page reload",
+      "passed": true
+    },
+    {
+      "name": "Dedicated hackathon and recommendation views load without replacing internship view",
+      "passed": true
+    },
+    {
+      "name": "Quiet hours save and unconfigured outbound provider controls stay unavailable",
+      "passed": true
+    },
+    {
+      "name": "Password rotation renews the active browser session",
+      "passed": true
+    },
+    {
+      "name": "UI discovery action retrieves real permitted public listings",
+      "passed": true
+    },
+    {
+      "name": "Real application metrics and pulse exclude synthetic submissions",
+      "passed": true
+    },
+    {
+      "name": "Opportunity detail dialog opens and closes",
+      "passed": true
+    },
+    {
+      "name": "Responsive mobile layout and navigation without horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "No unhandled browser runtime errors",
+      "passed": true
+    }
+  ],
+  "external_submissions": 0,
+  "real_opportunities_discovered": 6,
+  "passed": true
+}

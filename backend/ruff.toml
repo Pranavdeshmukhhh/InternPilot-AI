@@ -1,0 +1,13 @@
+target-version = "py312"
+line-length = 140
+
+[lint]
+select = ["E9", "F401", "F811", "F821", "F822", "F823", "F841"]
+
+[lint.per-file-ignores]
+# Pytest injects fixtures imported from other test modules as function arguments.
+"tests/test_account_security.py" = ["F811"]
+"tests/test_hosting.py" = ["F811"]
+"tests/test_notification_delivery.py" = ["F811"]
+"tests/test_reminders_monitoring.py" = ["F811"]
+"tests/test_platform_upgrade.py" = ["F811"]

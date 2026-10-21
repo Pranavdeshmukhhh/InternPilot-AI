@@ -1,0 +1,17 @@
+.git
+.env
+.env.*
+**/.venv
+**/node_modules
+**/.next*
+**/__pycache__
+**/.pytest_cache
+**/*.pyc
+data
+backups
+artifacts
+test-results
+dist
+**/*.log
+**/*.pem
+**/*.key

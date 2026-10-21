@@ -1,0 +1,1524 @@
+{
+  "is_snapshot_replay": true,
+  "snapshot_captured_at": "2026-10-20T16:57:37.232988+00:00",
+  "notice": "Offline historical replay. Availability and requirements may have changed; no live requests or applications are made.",
+  "listings": 59,
+  "eligibility_counts": {
+    "review": 25,
+    "ineligible": 34
+  },
+  "ranked_results": [
+    {
+      "title": "Applied Scientist Intern",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/b39ceb08-a0a7-4f8b-a760-2fb88e209956",
+      "score": 50,
+      "eligibility": "review",
+      "reasons": [
+        "Verify required technical proficiency: Python",
+        "Verify required technical proficiency: PyTorch",
+        "Verify required technical proficiency: Git"
+      ],
+      "verified": [
+        "Graduation year 2029 meets the stated requirement."
+      ],
+      "inferred": [
+        "Unsupported mandatory eligibility detail requires review: Student: currently pursuing a degree in Data Science, Computer Science, Math, Physics, Economics, Statistics, or other quantitative fields with an expected graduation date between Dec 2027 - 2029.",
+        "Mixed alternative/mandatory technical requirements need manual interpretation: - Strong Interest or Experience with AI: curiosity and drive to integrate cutting edge LLMs and agents into applied solutions",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineering Intern, Frontend",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/a13ae586-f4cb-4385-8822-c42b9b54ed74",
+      "score": 50,
+      "eligibility": "review",
+      "reasons": [
+        "Verify required technical proficiency: React"
+      ],
+      "verified": [
+        "Graduation year 2029 meets the stated requirement."
+      ],
+      "inferred": [
+        "Unsupported mandatory eligibility detail requires review: or higher in Computer Science or a related technical field, graduating December 2027 or later",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineering Intern, Backend",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/acf6b28d-767f-483f-8ff2-114620cd7e04",
+      "score": 50,
+      "eligibility": "review",
+      "reasons": [
+        "Review missing eligibility information before applying."
+      ],
+      "verified": [
+        "Graduation year 2029 meets the stated requirement."
+      ],
+      "inferred": [
+        "Unsupported mandatory eligibility detail requires review: or higher in Computer Science or a related technical field, graduating December 2027 or later",
+        "Mixed alternative/mandatory technical requirements need manual interpretation: - Experience with or interest in Python and backend development",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineering Intern, Android",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/fcf118cc-521a-4a62-9d13-945e5b6e3cb8",
+      "score": 50,
+      "eligibility": "review",
+      "reasons": [
+        "Review missing eligibility information before applying."
+      ],
+      "verified": [
+        "Graduation year 2029 meets the stated requirement."
+      ],
+      "inferred": [
+        "Unsupported mandatory eligibility detail requires review: or higher in Computer Science or a related technical field, graduating December 2027 or later",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineering Intern, iOS",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/b66be397-240b-41a6-9b05-493299b270a9",
+      "score": 50,
+      "eligibility": "review",
+      "reasons": [
+        "Review missing eligibility information before applying."
+      ],
+      "verified": [
+        "Graduation year 2029 meets the stated requirement."
+      ],
+      "inferred": [
+        "Unsupported mandatory eligibility detail requires review: or higher in Computer Science or a related technical field, graduating December 2027 or later",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Data Engineer Intern (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6178851004?gh_jid=6178851004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Data Science Intern (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6178857004?gh_jid=6178857004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Early Career, Associate Product Manager (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6180116004?gh_jid=6180116004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: AI"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: Applications must be submitted by Wednesday, October 21st, 2026 at 5:00pm PT to be considered.",
+        "Unparsed mandatory condition requires human verification: Figma provides paid sick leave, holidays, and other leave benefits in compliance with applicable federal, state, and local laws, including the requirements of the Washington Minimum Wage Act and related regulations.",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Early Career, Inside Sales Representative (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6174190004?gh_jid=6174190004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: While it’s not required, it’s an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: Figma provides paid sick leave, holidays, and other leave benefits in compliance with applicable federal, state, and local laws, including the requirements of the Washington Minimum Wage Act and related regulations.",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Early Career, Product Designer (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6180053004?gh_jid=6180053004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: While it’s not required, it’s an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: Figma provides paid sick leave, holidays, and other leave benefits in compliance with applicable federal, state, and local laws, including the requirements of the Washington Minimum Wage Act and related regulations.",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "PhD Intern, AI Applied Scientist (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6207801004?gh_jid=6207801004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Confirm your degree against the academic requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python",
+        "Verify required technical proficiency: PyTorch",
+        "Verify required technical proficiency: TensorFlow",
+        "Verify required technical proficiency: Machine Learning"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: While it’s not required, it’s an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "PhD Intern, Data Science (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6200626004?gh_jid=6200626004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Confirm your degree against the academic requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or SQL",
+        "Verify required technical proficiency: Machine Learning"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: While it's not required, it's an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "PhD Intern, Software Engineer - Graphics (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6219995004?gh_jid=6219995004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Confirm your degree against the academic requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: C++ or Rust"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: A track record of rigorous problem-solving through academic or applied research, with experience thinking holistically about use cases and the low-level technology required",
+        "Unparsed mandatory condition requires human verification: While it's not required, it's an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Design Intern (2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6180005004?gh_jid=6180005004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: While it’s not required, it’s an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer Intern (London, United Kingdom) (Summer 2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6152695004?gh_jid=6152695004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: Experience writing clean code in at least one general-purpose language (e.g.",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: London, England; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer Intern (Summer 2027)",
+      "company": "Figma",
+      "url": "https://boards.greenhouse.io/figma/jobs/6143238004?gh_jid=6143238004",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: Experience writing clean code in at least one general-purpose language (e.g.",
+        "Unparsed mandatory condition requires human verification: While it’s not required, it’s an added plus if you also have:",
+        "Unparsed mandatory condition requires human verification: We also consider qualified applicants regardless of criminal histories, consistent with legal requirements.",
+        "Unparsed mandatory condition requires human verification: If you require accommodation, please reach out to accommodations-ext@figma.com.",
+        "Unparsed mandatory condition requires human verification: To ensure the integrity of our hiring process and facilitate a more personal connection, we require all candidates keep their cameras on during video interviews.",
+        "Unparsed mandatory condition requires human verification: Additionally, if hired you will be required to attend in person onboarding.",
+        "A negative eligibility statement requires review: Candidates may not reapply to the same role while an application is active or within 90 days of receiving a rejection.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: San Francisco, CA • New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Deployment Strategist, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/774cf5c9-bf6a-4d77-bf60-d50ef1beb1a0",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: The problems you'll solve will require a curious and analytical mindset, a sharp intuition for product, an ability to speak the language of data, and an understanding that humans should make decisions.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: Paris, France; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Deployment Strategist, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/a49d4181-a289-435a-b581-7f5af0497c8e",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: The problems you'll solve will require a curious and analytical mindset, a sharp intuition for product, an ability to speak the language of data, and an understanding that humans should make decisions.",
+        "Unparsed mandatory condition requires human verification: Requirements",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: Honolulu, HI; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - France",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/ac0dc094-2480-43c2-8495-26ade227ff4f",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unsupported mandatory eligibility detail requires review: Currently enrolled as a 2nd or 3rd year student at a leading Grande École, or recently graduated",
+        "A negative eligibility statement requires review: Cannot be enrolled in university classes during the internship period",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Year at Palantir - Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/75cc1c09-8ebd-44c8-b3bc-d122cd1fecb3",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: Chicago, IL; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Year at Palantir - Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/e6789b17-62fb-4226-a079-f8c17ff19e2d",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Year at Palantir - Forward Deployed Software Engineer, Internship - USG",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/5c4c65c5-77da-4d36-856c-4ade87631019",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Year at Palantir - Forward Deployed Software Engineer, Internship - USG",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/5c7bb70c-83ea-43e7-8055-0c8f319f4333",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Year at Palantir - Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/655f9937-a4ce-4e7d-80e2-a6659af07329",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "University Grad | Customer Experience Associate",
+      "company": "Ramp",
+      "url": "https://jobs.ashbyhq.com/ramp/fc971889-db1d-4a20-a25e-f282f9296936",
+      "score": 35,
+      "eligibility": "review",
+      "reasons": [
+        "Review missing eligibility information before applying."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This is a hard requirement.",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay, with additional time available at reduced pay",
+        "Unsupported mandatory eligibility detail requires review: - Parental leave: up to 16 weeks (birthing + bonding) or 8 weeks (bonding only) at 100% pay with additional time available at reduced pay",
+        "Graduation-year eligibility is not explicitly stated.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The posting does not explicitly confirm graduation-year eligibility.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY (HQ); geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Infrastructure Engineer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/3db7e40a-28e0-4ad1-96c5-93de5bc96aa9",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Infrastructure Engineer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/8f362a1f-1eff-4327-94c1-ff46e2101c69",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/1b6f1d82-d459-4dea-8bc2-8d2ffe6f881a",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: Capacité démontrée à apprendre continuellement, à travailler de manière autonome et à prendre des décisions avec un minimum de direction.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Paris, France; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - AUS Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/395a4483-fc3d-4b77-a500-501923fd0976",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Sydney, Australia; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/2ad0ab10-34c3-410d-883b-8052864a95cd",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer’s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: Ability to speak fluent Korean and English is a requirement.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Seoul, South Korea; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/4d29249a-d7e8-4c39-880d-3b35d7b2f6f6",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer’s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unsupported mandatory eligibility detail requires review: Must be graduating in December 2027 or Spring 2028.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/599b1907-aba1-4303-837b-66e69a521636",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer’s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - Commercial",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/d5486403-c050-4920-b2e0-91b69b61ebb2",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer’s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unsupported mandatory eligibility detail requires review: Must be graduating in December 2027 or Spring 2028.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Chicago, IL; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - UK Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/26e23f5d-083b-45aa-b223-1a6e43d960bf",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This requires walking many miles in a customer’s shoes, building past the perimeter of what the product currently offers, and deviating from every pre-existing formula to solve the problem.",
+        "Unparsed mandatory condition requires human verification: This requires a ruthless commitment to truth-seeking and prioritizing real outcomes.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Forward Deployed Software Engineer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/315f695d-04d1-4a9a-848e-cb2bec7a997e",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: Willingness to undergo a US government background investigation, depending on US government project requirements.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Honolulu, HI; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Information Security Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/ef725594-42dd-4f0d-ba8e-df8179dbc6cb",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Privacy and Civil Liberties Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/09846827-b931-4a9f-bd64-c3bb8860187b",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Verify required technical proficiency: Python or JavaScript or TypeScript or Java or C++"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: The first of its kind in the tech industry, Palantir’s PCL team was formed 15+ years ago as a rejection of the prevailing view that privacy protections must be sacrificed to national security interest.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Designer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/1a935143-e857-480c-bc5a-ad625d754eb6",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: A portfolio demonstrating at least one software interface design project.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Designer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/44129013-01e0-4699-8fc1-7a189bb37b63",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: A portfolio demonstrating at least one software interface design project.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Designer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/8f7bbffa-92aa-4d25-9586-943b3322a27d",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: A portfolio demonstrating at least one software interface design project.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Designer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/9db71277-3a9a-481b-a2a3-25c3125b0e8a",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: A portfolio demonstrating at least one software interface design project.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Product Designer, Internship - US Government",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/fa060d94-f85d-4d02-be58-b81787fe57e5",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: A portfolio demonstrating at least one software interface design project.",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/3531977a-9b2f-40a0-a486-4eeb38e75fc1",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Singapore, Singapore; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/373eb939-6f57-4836-8479-be79a5e07249",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Denver, CO; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/76a60923-bb49-40f5-b061-7c7eb1299602",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/7d69cf8a-06fd-4f05-bd84-27149db29c4d",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/bdcfb29f-4f27-42de-933f-7f83a359b9f0",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/e27af7ab-41fc-40c9-b31d-02c6cb1c505c",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Defense Tech",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/8bcf4f33-0a79-4248-bbfd-49ac4be9dd8e",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Defense Tech",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/a483f41b-0da9-42ea-8ed6-cbf6eb93cc6d",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Defense Tech",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/f17e98d0-046a-4e6e-9d65-ed0b12dd0ff7",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/b229baac-494b-4a0d-9a13-2e38806e06f3",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: TypeScript"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This includes evolving our existing technologies to support ever-increasing data scale and latency requirements, and designing the next evolution of our database offering to provide step-change improvements in particular workflows.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/f221738b-e97c-4ce3-a12a-17ada2b855e4",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review.",
+        "Verify required technical proficiency: TypeScript"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: This includes evolving our existing technologies to support ever-increasing data scale and latency requirements, and designing the next evolution of our database offering to provide step-change improvements in particular workflows.",
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Palo Alto, CA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/fd3603a9-7016-45c6-9c8d-04c9279ab85e",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Production Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/373367a9-3160-49d8-b7af-2efec062fad1",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Seattle, WA; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Production Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/37964982-9b4c-471e-a1d8-fb8f45d7f116",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Production Infrastructure",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/3ab9e715-1ea9-4c6c-ad50-7340eac14e86",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Work authorization, citizenship, visa, or clearance question requires human review."
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Academic requirements require review.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "The academic requirement needs verification.",
+        "Listed location: Washington, D.C.; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Query Engines",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/3e59369e-1392-42f2-8d03-86648e87e963",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Confirm your degree against the academic requirement.",
+        "Verify required technical proficiency: Java or C++ or Rust"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the city and or country in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "Listed location: London, United Kingdom; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    },
+    {
+      "title": "Software Engineer, Internship - Query Engines",
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/da774f81-c98c-4dcf-9b9c-949fd7d90a13",
+      "score": 24,
+      "eligibility": "ineligible",
+      "reasons": [
+        "Graduation year 2029 is outside the explicitly stated graduation requirement.",
+        "Confirm your degree against the academic requirement.",
+        "Verify required technical proficiency: Java or C++ or Rust"
+      ],
+      "verified": [],
+      "inferred": [
+        "Unparsed mandatory condition requires human verification: What We Require",
+        "Unparsed mandatory condition requires human verification: If you are applying for one of these roles, you must work from the state in which you are employed.",
+        "Unsupported mandatory eligibility detail requires review: If the posting is specified as Onsite, you are required to work from an office.",
+        "Geographic/work-authorization eligibility is not explicitly confirmed.",
+        "Listed location: New York, NY; geographic and work-authorization eligibility require review.",
+        "No verified skills available for comparison."
+      ],
+      "skill_overlap": [],
+      "ranking_signals": []
+    }
+  ]
+}

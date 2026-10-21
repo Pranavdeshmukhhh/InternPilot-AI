@@ -1,0 +1,110 @@
+{
+  "validation": "public read-only connector checks; no applications, registration or personal uploads",
+  "checked_at_utc": "2026-10-21T07:11:09.929380+00:00",
+  "github_diagnostic_link_limit": 3,
+  "github_runtime_link_limit": 20,
+  "records": [
+    {
+      "source": {
+        "kind": "mlh",
+        "slug": "2027",
+        "permitted": true
+      },
+      "started_at": "2026-10-21T07:10:56.642369+00:00",
+      "checked_at": "2026-10-21T07:11:04.111965+00:00",
+      "count": 68,
+      "not_modified": false,
+      "truncated": false,
+      "total_references": null,
+      "examples": [
+        {
+          "title": "Cal Hacks 13.0",
+          "url": "https://www.mlh.com/events/cal-hacks-13-0/prizes",
+          "official_url": "https://calhacks.io/",
+          "verification_status": "source_verified",
+          "verification_note": "The official calendar confirms this event listing; registration and eligibility have not been verified.",
+          "deadline": null,
+          "starts_at": "2026-10-23T17:00:00+00:00",
+          "application_url_verified": false,
+          "registration_status": "unknown"
+        },
+        {
+          "title": "SBUHacks",
+          "url": "https://www.mlh.com/events/sbuhacks-5f/prizes",
+          "official_url": "https://hack.sbcs.io/",
+          "verification_status": "source_verified",
+          "verification_note": "The official calendar confirms this event listing; registration and eligibility have not been verified.",
+          "deadline": null,
+          "starts_at": "2026-10-23T22:30:00+00:00",
+          "application_url_verified": false,
+          "registration_status": "unknown"
+        },
+        {
+          "title": "OxHack '26",
+          "url": "https://www.mlh.com/events/oxhack-26/prizes",
+          "official_url": "https://26.oxhack.net/",
+          "verification_status": "source_verified",
+          "verification_note": "The official calendar confirms this event listing; registration and eligibility have not been verified.",
+          "deadline": null,
+          "starts_at": "2026-10-24T01:11:11+00:00",
+          "application_url_verified": false,
+          "registration_status": "unknown"
+        }
+      ]
+    },
+    {
+      "source": {
+        "kind": "github_list",
+        "permitted": true
+      },
+      "started_at": "2026-10-21T07:10:56.728292+00:00",
+      "checked_at": "2026-10-21T07:11:09.929380+00:00",
+      "count": 3,
+      "not_modified": false,
+      "truncated": true,
+      "total_references": 1763,
+      "examples": [
+        {
+          "title": "Calibration Process Optimization Intern",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000156585075",
+          "official_url": null,
+          "verification_status": "unverified",
+          "verification_note": "The linked page responded, but matching public JobPosting metadata could not be verified.",
+          "deadline": null,
+          "starts_at": null,
+          "application_url_verified": false
+        },
+        {
+          "title": "Software Engineer Intern",
+          "url": "https://jobs.smartrecruiters.com/LinkedIn3/744000156616169",
+          "official_url": null,
+          "verification_status": "unverified",
+          "verification_note": "The linked page responded, but matching public JobPosting metadata could not be verified.",
+          "deadline": null,
+          "starts_at": null,
+          "application_url_verified": false
+        },
+        {
+          "title": "AI Consulting Associate Program Product Owner Intern",
+          "url": "https://boards.greenhouse.io/drivewealth/jobs/8038087003",
+          "official_url": null,
+          "verification_status": "unverified",
+          "verification_note": "The linked page responded, but matching public JobPosting metadata could not be verified.",
+          "deadline": null,
+          "starts_at": null,
+          "application_url_verified": false
+        }
+      ]
+    },
+    {
+      "source": {
+        "kind": "devpost",
+        "permitted": true
+      },
+      "started_at": "2026-10-21T07:10:56.766334+00:00",
+      "checked_at": "2026-10-21T07:10:56.766364+00:00",
+      "error": "No permission-verified published Devpost API is configured. Use an explicitly authorized feed; direct crawling is disabled.",
+      "error_type": "DiscoveryError"
+    }
+  ]
+}

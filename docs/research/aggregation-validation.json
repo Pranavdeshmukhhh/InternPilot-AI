@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-21T12:02:44.357223+00:00",
+  "external_submissions": 0,
+  "source": "InternScan published India API",
+  "success": true,
+  "count": 12,
+  "verification": "aggregator references; not employer-verified",
+  "truncated": true,
+  "examples": [
+    {
+      "title": "ASIC Engineer Intern, Implementation",
+      "company": "Meta",
+      "url": "https://www.metacareers.com/jobs/1046140895105013",
+      "verification_status": "unverified"
+    },
+    {
+      "title": "ASIC Engineer Intern, Design Verification",
+      "company": "Meta",
+      "url": "https://www.metacareers.com/jobs/1123459746795309",
+      "verification_status": "unverified"
+    },
+    {
+      "title": "ASIC Engineer Intern, Design",
+      "company": "Meta",
+      "url": "https://www.metacareers.com/jobs/1631077978652493",
+      "verification_status": "unverified"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+# Paid resources. Review docs/hosting.md and the provider quote before provisioning.
+services:
+  - type: web
+    name: internpilot-ai
+    runtime: docker
+    region: singapore
+    plan: 1c-2g
+    numInstances: 1
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    autoDeployTrigger: 'off'
+    healthCheckPath: /api/ready
+    maxShutdownDelaySeconds: 30
+    disk:
+      name: internpilot-state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: internpilot-db
+          property: connectionString
+      - key: DATABASE_SSLMODE
+        value: require
+      - key: ENCRYPTION_SECRET
+        generateValue: true
+      - key: REGISTRATION_TOKEN
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: 'true'
+      - key: ALLOW_REGISTRATION
+        value: 'true'
+      - key: TEST_MODE
+        value: 'false'
+      - key: WORKER_CONCURRENCY
+        value: '1'
+      - key: TASK_LEASE_SECONDS
+        value: '180'
+      - key: LLM_PROVIDER
+        value: disabled
+databases:
+  - name: internpilot-db
+    region: singapore
+    plan: 0.1c-256mb
+    databaseName: internpilot
+    user: internpilot
+    postgresMajorVersion: '16'
+    diskSizeGB: 1
+    ipAllowList: []

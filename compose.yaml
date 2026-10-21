@@ -1,0 +1,128 @@
+name: internpilot
+
+x-backend-environment: &backend-environment
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-internpilot}:${POSTGRES_PASSWORD:?Run the setup script first}@postgres:5432/${POSTGRES_DB:-internpilot}
+  DATA_DIR: /data
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Run the setup script first}
+  REDIS_URL: redis://:${REDIS_PASSWORD:?Run the setup script first}@redis:6379/0
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+  REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000},http://localhost:${APP_PORT:-3000},http://127.0.0.1:${APP_PORT:-3000}
+  WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+  TASK_LEASE_SECONDS: ${TASK_LEASE_SECONDS:-180}
+  TEST_MODE: ${TEST_MODE:-false}
+  TEST_PORTAL_ORIGIN: http://backend:8000
+  LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+  LLM_PROVIDER: ${LLM_PROVIDER:-disabled}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+  LLM_ALLOW_LOCAL: ${LLM_ALLOW_LOCAL:-false}
+  BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-}
+  SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+  TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+  TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+  TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-}
+  # Local Compose traffic must stay on the bridge, even on proxy-managed hosts.
+  NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1,::1},backend,frontend,postgres,redis
+  no_proxy: ${NO_PROXY:-localhost,127.0.0.1,::1},backend,frontend,postgres,redis
+
+services:
+  postgres:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-internpilot}
+      POSTGRES_USER: ${POSTGRES_USER:-internpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run the setup script first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+  redis:
+    image: redis:7-bookworm
+    command: [redis-server, --appendonly, 'yes', --requirepass, '${REDIS_PASSWORD:?Run the setup script first}']
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Run the setup script first}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+  backend:
+    build: ./backend
+    environment: *backend-environment
+    ports:
+      - '127.0.0.1:${API_PORT:-8000}:8000'
+    volumes:
+      - app_data:/data
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    shm_size: 1gb
+    init: true
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+  worker:
+    build: ./backend
+    command: [python, -m, app.worker]
+    environment: *backend-environment
+    volumes:
+      - app_data:/data
+    depends_on:
+      backend: {condition: service_healthy}
+    shm_size: 1gb
+    init: true
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        INTERNAL_API_URL: http://backend:8000
+    environment:
+      INTERNAL_API_URL: http://backend:8000
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1,::1},backend,frontend,postgres,redis
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1,::1},backend,frontend,postgres,redis
+    ports:
+      - '127.0.0.1:${APP_PORT:-3000}:3000'
+    depends_on:
+      backend: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 15s
+    init: true
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  postgres_data:
+  redis_data:
+  app_data:

@@ -1,0 +1,17 @@
+{
+  "previous_versions": [
+    1
+  ],
+  "versions": [
+    1,
+    2,
+    3
+  ],
+  "preserved_users": 2,
+  "preserved_documents": 2,
+  "tls_verified": true,
+  "migration_idempotent": true,
+  "reopened_from_new_process": true,
+  "external_submissions": 0,
+  "cloud_deployment": false
+}
