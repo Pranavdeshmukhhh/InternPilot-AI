@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, Bookmark, Compass, Filter, LoaderCircle, RefreshCw, Search, Sparkles, Trophy, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bookmark, Compass, Filter, LoaderCircle, RefreshCw, Search, Trophy, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type Item = Record<string, any>;
@@ -16,10 +16,10 @@ type Props = {
   renderJob: (job: Item) => ReactNode;
 };
 const descriptions = {
-  internship: { kicker: 'TURN POTENTIAL INTO EXPERIENCE', title: 'Internships, with context.', description: 'Find real roles with clear requirements, verified eligibility, and a next step.', icon: Compass },
-  hackathon: { kicker: 'BUILD SOMETHING THAT MATTERS', title: 'Your next challenge awaits.', description: 'Explore hackathons, check participation requirements, and keep registration deadlines in view.', icon: Trophy },
-  recommended: { kicker: 'A MORE FOCUSED SHORTLIST', title: 'Recommended for your next move.', description: 'Matches selected from your verified profile. Every recommendation keeps eligibility and deadlines in view.', icon: Sparkles },
-  saved: { kicker: 'KEEP THE POSSIBILITIES CLOSE', title: 'Your saved opportunities.', description: 'A private shortlist of internships and hackathons you want to revisit.', icon: Bookmark },
+  internship: { kicker: 'TURN POTENTIAL INTO EXPERIENCE', title: 'Internships', description: 'Find real roles with clear requirements, verified eligibility, and a next step.', icon: Compass },
+  hackathon: { kicker: 'BUILD SOMETHING THAT MATTERS', title: 'Hackathons', description: 'Explore hackathons, check participation requirements, and keep registration deadlines in view.', icon: Trophy },
+  recommended: { kicker: 'A MORE FOCUSED SHORTLIST', title: 'Recommended for you', description: 'Matches selected from your verified profile. Every recommendation keeps eligibility and deadlines in view.', icon: Compass },
+  saved: { kicker: 'KEEP THE POSSIBILITIES CLOSE', title: 'Saved opportunities', description: 'A private shortlist of internships and hackathons you want to revisit.', icon: Bookmark },
 };
 
 export function OpportunityExplorer({ mode, api, busy, stopped, refreshKey, onDiscover, renderJob }: Props) {
@@ -91,6 +91,6 @@ export function OpportunityExplorer({ mode, api, busy, stopped, refreshKey, onDi
       {loading && total === null ? <div className="explorer-loading"><LoaderCircle className="spin" size={22} /><p>Finding your opportunities…</p></div> : items.length ? <div className="opportunity-list">{items.map(renderJob)}</div> : !error && <div className="empty"><div className="empty-icon"><copy.icon size={24} strokeWidth={1.6} /></div><h3>{hasFilters ? 'No opportunities match these filters' : mode === 'saved' ? 'Make room for your next move' : mode === 'recommended' ? 'Your recommendations are taking shape' : mode === 'hackathon' ? 'Your next challenge starts here' : 'Your discovery feed is ready'}</h3><p>{hasFilters ? 'Broaden your filters to see more possibilities.' : mode === 'saved' ? 'Save an internship or hackathon using its bookmark. It will stay in this shortlist across visits.' : mode === 'recommended' ? 'Complete and verify your profile, then run discovery to find relevant opportunities.' : 'Connect a permitted source and run discovery. Real opportunities will appear here with their source and deadline.'}</p>{hasFilters ? <Button variant="outline" onClick={reset}>Reset filters</Button> : mode !== 'saved' && <Button variant="outline" onClick={onDiscover} disabled={busy || stopped}>Run discovery</Button>}</div>}
       {total !== null && total > pageSize && <div className="pagination"><span>Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}</span><div><Button variant="outline" size="sm" disabled={loading || page <= 1} onClick={() => setPage(value => value - 1)}><ArrowLeft size={14} />Previous</Button><span>Page {page} of {pages}</span><Button variant="outline" size="sm" disabled={loading || page >= pages} onClick={() => setPage(value => value + 1)}>Next<ArrowRight size={14} /></Button></div></div>}
     </section>
-    <p className="footnote"><Sparkles size={14} />Match scores explain fit. Eligibility, closing status, and your review determine the next step.</p>
+    <p className="footnote"><Compass size={14} />Match scores explain fit. Eligibility, closing status, and your review determine the next step.</p>
   </>;
 }

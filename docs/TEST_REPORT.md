@@ -1,6 +1,6 @@
 # Executed verification
 
-The current upgrade passed **364 backend tests** and **20 browser checks**. Frontend lint/typecheck/build and backend Ruff/pip consistency checks passed. The production dependency audit returned zero known vulnerabilities. A local PostgreSQL version-1 database migrated to version 3, preserved encrypted records, and reopened from a new process over verified TLS. No external submission, personal-document upload or provider message was sent.
+The current upgrade passed **373 backend tests** and **24 browser checks**. Frontend lint/typecheck/build and backend Ruff/pip consistency checks passed. The production dependency audit returned zero known vulnerabilities. A local PostgreSQL version-1 database migrated to version 4, preserved encrypted records, and reopened from a new process over verified TLS. No external submission, personal-document upload or provider message was sent.
 
 See [the current upgrade report](UPGRADE_REPORT.md), [backend JUnit](../artifacts/improvements-backend-tests.xml), [browser results](../artifacts/ui-acceptance.json) and [PostgreSQL results](../artifacts/upgrade-postgres.json). Notification tests use mocked providers; no live delivery is claimed. Windows helper scripts are provided but were not executed on Windows in this Linux workspace.
 
@@ -75,3 +75,5 @@ This environment also required a read-only trusted CA bundle for outbound HTTPS 
 - There was no independent penetration test or load test. Public/shared deployment needs the additional safeguards described in [security boundaries](security.md), including connect-time egress enforcement against DNS rebinding. External Chromium requires a working sandbox; failure pauses preparation.
 
 Auto Apply and test mode are disabled by default. No secrets, real candidate records, browser sessions or runtime databases are included in the source package.
+
+The latest owner/UI upgrade adds nine backend owner-access cases, four browser owner workflows, and a version-3-to-4 migration regression. Owner operations require role checks, CSRF, fresh password verification, a reason and action-specific consent; existing passwords and hashes are never returned. See [owner setup](OWNER_CONSOLE.md).

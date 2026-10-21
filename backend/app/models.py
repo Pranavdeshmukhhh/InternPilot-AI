@@ -27,6 +27,10 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(Text)
     profile_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
     policy_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    role: Mapped[str] = mapped_column(String(20), default="member", server_default="member")
+    disabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_login_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    last_seen_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
     created_at: Mapped[str] = mapped_column(default=now)
 
 

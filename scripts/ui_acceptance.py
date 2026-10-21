@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -50,7 +51,7 @@ with sync_playwright() as pw:
     password = secrets.token_urlsafe(24)
     page.get_by_label("Password", exact=False).fill(password)
     page.get_by_role("button", name="Create your workspace", exact=True).click()
-    page.get_by_role("heading", name="Your search, in focus.").wait_for()
+    page.get_by_role("heading", name="Your opportunity notebook.").wait_for()
     passed("UI registration and authenticated dashboard")
     page.get_by_role("button", name="Candidate profile", exact=True).click()
     for label, value in [("Full name", "Synthetic UI Candidate"), ("Application email", "synthetic-candidate@example.test"), ("Phone number", "+919999999999"), ("University / institution", "Synthetic Test University"), ("Degree / program", "B.Tech Computer Science"), ("Verified technical skills", "Python, TypeScript, Git")]:
@@ -149,9 +150,9 @@ with sync_playwright() as pw:
     page.get_by_label("Color theme").select_option("light")
     passed("Saved opportunities and dark theme persist after page reload")
     page.get_by_role("button",name="Hackathon explorer",exact=True).click()
-    page.get_by_role("heading",name="Your next challenge awaits.",exact=True).wait_for()
+    page.get_by_role("heading",name="Hackathons",exact=True).wait_for()
     page.get_by_role("button",name="Recommended",exact=True).click()
-    page.get_by_role("heading",name="Recommended for your next move.",exact=True).wait_for()
+    page.get_by_role("heading",name="Recommended for you",exact=True).wait_for()
     passed("Dedicated hackathon and recommendation views load without replacing internship view")
     page.get_by_role("button",name="Notifications",exact=True).click()
     page.get_by_label("Enable quiet hours",exact=True).check()
@@ -199,6 +200,59 @@ with sync_playwright() as pw:
         page.get_by_role("dialog").wait_for()
         page.get_by_role("button", name="Close dialog", exact=True).click()
         passed("Opportunity detail dialog opens and closes")
+    # The runner explicitly opts into trusted local CLI access against its
+    # temporary DB. A normal UI test invocation cannot promote an account.
+    assert page.get_by_role("button",name="Owner console",exact=True).count()==0
+    passed("Owner console is absent for ordinary accounts")
+    if os.getenv("UI_TEST_ALLOW_OWNER_CLI")=="true":
+        email = context.request.get(BASE+"/api/auth/session").json()["user"]["email"]
+        assert email.startswith("browser-") and email.endswith("@example.test")
+        grant = subprocess.run([sys.executable,"-m","app.admin","grant-owner",email],cwd=ROOT/"backend",capture_output=True,text=True,check=False)
+        assert grant.returncode==0,"Synthetic owner grant failed"
+        page.reload(wait_until="domcontentloaded")
+        page.get_by_role("button",name="Sign in",exact=True).click()
+        page.get_by_label("Email address",exact=True).fill(email)
+        page.get_by_label("Password",exact=False).fill(new_password)
+        page.get_by_role("button",name="Sign in",exact=True).click()
+        page.get_by_role("button",name="Owner console",exact=True).wait_for()
+        member_context = browser.new_context()
+        member_email = "synthetic-member-"+secrets.token_hex(6)+"@example.test"
+        member = member_context.request.post(BASE+"/api/auth/register",data={"email":member_email,"password":secrets.token_urlsafe(24)}).json()
+        uploaded = member_context.request.post(BASE+"/api/documents/upload",headers={"X-CSRF-Token":member["csrf_token"]},multipart={"file":{"name":"synthetic-support.txt","mimeType":"text/plain","buffer":b"Synthetic owner-console acceptance document"}})
+        assert uploaded.status==200
+        page.get_by_role("button",name="Owner console",exact=True).click()
+        page.get_by_role("heading",name="Owner’s desk",exact=True).wait_for()
+        page.get_by_label("Find account by email or ID",exact=True).fill(member_email)
+        row = page.locator(".owner-users tbody tr").filter(has_text=member_email)
+        row.get_by_role("button",name="View records",exact=True).click()
+        page.get_by_label("Access reason",exact=True).fill("Synthetic requested support acceptance test")
+        page.get_by_label("Your owner password",exact=True).fill(new_password)
+        page.get_by_label("I approve this specific owner action.",exact=True).check()
+        page.get_by_role("button",name="Confirm owner action",exact=True).click()
+        page.get_by_role("heading",name="Account records · "+member_email,exact=True).wait_for()
+        assert "password_hash" not in page.locator(".owner-records").inner_text()
+        passed("Owner sign-in, account directory and password-confirmed record inspection")
+        page.locator(".owner-records").get_by_role("button",name="Download",exact=True).click()
+        page.get_by_label("Access reason",exact=True).fill("Synthetic authorized document download test")
+        page.get_by_label("Your owner password",exact=True).fill(new_password)
+        page.get_by_label("I approve this specific owner action.",exact=True).check()
+        with page.expect_download() as owner_download:
+            page.get_by_role("button",name="Confirm owner action",exact=True).click()
+        assert owner_download.value.suggested_filename=="synthetic-support.txt"
+        page.get_by_role("dialog").wait_for(state="hidden")
+        passed("Owner document download requires fresh approval and produces an actual file")
+        row.get_by_role("button",name="Disable account",exact=True).click()
+        page.get_by_label("Access reason",exact=True).fill("Synthetic access-revocation acceptance test")
+        page.get_by_label("Your owner password",exact=True).fill(new_password)
+        page.get_by_label("I approve this specific owner action.",exact=True).check()
+        page.get_by_role("button",name="Confirm owner action",exact=True).click()
+        page.get_by_role("dialog").wait_for(state="hidden")
+        assert member_context.request.get(BASE+"/api/profile").status==401
+        member_context.close()
+        page.evaluate("window.scrollTo(0,0)")
+        page.wait_for_timeout(150)
+        page.screenshot(path=str(OUT/"owner-console-desktop.png"),full_page=True)
+        passed("Disabling an account in the owner UI revokes its existing session")
     page.set_viewport_size({"width": 390, "height": 844})
     page.wait_for_timeout(600)
     overflow = page.evaluate("document.documentElement.scrollWidth > window.innerWidth")
@@ -206,6 +260,8 @@ with sync_playwright() as pw:
     page.get_by_role("button", name="Open navigation", exact=True).click()
     page.get_by_role("button", name="Overview", exact=True).click()
     page.wait_for_timeout(400)
+    page.evaluate("window.scrollTo(0,0)")
+    page.wait_for_timeout(150)
     page.screenshot(path=str(OUT / "dashboard-mobile.png"), full_page=True)
     passed("Responsive mobile layout and navigation without horizontal overflow")
     assert not errors, json.dumps(errors)

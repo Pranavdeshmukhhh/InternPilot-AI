@@ -26,6 +26,7 @@ from .security import encrypt, decrypt, decrypt_bytes, digest, password_hash, ve
 from .account_security import locked_user, revoke_sessions
 from .services import event, visible_jobs, job_for_user, job_view, source_view, application_view, document_view, enqueue, store_document, seed_demo, timestamp, application_priority
 from .body_limit import BodyLimitMiddleware
+from .owner_console import create_router as create_owner_router
 
 
 @asynccontextmanager
@@ -73,8 +74,11 @@ def current_user(request: Request, db: Session = Depends(get_db)):
         if not hmac.compare_digest(csrf,session.csrf_token):
             raise HTTPException(403,"CSRF token is missing or invalid")
     user = db.get(User,session.user_id)
-    if not user:
+    if not user or user.disabled:
         raise HTTPException(401,"Account no longer exists")
+    if not user.last_seen_at or user.last_seen_at < (datetime.now(timezone.utc)-timedelta(minutes=5)).isoformat():
+        user.last_seen_at = now()
+        db.commit()
     request.state.session = session
     return user
 
@@ -83,7 +87,7 @@ def issue_session(db, user, response):
     token, csrf = secrets.token_urlsafe(40), secrets.token_urlsafe(32)
     db.add(LoginSession(token_hash=digest(token),user_id=user.id,csrf_token=csrf,expires_at=(datetime.now(timezone.utc)+timedelta(days=7)).isoformat()))
     response.set_cookie("internpilot_session",token,httponly=True,secure=settings.cookie_secure,samesite="strict",max_age=604800,path="/")
-    return {"user":{"id":user.id,"email":decrypt(user.email_encrypted)},"csrf_token":csrf}
+    return {"user":{"id":user.id,"email":decrypt(user.email_encrypted),"role":user.role},"csrf_token":csrf}
 
 
 _auth_attempts = defaultdict(deque)
@@ -130,6 +134,7 @@ def register(data:RegistrationCredentials,request:Request,response:Response,db:S
     # verified application contact field; onboarding explicitly verifies it.
     profile["email"] = data.email
     user = User(email_hash=digest(data.email),email_encrypted=encrypt(data.email),password_hash=password_hash(data.password),profile_encrypted=encrypt(profile),policy_encrypted=encrypt(Policy().model_dump()))
+    user.last_login_at,user.last_seen_at = now(),now()
     db.add(user)
     try:
         db.flush()
@@ -151,6 +156,9 @@ def login(data:Credentials,request:Request,response:Response,db:Session=Depends(
     user = locked_user(db,email_hash=digest(data.email))
     if not verify_password(data.password,user.password_hash if user else password_hash("constant-dummy-password")) or user is None:
         raise HTTPException(401,"Invalid email or password")
+    if user.disabled:
+        raise HTTPException(403,"This account is disabled; contact the workspace owner")
+    user.last_login_at,user.last_seen_at = now(),now()
     result = issue_session(db,user,response)
     event(db,user.id,"sign_in","Signed in")
     db.commit()
@@ -159,7 +167,7 @@ def login(data:Credentials,request:Request,response:Response,db:Session=Depends(
 
 @app.get("/api/auth/session")
 def session(request:Request,user:User=Depends(current_user)):
-    return {"user":{"id":user.id,"email":decrypt(user.email_encrypted)},"csrf_token":request.state.session.csrf_token}
+    return {"user":{"id":user.id,"email":decrypt(user.email_encrypted),"role":user.role},"csrf_token":request.state.session.csrf_token}
 
 
 @app.post("/api/auth/logout")
@@ -815,3 +823,6 @@ def demo_run(user:User=Depends(current_user),db:Session=Depends(get_db)):
 if settings.test_mode:
     from .test_portal import router as test_router
     app.include_router(test_router)
+
+
+app.include_router(create_owner_router(current_user,require_locked_session,throttle))

@@ -15,6 +15,9 @@ from .account_security import locked_user, revoke_sessions
 from .database import SessionLocal
 from .security import decrypt, digest, encrypt, password_hash
 from .services import event
+from .migrate import migrate
+from .models import User, Source
+from .schemas import Profile, Policy
 
 
 class SafeArgumentParser(argparse.ArgumentParser):
@@ -30,12 +33,29 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command",required=True)
     reset = commands.add_parser("reset-password",help="Revoke sessions, reset a password and activate emergency stop")
     reset.add_argument("email",nargs="?",help="Account email; requested interactively if omitted")
+    create = commands.add_parser("create-owner",help="Create a named owner login using a hidden password prompt")
+    create.add_argument("email",nargs="?")
+    grant = commands.add_parser("grant-owner",help="Grant owner access to an existing account; local operator only")
+    grant.add_argument("email",nargs="?")
     args = parser.parse_args(argv)
     try:
         email = (args.email if args.email is not None else input("Account email: ")).strip().lower()
         if len(email)>254 or not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+",email):
             print("A valid account email is required.",file=sys.stderr)
             return 1
+        migrate()
+        if args.command=="grant-owner":
+            with SessionLocal() as db:
+                user = locked_user(db,email_hash=digest(email))
+                if not user or user.disabled:
+                    print("An enabled existing account is required.",file=sys.stderr)
+                    return 1
+                user.role = "owner"
+                revoke_sessions(db,user.id)
+                event(db,user.id,"owner_granted","Owner access granted by local operator; sign in again",notify=True)
+                db.commit()
+            print("Owner access granted. Sign in with your existing email and password.")
+            return 0
         with warnings.catch_warnings():
             # getpass otherwise falls back to echoed input when no hidden
             # terminal is available. Refuse recovery in that situation.
@@ -49,6 +69,22 @@ def main(argv=None):
             print("Passwords do not match. No account changes made.",file=sys.stderr)
             return 1
         new_hash = password_hash(password)
+        if args.command=="create-owner":
+            from .discovery import default_sources
+            with SessionLocal() as db:
+                if locked_user(db,email_hash=digest(email)):
+                    print("Account already exists. Use grant-owner to retain its current password.",file=sys.stderr)
+                    return 1
+                profile = Profile(email=email).model_dump()
+                user = User(email_hash=digest(email),email_encrypted=encrypt(email),password_hash=new_hash,
+                            profile_encrypted=encrypt(profile),policy_encrypted=encrypt(Policy().model_dump()),role="owner")
+                db.add(user);db.flush()
+                for source in default_sources():
+                    db.add(Source(owner_id=user.id,**source))
+                event(db,user.id,"owner_created","Named owner account created by local operator")
+                db.commit()
+            print("Owner account created. Sign in with the email and password you just chose.")
+            return 0
         with SessionLocal() as db:
             user = locked_user(db,email_hash=digest(email))
             if user is None:

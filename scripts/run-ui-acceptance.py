@@ -37,7 +37,7 @@ def main():
                "TEST_PORTAL_ORIGIN":"http://127.0.0.1:8000","ALLOW_REGISTRATION":"true","REGISTRATION_TOKEN":"",
                "COOKIE_SECURE":"false","CORS_ORIGINS":"http://127.0.0.1:3000","REDIS_URL":"",
                "LLM_PROVIDER":"disabled","WORKER_HEARTBEAT_FILE":"","INTERNAL_API_URL":"http://127.0.0.1:8000",
-               "UI_TEST_URL":"http://127.0.0.1:3000","NO_PROXY":"localhost,127.0.0.1,::1","no_proxy":"localhost,127.0.0.1,::1"}
+               "UI_TEST_URL":"http://127.0.0.1:3000","UI_TEST_ALLOW_OWNER_CLI":"true","NO_PROXY":"localhost,127.0.0.1,::1","no_proxy":"localhost,127.0.0.1,::1"}
         # Synthetic tests never inherit live notification or model credentials.
         for key in ("SMTP_HOST","SMTP_PASSWORD","TELEGRAM_BOT_TOKEN","TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","LLM_API_KEY","BRAVE_SEARCH_API_KEY"):
             env.pop(key,None)

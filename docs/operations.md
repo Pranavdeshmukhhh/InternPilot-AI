@@ -85,3 +85,5 @@ Configure optional provider secrets in the server environment using `.env.exampl
 A document upload approval binds the exact generated document, verified profile and listing snapshot. If facts change, generate and review a fresh draft. After an upload checkpoint, worker failure or lease expiry becomes uncertain; inspect the official portal before any further action. External final submission remains manual. Do not clear checkpoints to force a retry.
 
 Use Account security to change your password or sign out other sessions. For local account recovery, run `python -m app.admin reset-password your-email` in the configured backend environment. It prompts without echo, revokes existing sessions and activates emergency stop. Never put a password on the command line.
+
+Schema version 4 adds explicit member/owner roles, disabled-account state and last-login/last-seen timestamps. Existing users default to members. Owner provisioning is local-only; see [owner setup](OWNER_CONSOLE.md).

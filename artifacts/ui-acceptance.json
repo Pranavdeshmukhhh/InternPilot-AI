@@ -74,6 +74,22 @@
       "passed": true
     },
     {
+      "name": "Owner console is absent for ordinary accounts",
+      "passed": true
+    },
+    {
+      "name": "Owner sign-in, account directory and password-confirmed record inspection",
+      "passed": true
+    },
+    {
+      "name": "Owner document download requires fresh approval and produces an actual file",
+      "passed": true
+    },
+    {
+      "name": "Disabling an account in the owner UI revokes its existing session",
+      "passed": true
+    },
+    {
       "name": "Responsive mobile layout and navigation without horizontal overflow",
       "passed": true
     },
@@ -83,6 +99,6 @@
     }
   ],
   "external_submissions": 0,
-  "real_opportunities_discovered": 6,
+  "real_opportunities_discovered": 11,
   "passed": true
 }

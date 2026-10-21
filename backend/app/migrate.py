@@ -43,8 +43,16 @@ def migrate():
                     if not exists:
                         conn.execute(models.Source.__table__.insert().values(owner_id=owner,kind=kind,slug="",company=company,url=url,permitted=True,enabled=True,interval_seconds=interval))
             conn.execute(models.SchemaVersion.__table__.insert().values(version=3, applied_at=models.now()))
+        if 4 not in versions:
+            existing = {column["name"] for column in inspect(conn).get_columns("users")}
+            additions = {"role":"VARCHAR(20) NOT NULL DEFAULT 'member'", "disabled":"BOOLEAN NOT NULL DEFAULT false",
+                         "last_login_at":"VARCHAR(40)","last_seen_at":"VARCHAR(40)"}
+            for column,kind in additions.items():
+                if column not in existing:
+                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {column} {kind}"))
+            conn.execute(models.SchemaVersion.__table__.insert().values(version=4, applied_at=models.now()))
 
 
 if __name__ == "__main__":
     migrate()
-    print("Database schema is current (version 3).")
+    print("Database schema is current (version 4).")

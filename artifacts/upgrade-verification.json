@@ -1,13 +1,14 @@
 {
-  "at": "2026-10-21T12:48:26.368640+00:00",
-  "source_files_hashed": 37,
-  "application_source_sha256": "18fb4affcdc5c814568db1d26b64e2e930cbb774e0fb2d7e269dc3f733632980",
+  "at": "2026-10-21T18:10:15.985320+00:00",
+  "source_files_hashed": 40,
+  "application_source_sha256": "bc931ca356d5974613fceb2f2fafda4d8f37251ff131e9f7ebc480f6c3b8fb3a",
   "backend": {
-    "tests": 364,
+    "tests": 373,
     "errors": 0,
     "failures": 0,
     "skipped": 0,
-    "junit_seconds": 126.877,
+    "junit_seconds": 156.04,
+    "owner_focused_tests": 9,
     "ruff_passed": true,
     "pip_check_passed": true
   },
@@ -17,14 +18,13 @@
     "production_build_passed": true,
     "next_version": "15.5.28",
     "postcss_version": "8.5.31",
-    "audit_known_vulnerabilities": 0,
-    "build_id": "Pn5kv7mjI6dK8kfEqvRqP"
+    "build_id": "z7scjNgcDVKV20ch226jf"
   },
   "browser": {
-    "checks": 20,
+    "checks": 24,
     "passed": true,
     "mobile_width": 390,
-    "real_public_listings_observed_in_this_run": 6
+    "real_public_listings_observed_in_this_run": 11
   },
   "postgres": {
     "previous_versions": [
@@ -33,7 +33,8 @@
     "versions": [
       1,
       2,
-      3
+      3,
+      4
     ],
     "preserved_users": 2,
     "preserved_documents": 2,
@@ -43,8 +44,14 @@
     "external_submissions": 0,
     "cloud_deployment": false
   },
-  "compose_configuration_validated": true,
-  "current_compose_images_rebuilt": false,
+  "owner_bootstrap": "Trusted local CLI only; named password chosen with hidden prompts; no bundled owner credentials",
+  "owner_records_exclude": [
+    "passwords",
+    "password_hashes",
+    "session_tokens",
+    "browser_authentication_state",
+    "private_custom_answer_vault"
+  ],
   "external_applications_submitted": 0,
   "personal_documents_uploaded_externally": 0,
   "live_provider_messages_sent": 0,

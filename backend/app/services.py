@@ -194,7 +194,7 @@ def queue_automatic_preparation(owner_id=None, at=None):
                 if db.get_bind().dialect.name == "sqlite":
                     db.execute(update(User).where(User.id == account_id).values(id=User.id))
                 user = db.scalar(select(User).where(User.id == account_id).with_for_update())
-                if user is None:
+                if user is None or user.disabled:
                     continue
                 policy, profile = decrypt(user.policy_encrypted), decrypt(user.profile_encrypted)
                 if not automatic_preparation_ready(policy, profile):
@@ -269,7 +269,7 @@ async def process_discovery(owner_id, source_id=None):
     from .discovery import discover
     with SessionLocal() as db:
         user = db.get(User, owner_id)
-        if user is None or decrypt(user.policy_encrypted).get("emergency_stop", False):
+        if user is None or user.disabled or decrypt(user.policy_encrypted).get("emergency_stop", False):
             return
         query = select(Source).where(Source.owner_id==owner_id,Source.enabled==True,Source.permitted==True)
         if source_id:
@@ -284,7 +284,7 @@ async def process_discovery(owner_id, source_id=None):
                 user = db.get(User, owner_id)
                 # A queued scan may outlive a stop, source deletion, permission
                 # change, or a previous scan's server-imposed retry delay.
-                if (source is None or user is None or source.owner_id != owner_id
+                if (source is None or user is None or user.disabled or source.owner_id != owner_id
                         or not source.enabled or not source.permitted
                         or decrypt(user.policy_encrypted).get("emergency_stop", False)
                         or (source.failures and source.next_run and source.next_run > now())):
@@ -444,7 +444,7 @@ async def process_application(application_id, task_id=None, lease_owner=None, au
             return
         user, job = db.get(User,row.owner_id), db.get(Opportunity,row.opportunity_id)
         profile, policy = decrypt(user.profile_encrypted), decrypt(user.policy_encrypted)
-        if policy["emergency_stop"]:
+        if user.disabled or policy["emergency_stop"]:
             row.status, row.reason = "needs_input", "Emergency stop is active"
             db.commit()
             return

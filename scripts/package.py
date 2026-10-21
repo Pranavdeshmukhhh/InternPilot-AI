@@ -19,10 +19,10 @@ CONFIG_FILES = {
     "frontend/tailwind.config.ts","frontend/tsconfig.json","frontend/eslint.config.mjs",
 }
 EVIDENCE = {"backend-test-summary.json","backend-tests.xml","documents-tests.xml","frontend-build.json",
-    "improvements-backend-tests.xml","ui-acceptance.json","upgrade-postgres.json","upgrade-verification.json",
+    "improvements-backend-tests.xml","owner-console-tests.xml","ui-acceptance.json","upgrade-postgres.json","upgrade-verification.json",
     "live-discovery.json","live-listings.json","live-rejections.json","offline-replay.json",
     "docker-validation.json","docker-postgres-queue.json","dashboard-desktop.png","dashboard-mobile.png",
-    "saved-dark-desktop.png","ui-internpilot-resume.pdf"}
+    "saved-dark-desktop.png","owner-console-desktop.png","owner-console-mobile.png","ui-internpilot-resume.pdf"}
 EXCLUDED = {".git","node_modules",".venv","venv","__pycache__",".pytest_cache",".ruff_cache","data","backups"}
 
 

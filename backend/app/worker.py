@@ -65,7 +65,7 @@ def schedule_due():
         due = list(db.scalars(select(Source).where(Source.enabled==True,Source.permitted==True, (Source.next_run==None) | (Source.next_run<=now())).with_for_update(skip_locked=True)))
         for source in due:
             user = db.get(User,source.owner_id)
-            if not user:
+            if not user or user.disabled:
                 continue
             try:
                 if decrypt(user.policy_encrypted).get("emergency_stop", False):
