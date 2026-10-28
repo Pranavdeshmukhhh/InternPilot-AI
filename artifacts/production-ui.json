@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-28T13:55:22.714365+00:00",
+  "checks": [
+    {
+      "name": "New account and verified factual project persist",
+      "passed": true
+    },
+    {
+      "name": "Verified contact generates factual email; missing Gmail prevents approval",
+      "passed": true
+    },
+    {
+      "name": "Draft editing retains opt-out footer and requires fresh approval",
+      "passed": true
+    },
+    {
+      "name": "Sender limits save and opting out cancels unsent messages",
+      "passed": true
+    },
+    {
+      "name": "Automation center reflects real database workers and source configuration",
+      "passed": true
+    },
+    {
+      "name": "Source manager searches and paginates real persisted configurations",
+      "passed": true
+    },
+    {
+      "name": "Kanban/list and detail show a real authorized local confirmation",
+      "passed": true
+    },
+    {
+      "name": "Responsive floating navigation, outreach and board at 390/768/1024px",
+      "passed": true
+    },
+    {
+      "name": "Account switch clears private panels and does not retain previous contacts",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript errors with production CSP",
+      "passed": true
+    }
+  ],
+  "external_emails": 0,
+  "external_submissions": 0,
+  "synthetic_data_only": true,
+  "passed": true
+}

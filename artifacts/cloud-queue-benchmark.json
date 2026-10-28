@@ -1,0 +1,11 @@
+{
+  "database": "isolated_sqlite",
+  "sources": 1000,
+  "unique_claims": 1000,
+  "schedule_seconds": 0.9648,
+  "claim_and_complete_seconds": 2.0957,
+  "claims_per_second": 477.17,
+  "http_requests": 0,
+  "browser_launches": 0,
+  "note": "Real database queue measurement. Not a network or production PostgreSQL throughput claim."
+}

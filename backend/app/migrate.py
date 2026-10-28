@@ -51,8 +51,18 @@ def migrate():
                 if column not in existing:
                     conn.execute(text(f"ALTER TABLE users ADD COLUMN {column} {kind}"))
             conn.execute(models.SchemaVersion.__table__.insert().values(version=4, applied_at=models.now()))
+        if 5 not in versions:
+            for table in (models.HostBudget,models.CrawlRun,models.GmailConnection,models.GmailOAuthState,models.OutreachSettings,models.OutreachContact,models.OutreachMessage,models.OutreachReply):
+                table.__table__.create(conn,checkfirst=True)
+            for statement in (
+                "CREATE INDEX IF NOT EXISTS ix_sources_due ON sources (enabled, permitted, next_run)",
+                "CREATE INDEX IF NOT EXISTS ix_task_claim ON tasks (status, available_at, priority)",
+                "CREATE INDEX IF NOT EXISTS ix_outreach_due ON outreach_messages (status, scheduled_at)",
+            ):
+                conn.execute(text(statement))
+            conn.execute(models.SchemaVersion.__table__.insert().values(version=5,applied_at=models.now()))
 
 
 if __name__ == "__main__":
     migrate()
-    print("Database schema is current (version 4).")
+    print("Database schema is current (version 5).")

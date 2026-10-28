@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-28T13:54:10.441561+00:00",
+  "synthetic_data_only": true,
+  "checks": [
+    {
+      "name": "Isolated labeled fixtures for internships and hackathons",
+      "passed": true
+    },
+    {
+      "name": "Internship explorer region filters and individual local city controls",
+      "passed": true
+    },
+    {
+      "name": "Hackathon explorer region filters and individual local city controls",
+      "passed": true
+    },
+    {
+      "name": "Edited local cities and nearby preference persist after reload",
+      "passed": true
+    },
+    {
+      "name": "Missing search key and actual query coverage are disclosed",
+      "passed": true
+    },
+    {
+      "name": "Responsive regional controls at 390px and desktop screenshots",
+      "passed": true
+    },
+    {
+      "name": "No browser JavaScript errors",
+      "passed": true
+    }
+  ],
+  "external_submissions": 0,
+  "passed": true
+}

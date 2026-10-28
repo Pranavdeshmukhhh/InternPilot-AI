@@ -127,7 +127,8 @@ def test_discovery_data_is_owner_isolated_and_still_deduplicates(isolated_servic
         assert db.get(Source, second_source).status == "healthy"
 
 
-def test_stale_aggregator_reference_cannot_keep_removed_employer_posting_open(isolated_services, monkeypatch):
+@pytest.mark.parametrize("reference_kind",["internscan","search"])
+def test_stale_aggregator_reference_cannot_keep_removed_employer_posting_open(isolated_services, monkeypatch, reference_kind):
     from app.models import SourceOpportunity
     owner,source_id = isolated_services.add_account("closure")
     published = True
@@ -137,7 +138,7 @@ def test_stale_aggregator_reference_cannot_keep_removed_employer_posting_open(is
     run(services.process_discovery(owner,source_id))
     with isolated_services.sessions() as db:
         existing = services.visible_jobs(db,owner)[0]
-        reference = Source(owner_id=owner,kind="internscan",company="Stale reference feed",permitted=True,enabled=True,
+        reference = Source(owner_id=owner,kind=reference_kind,company="Stale reference feed",permitted=True,enabled=True,
                            cache={"active_opportunity_ids":[existing.id],"reference_feed":True})
         db.add(reference);db.flush()
         db.add(SourceOpportunity(source_id=reference.id,opportunity_id=existing.id))
@@ -177,6 +178,26 @@ def test_not_modified_refreshes_verification_without_changing_first_discovery(is
         assert db.get(Source, source_id).status == "healthy"
         assert db.get(Source, source_id).discovered_count == 1
         assert db.scalar(select(func.count()).select_from(Opportunity)) == 1
+
+
+def test_search_cache_does_not_refresh_unfetched_publisher_metadata(isolated_services, monkeypatch):
+    owner,source_id = isolated_services.add_account("cached-search")
+    with isolated_services.sessions() as db:
+        db.get(Source,source_id).kind = "search"
+        db.commit()
+    async def discover(source,cache=None):
+        if cache:
+            return {"jobs":[],"cache":cache,"not_modified":True}
+        return {"jobs":[{**job(),"source":"search","verification_status":"official_metadata_verified"}],"cache":{"etag":"search-cached","truncated":True},"not_modified":False}
+    monkeypatch.setattr(discovery,"discover",discover)
+    run(services.process_discovery(owner,source_id))
+    old = "2001-01-01T00:00:00+00:00"
+    with isolated_services.sessions() as db:
+        services.visible_jobs(db,owner)[0].last_verified = old
+        db.commit()
+    run(services.process_discovery(owner,source_id))
+    with isolated_services.sessions() as db:
+        assert services.visible_jobs(db,owner)[0].last_verified == old
 
 
 def test_closed_listing_stays_inactive_and_is_not_refreshed_by_later_304(isolated_services, monkeypatch):

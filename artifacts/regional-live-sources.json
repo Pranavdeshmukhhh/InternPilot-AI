@@ -1,0 +1,126 @@
+{
+  "at": "2026-10-23T05:31:12.104430+00:00",
+  "read_only": true,
+  "brave_search_tested": false,
+  "note": "Region membership is location metadata, not Indian-student eligibility. Source availability can change.",
+  "sources": [
+    {
+      "source": "Figma",
+      "kind": "greenhouse",
+      "responded": true,
+      "records_received": 10,
+      "nonexpired_region_counts": {
+        "international": 10
+      },
+      "examples": [
+        {
+          "title": "Data Engineer Intern (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6178851004?gh_jid=6178851004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Data Science Intern (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6178857004?gh_jid=6178857004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Early Career, Inside Sales Representative (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6174190004?gh_jid=6174190004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        }
+      ]
+    },
+    {
+      "source": "Major League Hacking",
+      "kind": "mlh",
+      "responded": true,
+      "records_received": 70,
+      "nonexpired_region_counts": {
+        "international": 65,
+        "india": 1,
+        "unknown": 4
+      },
+      "examples": [
+        {
+          "title": "Cal Hacks 13.0",
+          "location": "San Francisco, California",
+          "url": "https://www.mlh.com/events/cal-hacks-13-0/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        },
+        {
+          "title": "SBUHacks",
+          "location": "Stony Brook, New York",
+          "url": "https://www.mlh.com/events/sbuhacks-5f/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        },
+        {
+          "title": "OxHack '26",
+          "location": "Oxford, England",
+          "url": "https://www.mlh.com/events/oxhack-26/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        }
+      ]
+    },
+    {
+      "source": "InternScan India feed",
+      "kind": "internscan",
+      "responded": true,
+      "records_received": 11,
+      "nonexpired_region_counts": {
+        "india": 11,
+        "local": 1
+      },
+      "examples": [
+        {
+          "title": "ASIC Engineer Intern, Implementation",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1046140895105013",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        },
+        {
+          "title": "ASIC Engineer Intern, Design Verification",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1123459746795309",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        },
+        {
+          "title": "ASIC Engineer Intern, Design",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1631077978652493",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        }
+      ]
+    }
+  ],
+  "external_submissions": 0
+}

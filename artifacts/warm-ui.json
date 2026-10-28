@@ -1,0 +1,93 @@
+{
+  "at": "2026-10-28T13:53:29.793309+00:00",
+  "synthetic_data_only": true,
+  "checks": [
+    {
+      "name": "First visit uses light mode even when the operating system prefers dark",
+      "passed": true
+    },
+    {
+      "name": "Explicit dark and system preferences persist and respond to system changes",
+      "passed": true
+    },
+    {
+      "name": "Warm surfaces retain readable text/action contrast, curved panels and keyboard focus",
+      "passed": true
+    },
+    {
+      "name": "Search and sorting survive details, navigation and reload within the private browser session",
+      "passed": true
+    },
+    {
+      "name": "Typing is debounced so partial search terms do not issue redundant requests",
+      "passed": true
+    },
+    {
+      "name": "Changed-query loading hides old rows and late responses cannot replace current matches",
+      "passed": true
+    },
+    {
+      "name": "A failed query stops loading, explains the error and recovers through Try again",
+      "passed": true
+    },
+    {
+      "name": "Reset clears filters and pagination loads the correct result slice",
+      "passed": true
+    },
+    {
+      "name": "Light and dark explorers fit 390/768/1024px and maintain readable contrast",
+      "passed": true
+    },
+    {
+      "name": "Reduced-motion preference suppresses animated control transitions",
+      "passed": true
+    },
+    {
+      "name": "The search keyboard shortcut focuses the field without entering a stray slash",
+      "passed": true
+    },
+    {
+      "name": "Twenty real UI event signals coalesce into at most two dashboard refreshes",
+      "passed": true
+    },
+    {
+      "name": "Simulated hidden-tab lifecycle pauses actual polling and refreshes on return",
+      "passed": true
+    },
+    {
+      "name": "A different account cannot inherit the previous user's filters or opportunity rows",
+      "passed": true
+    },
+    {
+      "name": "No browser JavaScript errors",
+      "passed": true
+    }
+  ],
+  "external_submissions": 0,
+  "external_emails": 0,
+  "live_searches": 0,
+  "crawl_workers": 0,
+  "contrast": {
+    "body": {
+      "ratio": 15.456757735161771,
+      "text": "rgb(29, 29, 31)",
+      "background": "rgb(245, 245, 247)"
+    },
+    "primary_action": {
+      "ratio": 5.566637067604819,
+      "text": "rgb(255, 255, 255)",
+      "background": "rgb(0, 102, 204)"
+    },
+    "dark_body": {
+      "ratio": 16.59673917127264,
+      "text": "rgb(245, 245, 247)",
+      "background": "rgb(22, 22, 24)"
+    },
+    "dark_primary_action": {
+      "ratio": 8.559926009665434,
+      "text": "rgb(16, 33, 57)",
+      "background": "rgb(141, 192, 255)"
+    }
+  },
+  "passed": true
+}

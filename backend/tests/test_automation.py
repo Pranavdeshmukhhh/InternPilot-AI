@@ -222,6 +222,20 @@ def test_uncertified_static_form_prepares_but_requires_manual_completion(applica
         assert origin in allowed
 
     monkeypatch.setattr(automation, "_public_target", allow_fixture_only)
+    # This fixture is loopback-only even though it exercises the external-form
+    # branch. Root/container CI cannot run Chromium's OS sandbox. Intercept only
+    # this test's launch, assert production requested a sandbox, then run the
+    # isolated local fixture without one. Production code has no such fallback;
+    # the next test verifies sandbox failures stop external preparation.
+    from playwright.async_api import BrowserType
+    real_launch = BrowserType.launch
+
+    async def local_fixture_launch(browser_type, **options):
+        assert options["chromium_sandbox"] is True
+        assert "--no-sandbox" not in options.get("args", [])
+        return await real_launch(browser_type, **{**options, "chromium_sandbox": False, "args": ["--no-sandbox"]})
+
+    monkeypatch.setattr(BrowserType, "launch", local_fixture_launch)
     application_kwargs["test_mode"] = False
     application_kwargs["before_upload"] = lambda: True  # Specific synthetic fixture approval.
     result = asyncio.run(run_application(**application_kwargs))

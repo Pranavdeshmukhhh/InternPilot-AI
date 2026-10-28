@@ -1,0 +1,241 @@
+{
+  "at": "2026-10-23T16:09:16.238368+00:00",
+  "read_only": true,
+  "brave_search_tested": false,
+  "note": "Region membership is location metadata, not Indian-student eligibility. Source availability can change.",
+  "sources": [
+    {
+      "source": "Figma",
+      "kind": "greenhouse",
+      "responded": true,
+      "records_received": 10,
+      "nonexpired_region_counts": {
+        "international": 10
+      },
+      "examples": [
+        {
+          "title": "Data Engineer Intern (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6178851004?gh_jid=6178851004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Data Science Intern (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6178857004?gh_jid=6178857004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Early Career, Inside Sales Representative (2027)",
+          "location": "San Francisco, CA \u2022 New York, NY",
+          "url": "https://boards.greenhouse.io/figma/jobs/6174190004?gh_jid=6174190004",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        }
+      ]
+    },
+    {
+      "source": "Palantir",
+      "kind": "lever",
+      "responded": true,
+      "records_received": 46,
+      "nonexpired_region_counts": {
+        "international": 31,
+        "unknown": 15
+      },
+      "examples": [
+        {
+          "title": "Deployment Strategist, Internship",
+          "location": "Paris, France",
+          "url": "https://jobs.lever.co/palantir/774cf5c9-bf6a-4d77-bf60-d50ef1beb1a0",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Deployment Strategist, Internship - US Government",
+          "location": "Honolulu, HI",
+          "url": "https://jobs.lever.co/palantir/a49d4181-a289-435a-b581-7f5af0497c8e",
+          "regions": [
+            "unknown"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Deployment Strategist, Internship - Warp Speed",
+          "location": "New York, NY",
+          "url": "https://jobs.lever.co/palantir/69ab7e24-8f5d-426e-84f7-6d3b2d4a7efd",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        }
+      ]
+    },
+    {
+      "source": "Ramp",
+      "kind": "ashby",
+      "responded": true,
+      "records_received": 6,
+      "nonexpired_region_counts": {
+        "international": 6
+      },
+      "examples": [
+        {
+          "title": "University Grad | Customer Experience Associate",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/fc971889-db1d-4a20-a25e-f282f9296936",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Applied Scientist Intern",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/b39ceb08-a0a7-4f8b-a760-2fb88e209956",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Software Engineering Intern, Frontend",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/a13ae586-f4cb-4385-8822-c42b9b54ed74",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_response"
+        }
+      ]
+    },
+    {
+      "source": "Major League Hacking",
+      "kind": "mlh",
+      "responded": true,
+      "records_received": 70,
+      "nonexpired_region_counts": {
+        "international": 65,
+        "india": 1,
+        "unknown": 4
+      },
+      "examples": [
+        {
+          "title": "Cal Hacks 13.0",
+          "location": "San Francisco, California",
+          "url": "https://www.mlh.com/events/cal-hacks-13-0/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        },
+        {
+          "title": "SBUHacks",
+          "location": "Stony Brook, New York",
+          "url": "https://www.mlh.com/events/sbuhacks-5f/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        },
+        {
+          "title": "OxHack '26",
+          "location": "Oxford, England",
+          "url": "https://www.mlh.com/events/oxhack-26/prizes",
+          "regions": [
+            "international"
+          ],
+          "verification_status": "source_verified"
+        }
+      ]
+    },
+    {
+      "source": "InternScan India feed",
+      "kind": "internscan",
+      "responded": true,
+      "records_received": 11,
+      "nonexpired_region_counts": {
+        "india": 11,
+        "local": 1
+      },
+      "examples": [
+        {
+          "title": "ASIC Engineer Intern, Implementation",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1046140895105013",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        },
+        {
+          "title": "ASIC Engineer Intern, Design Verification",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1123459746795309",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        },
+        {
+          "title": "ASIC Engineer Intern, Design",
+          "location": "Bangalore, India",
+          "url": "https://www.metacareers.com/jobs/1631077978652493",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "unverified"
+        }
+      ]
+    },
+    {
+      "source": "Sarvam AI",
+      "kind": "ashby",
+      "responded": true,
+      "records_received": 3,
+      "nonexpired_region_counts": {
+        "india": 3
+      },
+      "examples": [
+        {
+          "title": "Marketing Intern",
+          "location": "Bengaluru",
+          "url": "https://jobs.ashbyhq.com/sarvam/ef7f079b-6a1f-4b27-9cfb-a5f68fe825c7",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Growth Marketing Intern",
+          "location": "Bengaluru",
+          "url": "https://jobs.ashbyhq.com/sarvam/1eb3008a-2014-4a6c-8a35-cfa7caf8a60f",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "source_response"
+        },
+        {
+          "title": "Marketing internship (brand & communication)",
+          "location": "Bengaluru",
+          "url": "https://jobs.ashbyhq.com/sarvam/bba82f34-1544-421e-a393-3edd8a5f4cb2",
+          "regions": [
+            "india"
+          ],
+          "verification_status": "source_response"
+        }
+      ]
+    }
+  ],
+  "external_submissions": 0
+}

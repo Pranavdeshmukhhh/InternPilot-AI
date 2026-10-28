@@ -299,6 +299,10 @@ def _disclosed_paid(compensation) -> bool:
 
 def evaluate(job: dict, profile: dict) -> dict:
     """Deterministic guardrail. A numeric match score never grants eligibility."""
+    if job.get("source") == "search" and job.get("verification_status") in {"reference_only", "unverified"}:
+        # Also protects older persisted search rows created before snippets were
+        # separated from publisher descriptions. Index snippets are not rules.
+        job = {**job, "description": "", "requirements": {}, "skills": []}
     req = job.get("requirements") or extract_requirements(job.get("description", ""), location=job.get("location", ""), title=job.get("title", ""))
     fields = set(profile.get("verified_fields") or [])
     reasons, verified, inferred = [], [], []
@@ -399,10 +403,12 @@ def evaluate(job: dict, profile: dict) -> dict:
         score += 3; ranking_signals.append("Preferred employer (+3).")
     if profile.get("remote_preferred") is True and job.get("remote") is True:
         score += 2; ranking_signals.append("Matches remote-work preference (+2).")
-    location = str(job.get("location", "")).casefold()
-    locations = [str(value).casefold().strip() for value in profile.get("preferred_locations", [])]
-    if any(value and (bool(re.search(r"(?<!\w)" + re.escape(value) + r"(?!\w)", location)) or value == "remote" and job.get("remote") is True) for value in locations):
+    from .geography import preferred_location, classify
+    if preferred_location(job, profile):
         score += 2; ranking_signals.append("Matches a preferred location (+2).")
+    nearby = classify(job, profile)["local_matches"]
+    if nearby:
+        score += 3; ranking_signals.append("Listed in a preferred local city or its configured nearby cluster: " + ", ".join(nearby) + " (+3); eligibility still requires verification.")
     if profile.get("paid_preferred") is True and _disclosed_paid(job.get("compensation")):
         score += 2; ranking_signals.append("Disclosed paid compensation matches preference (+2).")
     published = _parse_date(job.get("published_at"))

@@ -19,7 +19,13 @@ CONFIG_FILES = {
     "frontend/tailwind.config.ts","frontend/tsconfig.json","frontend/eslint.config.mjs",
 }
 EVIDENCE = {"backend-test-summary.json","backend-tests.xml","documents-tests.xml","frontend-build.json",
+    "studio-ui.json","studio-auth.png","studio-overview.png","studio-explorer-desktop.png","studio-explorer-mobile.png","studio-explorer-dark.png","studio-detail-desktop.png","studio-detail-mobile.png",
+    "warm-query-backend-tests.xml","warm-query-benchmark.json","warm-ui.json","warm-explorer-desktop.png","warm-explorer-mobile.png","warm-explorer-mobile-dark.png",
+    "small-employer-backend-tests.xml","source-discovery-ui.json","source-discovery-desktop.png","source-discovery-mobile-dark.png","employer-discovery-live.json",
     "improvements-backend-tests.xml","owner-console-tests.xml","ui-acceptance.json","upgrade-postgres.json","upgrade-verification.json",
+    "regional-backend-tests.xml","regional-ui.json","regional-live-sources.json","regional-desktop.png","regional-mobile.png",
+    "production-backend-tests.xml","production-ui.json","cloud-queue-benchmark.json","production-postgres.json","production-live-sources.json",
+    "production-outreach-empty.png","production-outreach-desktop.png","production-automation-desktop.png","production-applications-desktop.png","production-overview-desktop.png","production-outreach-mobile-dark.png","production-applications-mobile.png",
     "live-discovery.json","live-listings.json","live-rejections.json","offline-replay.json",
     "docker-validation.json","docker-postgres-queue.json","dashboard-desktop.png","dashboard-mobile.png",
     "saved-dark-desktop.png","owner-console-desktop.png","owner-console-mobile.png","ui-internpilot-resume.pdf"}
@@ -44,7 +50,7 @@ def allowed(relative):
     if name.startswith(".github/workflows/"):
         return suffix in {".yaml",".yml"}
     if name.startswith("deploy/"):
-        return suffix==".py" or relative.name=="Dockerfile"
+        return suffix==".py" or relative.name=="Dockerfile" or name in {"deploy/compose.cloud.yaml","deploy/Caddyfile","deploy/cloud.env.example"}
     if relative.parent.as_posix()=="artifacts":
         return relative.name in EVIDENCE
     if relative.parent.as_posix()=="artifacts/docker-local-demo-final":

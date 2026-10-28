@@ -160,4 +160,4 @@ def test_version_three_migration_defaults_every_existing_account_to_member(stack
     stack.python('from app.migrate import migrate; migrate();migrate()')
     assert member.get('/api/auth/session').json()['user']['role'] == 'member'
     with stack.db() as db:
-        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4]
+        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4,5]

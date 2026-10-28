@@ -1,0 +1,143 @@
+# Dedicated always-on processes. PostgreSQL is an external managed service.
+# Run from the project directory with --env-file .env.cloud.
+name: internpilot-cloud
+x-core: &core
+  ENVIRONMENT: production
+  DATABASE_URL: ${CLOUD_DATABASE_URL:?Managed PostgreSQL URL required}
+  DATABASE_SSLMODE: verify-full
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Preserve the existing storage key}
+  DATA_DIR: /data
+  REDIS_URL: redis://:${REDIS_PASSWORD:?Redis password required}@redis:6379/0
+  PUBLIC_ORIGIN: https://${PUBLIC_DOMAIN:?Public DNS name required}
+  CORS_ORIGINS: https://${PUBLIC_DOMAIN}
+  COOKIE_SECURE: 'true'
+  TEST_MODE: 'false'
+  ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
+  REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:?Private invitation token required}
+  WORKER_HEARTBEAT_FILE: /data/crawler-heartbeat
+  TASK_LEASE_SECONDS: '180'
+  DISTRIBUTED_RATE_LIMITS: 'true'
+  NO_PROXY: localhost,127.0.0.1,::1,api,frontend,redis
+  no_proxy: localhost,127.0.0.1,::1,api,frontend,redis
+x-worker: &worker
+  image: internpilot-backend:cloud
+  build: ../backend
+  command: [python, -m, app.worker]
+  restart: unless-stopped
+  init: true
+  volumes: [app_data:/data]
+  depends_on:
+    api: {condition: service_healthy}
+  security_opt: [no-new-privileges:true]
+  healthcheck:
+    test: [CMD, python, -c, "import os,time; assert time.time()-os.stat(os.environ['WORKER_HEARTBEAT_FILE']).st_mtime<60"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 30s
+
+services:
+  edge:
+    image: caddy:2-alpine
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
+    ports: ['80:80', '443:443']
+    volumes: ['./Caddyfile:/etc/caddy/Caddyfile:ro', 'caddy_data:/data', 'caddy_config:/config']
+    depends_on:
+      frontend: {condition: service_healthy}
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+  redis:
+    image: redis:7-bookworm
+    command: [redis-server, --appendonly, 'yes', --requirepass, '${REDIS_PASSWORD}']
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+  api:
+    image: internpilot-backend:cloud
+    build: ../backend
+    environment:
+      <<: *core
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID:-}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET:-}
+      GMAIL_REDIRECT_URI: https://${PUBLIC_DOMAIN}/api/outreach/gmail/callback
+      LLM_PROVIDER: ${LLM_PROVIDER:-disabled}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+    volumes: [app_data:/data]
+    restart: unless-stopped
+    init: true
+    depends_on:
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health',timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 20s
+    security_opt: [no-new-privileges:true]
+  crawler:
+    <<: *worker
+    environment:
+      <<: *core
+      WORKER_KINDS: discovery
+      WORKER_CONCURRENCY: ${CRAWLER_CONCURRENCY:-8}
+      BROWSER_CONCURRENCY: '1'
+      CRAWL_BATCH_SIZE: '200'
+      CRAWL_LOG_RETENTION_DAYS: ${CRAWL_LOG_RETENTION_DAYS:-14}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-disabled}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+  applications:
+    <<: *worker
+    environment:
+      <<: *core
+      WORKER_KINDS: application
+      WORKER_CONCURRENCY: '1'
+      BROWSER_CONCURRENCY: '1'
+      WORKER_HEARTBEAT_FILE: /tmp/application-heartbeat
+    shm_size: 1gb
+  outreach:
+    <<: *worker
+    environment:
+      <<: *core
+      WORKER_KINDS: outreach,gmail_sync
+      WORKER_CONCURRENCY: '2'
+      WORKER_HEARTBEAT_FILE: /tmp/outreach-heartbeat
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID:-}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET:-}
+      GMAIL_REDIRECT_URI: https://${PUBLIC_DOMAIN}/api/outreach/gmail/callback
+  frontend:
+    build:
+      context: ../frontend
+      args:
+        INTERNAL_API_URL: http://api:8000
+    environment:
+      INTERNAL_API_URL: http://api:8000
+      PUBLIC_HTTPS: 'true'
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+    init: true
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  app_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

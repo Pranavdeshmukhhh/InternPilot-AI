@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-26T22:45:12.456620+00:00",
+  "read_only": true,
+  "publisher_url": "https://www.sarvam.ai/careers",
+  "search_provider_tested": false,
+  "external_submissions": 0,
+  "sources_enabled": 0,
+  "note": "A publisher snapshot, not a guarantee of availability, undergraduate eligibility or employer size.",
+  "responded": true,
+  "records_received": 2,
+  "opportunities": [
+    {
+      "title": "Growth Marketing Intern",
+      "url": "https://www.sarvam.ai/careers/jobs/1eb3008a-2014-4a6c-8a35-cfa7caf8a60f",
+      "location": "Bengaluru",
+      "verification_status": "official_metadata_verified",
+      "application_url_verified": true
+    },
+    {
+      "title": "Marketing internship (brand & communication)",
+      "url": "https://www.sarvam.ai/careers/jobs/bba82f34-1544-421e-a393-3edd8a5f4cb2",
+      "location": "Bengaluru",
+      "verification_status": "official_metadata_verified",
+      "application_url_verified": true
+    }
+  ],
+  "source_candidates": [
+    {
+      "kind": "feed",
+      "slug": "",
+      "url": "https://www.sarvam.ai/rss.xml",
+      "evidence_url": "https://www.sarvam.ai/careers",
+      "verified": false
+    },
+    {
+      "kind": "html",
+      "slug": "",
+      "url": "https://www.sarvam.ai/careers",
+      "evidence_url": "https://www.sarvam.ai/careers",
+      "verified": false
+    },
+    {
+      "kind": "html",
+      "slug": "",
+      "url": "https://www.sarvam.ai/startup-program",
+      "evidence_url": "https://www.sarvam.ai/careers",
+      "verified": false
+    },
+    {
+      "kind": "ashby",
+      "slug": "sarvam",
+      "url": null,
+      "evidence_url": "https://www.sarvam.ai/careers/jobs/1eb3008a-2014-4a6c-8a35-cfa7caf8a60f",
+      "verified": false
+    }
+  ],
+  "complete_inventory": false
+}

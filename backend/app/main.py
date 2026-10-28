@@ -24,9 +24,14 @@ from .models import User, LoginSession, Source, Opportunity, Application, Docume
 from .schemas import Credentials, RegistrationCredentials, PasswordChange, Profile, Policy, SourceInput, ApplyInput, GenerateInput, ConsentInput, StopInput, StatusInput, ReadInput
 from .security import encrypt, decrypt, decrypt_bytes, digest, password_hash, verify_password, approval_digest
 from .account_security import locked_user, revoke_sessions
-from .services import event, visible_jobs, job_for_user, job_view, source_view, application_view, document_view, enqueue, store_document, seed_demo, timestamp, application_priority
+from .services import event, visible_jobs, job_for_user, job_view, source_view, application_view, document_view, enqueue, store_document, seed_demo, application_priority
 from .body_limit import BodyLimitMiddleware
 from .owner_console import create_router as create_owner_router
+from .outreach_api import create_router as create_outreach_router
+from .operations_api import create_router as create_operations_router
+from .discovery_filters import DiscoveryCriteria
+from .opportunity_query import query_opportunities
+from . import security_logs  # noqa: F401 -- installs OAuth access-log redaction.
 
 
 @asynccontextmanager
@@ -86,7 +91,9 @@ def current_user(request: Request, db: Session = Depends(get_db)):
 def issue_session(db, user, response):
     token, csrf = secrets.token_urlsafe(40), secrets.token_urlsafe(32)
     db.add(LoginSession(token_hash=digest(token),user_id=user.id,csrf_token=csrf,expires_at=(datetime.now(timezone.utc)+timedelta(days=7)).isoformat()))
-    response.set_cookie("internpilot_session",token,httponly=True,secure=settings.cookie_secure,samesite="strict",max_age=604800,path="/")
+    # Lax permits Google's top-level OAuth return; mutating API calls still
+    # require a session-bound CSRF token and exact origin validation.
+    response.set_cookie("internpilot_session",token,httponly=True,secure=settings.cookie_secure,samesite="lax",max_age=604800,path="/")
     return {"user":{"id":user.id,"email":decrypt(user.email_encrypted),"role":user.role},"csrf_token":csrf}
 
 
@@ -260,62 +267,18 @@ def emergency_stop(data:StopInput,user:User=Depends(current_user),db:Session=Dep
     return policy
 
 
-def opportunity_rows(db, user, *, search="", eligibility="", remote="", sort="score", company="", paid="", deadline_before="", kind="", location="", saved=False, recommended=False, include_closed=False, min_score=0):
-    profile = decrypt(user.profile_encrypted)
-    bookmarks = set(db.scalars(select(SavedOpportunity.opportunity_id).where(SavedOpportunity.owner_id==user.id)))
-    statuses = {row.opportunity_id:row.status for row in db.scalars(select(Application).where(Application.owner_id==user.id))}
-    jobs = list(db.scalars(select(Opportunity).where(Opportunity.id.in_(bookmarks)))) if saved else visible_jobs(db,user.id)
-    rows = [{**job_view(row,profile),"saved":row.id in bookmarks,"application_status":statuses.get(row.id,"not_started")} for row in jobs]
-    if not include_closed:
-        rows = [j for j in rows if j["status"] not in {"closed","expired"}]
-    if kind:
-        rows = [j for j in rows if j["opportunity_type"]==kind]
-    if search:
-        rows = [j for j in rows if search.casefold() in " ".join(str(j.get(k,"")) for k in ("title","company","description","location")).casefold()]
-    if location:
-        rows = [j for j in rows if location.casefold() in j.get("location", "").casefold()]
-    if company:
-        rows = [j for j in rows if company.casefold() in j.get("company", "").casefold()]
-    if eligibility:
-        rows = [j for j in rows if j["eligibility"]==eligibility]
-    if str(remote).lower() in {"true","1"}:
-        rows = [j for j in rows if j.get("remote") is True]
-    if str(paid).lower() in {"true","1"}:
-        from .matching import _disclosed_paid
-        from .opportunity_intelligence import _positive_prize
-        rows = [j for j in rows if (_positive_prize(str(j.get("description") or "")+" "+str(j.get("compensation") or "")) if j["opportunity_type"]=="hackathon" else _disclosed_paid(j.get("compensation")))]
-    if saved:
-        rows = [j for j in rows if j["saved"]]
-    if recommended:
-        rows = [j for j in rows if j["eligibility"]!="ineligible" and j["score"]>=max(50,min_score)]
-    else:
-        rows = [j for j in rows if j["score"]>=min_score]
-    if deadline_before:
-        from datetime import date
-        try:
-            cutoff = datetime.combine(date.fromisoformat(deadline_before),datetime.max.time(),tzinfo=timezone.utc)
-        except ValueError:
-            raise HTTPException(422,"Deadline filter must be YYYY-MM-DD") from None
-        rows = [j for j in rows if timestamp(j.get("deadline")) and timestamp(j["deadline"])<=cutoff]
-    if sort=="newest":
-        rows.sort(key=lambda j:j.get("published_at") or j["first_discovered"],reverse=True)
-    elif sort=="deadline":
-        rows.sort(key=lambda j:timestamp(j.get("deadline")) or datetime.max.replace(tzinfo=timezone.utc))
-    else:
-        rows.sort(key=lambda j:(j["score"],j.get("published_at") or j["first_discovered"]),reverse=True)
-    return rows
+def opportunity_rows(db, user, *, search="", eligibility="", remote="", sort="score", company="", paid="", deadline_before="", kind="", location="", region="all", saved=False, recommended=False, include_closed=False, min_score=0, criteria=None):
+    return query_opportunities(db,user,view=job_view,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,region=region,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score,criteria=criteria)
 
 
 @app.get("/api/opportunities")
-def opportunities(search:str="",eligibility:str="",remote:str="",sort:Literal["score","newest","deadline"]="score",company:str="",paid:str="",deadline_before:str="",kind:Literal["","internship","hackathon"]="",location:str="",saved:bool=False,recommended:bool=False,include_closed:bool=False,min_score:int=Query(0,ge=0,le=100),user:User=Depends(current_user),db:Session=Depends(get_db)):
-    return opportunity_rows(db,user,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score)
+def opportunities(search:str="",eligibility:str="",remote:str="",sort:Literal["score","newest","deadline"]="score",company:str="",paid:str="",deadline_before:str="",kind:Literal["","internship","hackathon"]="",location:str="",region:Literal["all","local","india","international","worldwide","unknown"]="all",saved:bool=False,recommended:bool=False,include_closed:bool=False,min_score:int=Query(0,ge=0,le=100),criteria:DiscoveryCriteria=Depends(),user:User=Depends(current_user),db:Session=Depends(get_db)):
+    return opportunity_rows(db,user,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,region=region,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score,criteria=criteria)
 
 
 @app.get("/api/opportunities/page")
-def opportunity_page(search:str="",eligibility:str="",remote:str="",sort:Literal["score","newest","deadline"]="score",company:str="",paid:str="",deadline_before:str="",kind:Literal["","internship","hackathon"]="",location:str="",saved:bool=False,recommended:bool=False,include_closed:bool=False,min_score:int=Query(0,ge=0,le=100),page:int=Query(1,ge=1,le=100000),page_size:int=Query(20,ge=1,le=100),user:User=Depends(current_user),db:Session=Depends(get_db)):
-    rows = opportunity_rows(db,user,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score)
-    offset = (page-1)*page_size
-    return {"items":rows[offset:offset+page_size],"total":len(rows),"page":page,"page_size":page_size}
+def opportunity_page(search:str="",eligibility:str="",remote:str="",sort:Literal["score","newest","deadline"]="score",company:str="",paid:str="",deadline_before:str="",kind:Literal["","internship","hackathon"]="",location:str="",region:Literal["all","local","india","international","worldwide","unknown"]="all",saved:bool=False,recommended:bool=False,include_closed:bool=False,min_score:int=Query(0,ge=0,le=100),page:int=Query(1,ge=1,le=100000),page_size:int=Query(20,ge=1,le=100),criteria:DiscoveryCriteria=Depends(),user:User=Depends(current_user),db:Session=Depends(get_db)):
+    return query_opportunities(db,user,page=page,page_size=page_size,view=job_view,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,region=region,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score,criteria=criteria)
 
 
 @app.get("/api/saved")
@@ -411,8 +374,45 @@ def sources(user:User=Depends(current_user),db:Session=Depends(get_db)):
     return [source_view(s) for s in db.scalars(select(Source).where(Source.owner_id==user.id))]
 
 
+@app.get("/api/discovery/regions")
+def regional_discovery(user:User=Depends(current_user),db:Session=Depends(get_db)):
+    from .geography import local_cities, NEARBY, normalized
+    from .regional_search import configured, search_sources
+    profile = decrypt(user.profile_encrypted)
+    owned = list(db.scalars(select(Source).where(Source.owner_id==user.id)))
+    return {"local_cities":local_cities(profile),"nearby_places":{city:list(NEARBY.get(normalized(city),(city,))) for city in local_cities(profile)},
+            "include_nearby":profile.get("include_nearby_locations",True),"search_configured":configured(),
+            "search_presets":[{**preset,"installed":any(s.kind=="search" and s.slug==preset["slug"] for s in owned)} for preset in search_sources(profile)],
+            "source_count":sum(s.enabled and s.permitted for s in owned),
+            "note":"Regions use listing location metadata. International and remote listings do not by themselves establish eligibility for Indian students."}
+
+
+@app.post("/api/discovery/regions/enable")
+def enable_regional_discovery(request:Request,user:User=Depends(current_user),db:Session=Depends(get_db)):
+    from .regional_search import configured, search_sources
+    if not configured():
+        raise HTTPException(409,"Set BRAVE_SEARCH_API_KEY on the server to enable regional web search. Existing ATS, MLH and India feed discovery remains available.")
+    user = require_locked_session(request,user,db)
+    existing = set(db.scalars(select(Source.slug).where(Source.owner_id==user.id,Source.kind=="search")))
+    presets = [preset for preset in search_sources(decrypt(user.profile_encrypted)) if preset["slug"] not in existing]
+    if (db.scalar(select(func.count()).select_from(Source).where(Source.owner_id==user.id)) or 0) + len(presets) > 2000:
+        raise HTTPException(409,"Source quota reached (2,000 per account)")
+    added = 0
+    for preset in presets:
+        if preset["slug"] in existing:
+            continue
+        db.add(Source(owner_id=user.id,**preset))
+        added += 1
+    event(db,user.id,"regional_search_enabled",f"Added {added} regional internship and hackathon search sources")
+    db.commit()
+    return {"added":added,"note":"Scheduled read-only searches run with the worker; provider usage limits apply. Existing source settings were preserved."}
+
+
 @app.post("/api/sources")
-async def create_source(data:SourceInput,user:User=Depends(current_user),db:Session=Depends(get_db)):
+async def create_source(data:SourceInput,request:Request,user:User=Depends(current_user),db:Session=Depends(get_db)):
+    user=require_locked_session(request,user,db)
+    if db.scalar(select(func.count()).select_from(Source).where(Source.owner_id==user.id))>=2000:
+        raise HTTPException(409,"Source quota reached (2,000 per account)")
     if data.url:
         from .discovery import validate_public_url
         try:
@@ -474,10 +474,13 @@ def task_view(task):
 def discovery_run(user:User=Depends(current_user),db:Session=Depends(get_db)):
     if decrypt(user.policy_encrypted)["emergency_stop"]:
         raise HTTPException(409,"Clear the emergency stop before starting discovery")
-    task = enqueue(db,user.id,"discovery",{},f"discovery:{user.id}")
+    enabled = list(db.scalars(select(Source.id).where(Source.owner_id==user.id,Source.enabled==True,Source.permitted==True)))
+    if not enabled:
+        raise HTTPException(409,"Enable a permitted source before starting discovery")
+    queued = [enqueue(db,user.id,"discovery",{"source_id":source_id},f"source:{source_id}") for source_id in enabled]
     event(db,user.id,"discovery_queued","Manual source refresh queued")
     db.commit()
-    return task_view(task)
+    return {**task_view(queued[0]),"queued_sources":len(queued)}
 
 
 @app.get("/api/applications")
@@ -826,3 +829,5 @@ if settings.test_mode:
 
 
 app.include_router(create_owner_router(current_user,require_locked_session,throttle))
+app.include_router(create_outreach_router(current_user,require_locked_session))
+app.include_router(create_operations_router(current_user,require_locked_session))

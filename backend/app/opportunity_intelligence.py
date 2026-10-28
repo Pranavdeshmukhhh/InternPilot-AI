@@ -280,8 +280,12 @@ def _evaluate_hackathon(data: dict, profile: dict, now: datetime) -> dict:
         points = min(15, 5 * len(interests)); score += points
         signals.append("Matches selected hackathon interests: " + ", ".join(interests) + f" (+{points}).")
     country = profile.get("country")
-    if "country" in fields and isinstance(country, str) and country in _countries(str(data.get("location") or "")):
+    from .geography import classify
+    geography = classify(data, profile)
+    if "country" in fields and isinstance(country, str) and country in geography["countries"]:
         score += 8; signals.append("Listed location matches your verified country (+8); location does not establish eligibility.")
+    if geography["local_matches"]:
+        score += 3; signals.append("Listed in a preferred local city or its nearby cluster: " + ", ".join(geography["local_matches"]) + " (+3); participation eligibility is assessed separately.")
     if profile.get("remote_preferred") is True and data.get("remote") is True:
         score += 3; signals.append("Matches remote-work preference (+3).")
     if urgency in {"within_24h", "within_3d", "within_7d"}:

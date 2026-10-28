@@ -1,5 +1,7 @@
 # Operating InternPilot
 
+For schema version 5, separate cloud worker pools, Gmail setup, measured queue behavior, scan retention, encrypted backups and deployment costs, use the current [production operations guide](PRODUCTION_UPGRADE.md). The earlier local/single-service instructions below remain supported. No cloud provisioning is implied by a configuration file.
+
 ## Service topology and persistence
 
 `frontend` proxies API requests to `backend`. PostgreSQL stores accounts, encrypted candidate profiles, opportunities, applications, task leases, notices and audit records. `worker` claims database-backed tasks and runs discovery/preparation. Redis is an optional transport; it is not the authoritative application queue. The `app_data` volume stores protected runtime artifacts. The API and worker share that volume and encryption key.

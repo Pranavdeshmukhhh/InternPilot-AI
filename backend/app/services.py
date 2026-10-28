@@ -8,7 +8,7 @@ from sqlalchemy import select, func, update
 from sqlalchemy.exc import IntegrityError
 from .config import settings
 from .database import SessionLocal
-from .models import User, Source, SourceOpportunity, Opportunity, Application, Document, AuditEvent, Notification, Task, SavedOpportunity, now
+from .models import User, Source, SourceOpportunity, Opportunity, Application, Document, AuditEvent, Notification, Task, SavedOpportunity, CrawlRun, now
 from .security import encrypt, decrypt, encrypt_bytes, decrypt_bytes, digest, approval_digest
 from . import realtime  # noqa: F401 -- registers post-commit Redis wakeups.
 
@@ -59,6 +59,8 @@ def job_for_user(db, user_id, job_id):
 
 def job_view(job, profile):
     from .opportunity_intelligence import evaluate_opportunity
+    from .geography import classify
+    from .discovery_filters import disclosed_details
     data = dict(job.data)
     data.setdefault("opportunity_type", "internship")
     result = evaluate_opportunity(data, profile)
@@ -74,7 +76,7 @@ def job_view(job, profile):
         result = {**result,"eligibility":"review","reasons":[*result.get("reasons",[]),"The official application link or current registration availability still needs verification."],"recommended_action":"Verify the official opportunity page and current application or registration availability before proceeding."}
     if status == "expired":
         result = {**result,"eligibility":"ineligible","score":0,"recommended_action":"This opportunity has expired. Keep it for reference."}
-    return {**data, "status":status,"id":job.id,"first_discovered":job.first_discovered,"last_verified":job.last_verified,**result,"evaluation":result}
+    return {**data, "status":status,"id":job.id,"first_discovered":job.first_discovered,"last_verified":job.last_verified,**result,"evaluation":result,"geography":classify(data,profile),"disclosed_details":disclosed_details(data)}
 
 
 def source_view(row):
@@ -244,8 +246,11 @@ def canonical_fingerprint(job):
 
 def merge_opportunity_data(previous, incoming):
     """References must not overwrite richer independently verified ATS facts."""
-    reference_sources = {"internscan", "jobspy_feed", "jobspy", "github_list"}
-    weaker = incoming.get("source") in reference_sources and previous.get("source") not in reference_sources and previous.get("verification_status")!="unverified"
+    reference_sources = {"internscan", "jobspy_feed", "jobspy", "github_list", "search"}
+    reference_statuses = {"unverified", "reference_only"}
+    previous_rich = (previous.get("source") not in reference_sources and previous.get("verification_status") not in reference_statuses) or previous.get("verification_status")=="official_metadata_verified"
+    incoming_reference = incoming.get("source") in reference_sources or incoming.get("verification_status") in reference_statuses
+    weaker = incoming_reference and previous_rich and previous.get("verification_status") not in reference_statuses and (incoming.get("verification_status")!="official_metadata_verified" or previous.get("source") not in reference_sources)
     if weaker:
         merged = dict(previous)
         merged["discovered_via"] = sorted(set(previous.get("discovered_via",[])) | {incoming.get("source")})
@@ -276,6 +281,7 @@ async def process_discovery(owner_id, source_id=None):
             query = query.where(Source.id==source_id)
         source_ids = [s.id for s in db.scalars(query)]
     semaphore = asyncio.Semaphore(3)
+    touched_ids = set()
 
     async def scan(sid):
         async with semaphore:
@@ -290,28 +296,38 @@ async def process_discovery(owner_id, source_id=None):
                         or (source.failures and source.next_run and source.next_run > now())):
                     return
                 source.last_attempt, source.status = now(), "running"
+                crawl = CrawlRun(owner_id=owner_id,source_id=sid)
+                db.add(crawl);db.flush()
+                run_id,scan_started = crawl.id,time.monotonic()
                 source_data, cache = source_view(source), source.cache
                 db.commit()
             try:
                 result = await discover(source_data, cache=cache)
                 from .llm import annotate_jobs
                 with SessionLocal() as db:
-                    previous = {j.data.get("url"):j.data for j in visible_jobs(db,owner_id)}
+                    urls = [str(item.get("url")) for item in result["jobs"] if item.get("url")]
+                    matching = db.scalars(select(Opportunity).join(SourceOpportunity,SourceOpportunity.opportunity_id==Opportunity.id).join(Source,Source.id==SourceOpportunity.source_id).where(Source.owner_id==owner_id,Opportunity.data["url"].as_string().in_(urls))).unique() if urls else []
+                    previous = {j.data.get("url"):j.data for j in matching}
                     account = db.get(User,owner_id)
                     candidate_profile = decrypt(account.profile_encrypted)
                 result["jobs"] = await annotate_jobs(result["jobs"],previous_by_url=previous,profile=candidate_profile)
                 added = 0
                 with SessionLocal() as db:
-                    source = db.get(Source,sid)
+                    # Serialize cache updates with source-review dismissals.
+                    source = db.scalar(select(Source).where(Source.id==sid).with_for_update())
                     if source is None:
                         return
+                    crawl = db.get(CrawlRun,run_id)
+                    crawl.finished_at,crawl.seconds,crawl.records,crawl.outcome = now(),round(time.monotonic()-scan_started,3),len(result["jobs"]),"cached" if result.get("not_modified") else "success"
                     linked_jobs = list(db.scalars(select(Opportunity).join(SourceOpportunity,SourceOpportunity.opportunity_id==Opportunity.id).where(SourceOpportunity.source_id==sid)))
                     active_ids = set((source.cache or {}).get("active_opportunity_ids",[j.id for j in linked_jobs if j.data.get("active") is not False]))
                     verified_ids = set((source.cache or {}).get("verified_opportunity_ids",active_ids))
                     if result.get("not_modified"):
                         for verified_job in linked_jobs:
-                            reference = source.kind in {"internscan","jobspy_feed","github_list"}
-                            authoritative = not reference or verified_job.data.get("source") == source.kind
+                            reference = source.kind in {"internscan","jobspy_feed","github_list","search"}
+                            evidence = verified_job.data.get("verification_evidence_url")
+                            same_publisher_page = source.kind != "html" or bool(evidence and evidence == (source.cache or {}).get("publisher_url"))
+                            authoritative = source.kind!="search" and same_publisher_page and verified_job.data.get("verification_status") not in {"reference_only", "unverified"} and (not reference or verified_job.data.get("source") == source.kind)
                             if authoritative and verified_job.id in verified_ids and verified_job.data.get("active") is not False:
                                 verified_job.last_verified = now()
                     seen_ids = set()
@@ -356,7 +372,7 @@ async def process_discovery(owner_id, source_id=None):
                             for missing in linked_jobs:
                                 if missing.id in seen_ids:
                                     continue
-                                reference_kinds = {"internscan","jobspy_feed","github_list"}
+                                reference_kinds = {"internscan","jobspy_feed","github_list","search"}
                                 official_data = missing.data.get("source") not in reference_kinds
                                 still_available = any(other.enabled and other.permitted
                                     and (not official_data or other.kind not in reference_kinds)
@@ -366,12 +382,21 @@ async def process_discovery(owner_id, source_id=None):
                                     missing.data = {**missing.data,"active":False}
                                     if was_active and db.get(SavedOpportunity,(owner_id,missing.id)):
                                         event(db,owner_id,"saved_opportunity_closed",f"{missing.data.get('company','Employer')} — {missing.data.get('title','Opportunity')} is no longer listed by the verified source.",notify=True,opportunity_id=missing.id,dedupe_key="closed:"+digest(missing.id+str(missing.last_verified)))
-                    source.cache = {**result.get("cache", {}),"active_opportunity_ids":sorted(active_ids),"verified_opportunity_ids":sorted(verified_ids if result.get("not_modified") else verified_seen_ids)}
+                    next_cache = dict(result.get("cache", {}))
+                    if source.kind in {"search", "html"}:
+                        from .publisher_discovery import merge_candidates
+                        next_cache["source_candidates"] = merge_candidates((source.cache or {}).get("source_candidates", []), next_cache.get("source_candidates", []))
+                    # A review/dismissal can happen while a network scan runs.
+                    # Preserve the latest user decision instead of scan-start state.
+                    next_cache["dismissed_source_candidate_ids"] = (source.cache or {}).get("dismissed_source_candidate_ids", [])[-500:]
+                    source.cache = {**next_cache,"active_opportunity_ids":sorted(active_ids),"verified_opportunity_ids":sorted(verified_ids if result.get("not_modified") else verified_seen_ids)}
+                    touched_ids.update(active_ids if result.get("not_modified") else seen_ids)
                     source.status, source.error, source.failures = "healthy", None, 0
                     if result.get("cache", {}).get("reference_feed"):
                         source.status = "reference"
                     elif result.get("cache", {}).get("truncated"):
-                        source.status, source.error = "partial", "Connector page limit reached; some postings may not have been scanned"
+                        note = "Search references do not establish a complete inventory; publisher verification is bounded" if source.kind == "search" else "Publisher page scan is bounded; linked opportunities may require review" if source.kind == "html" else "Connector page limit reached; some postings may not have been scanned"
+                        source.status, source.error = "partial", note
                     source.last_success, source.discovered_count = now(), len(result["jobs"]) if not result.get("not_modified") else source.discovered_count
                     source.next_run = (datetime.now(timezone.utc)+timedelta(seconds=source.interval_seconds)).isoformat()
                     evidence = "reference feed" if source.status=="reference" else "source scan completed"
@@ -383,6 +408,9 @@ async def process_discovery(owner_id, source_id=None):
                     if source is None:
                         return
                     source.failures += 1
+                    crawl = db.get(CrawlRun,run_id)
+                    if crawl:
+                        crawl.finished_at,crawl.seconds,crawl.outcome = now(),round(time.monotonic()-scan_started,3),"error"
                     # Avoid leaking credentials/query strings from network exception representations.
                     source.error = f"{type(exc).__name__}: source scan failed; check source permissions and configuration"
                     source.status = "error"
@@ -397,7 +425,7 @@ async def process_discovery(owner_id, source_id=None):
         if user:
             policy,profile = decrypt(user.policy_encrypted),decrypt(user.profile_encrypted)
             if policy.get("new_match_alerts",True):
-                for job in visible_jobs(db,owner_id):
+                for job in db.scalars(select(Opportunity).where(Opportunity.id.in_(touched_ids))):
                     view = job_view(job,profile)
                     if view["eligibility"]!="ineligible" and view["status"] not in {"expired","closed"} and view["score"]>=policy.get("alert_minimum_score",70):
                         event(db,owner_id,"high_match",f"{view['company']} — {view['title']} matches {view['score']}/100. {view['recommended_action']}",notify=True,opportunity_id=job.id,dedupe_key="match:"+job.id)

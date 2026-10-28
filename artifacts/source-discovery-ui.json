@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-28T13:54:22.423462+00:00",
+  "synthetic_data_only": true,
+  "checks": [
+    {
+      "name": "Persisted synthetic suggestions appear as unverified with consent required",
+      "passed": true
+    },
+    {
+      "name": "Expanded source suggestions fit 390/768/1024px with dark and light themes",
+      "passed": true
+    },
+    {
+      "name": "Explicit review enables actual source without claiming a scan or opportunity",
+      "passed": true
+    },
+    {
+      "name": "Dismissal and installed-source filtering survive a browser reload",
+      "passed": true
+    },
+    {
+      "name": "No browser JavaScript errors",
+      "passed": true
+    }
+  ],
+  "external_emails": 0,
+  "external_submissions": 0,
+  "live_searches": 0,
+  "crawl_workers": 0,
+  "passed": true
+}

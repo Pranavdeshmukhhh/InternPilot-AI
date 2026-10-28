@@ -31,8 +31,12 @@ _HOST_LOCKS: dict[str, asyncio.Lock] = {}
 _HOST_LAST: dict[str, float] = {}
 _HOST_DELAY: dict[str, float] = {}
 RESTRICTED_PLATFORMS = {"linkedin.com", "indeed.com", "wellfound.com", "internshala.com", "unstop.com"}
-INTERNSHIP = re.compile(r"\bintern(?:ship)?s?\b|\bstudent\b|\bapprentic\w*\b|\bearly[- ](?:career|year)\b|\bresearch fellow\b|\bundergraduate\b|\bSTEP\b|\buniversity (?:program|grad)\b", re.I)
+INTERNSHIP = re.compile(r"\bintern(?:ship)?s?\b|\bstudent\b|\bapprentic\w*\b|\bearly[- ](?:career|year)\b|\bresearch fellow(?:ship)?\b|\bundergraduate\b|\bSTEP\b|\buniversity (?:program|grad)\b", re.I)
 HACKATHON = re.compile(r"\bhackathons?\b|\b(?:coding|innovation|AI|ML|cloud) (?:challenge|competition)\b",re.I)
+# Small employers/university labs often omit "intern". These are discovery
+# candidates, not evidence that a current undergraduate is eligible.
+ADJACENT_STUDENT_ROLE = re.compile(r"\b(?:research|project) assistant\b|\b(?:software|developer|engineering|engineer|data|cloud|cybersecurity|web|graduate)[\w /&-]{0,25}\btrainee\b|\btrainee[\w /&-]{0,25}\b(?:developer|engineer|software|data)\b", re.I)
+INTERNSHIP = re.compile(INTERNSHIP.pattern + "|" + ADJACENT_STUDENT_ROLE.pattern, re.I)
 
 
 class DiscoveryError(ValueError):
@@ -48,6 +52,7 @@ def default_sources() -> list[dict]:
         {"kind": "ashby", "slug": "ramp", "company": "Ramp", "permitted": True, "enabled": True, "interval_seconds": 900},
         {"kind": "mlh", "slug": "", "company": "Major League Hacking", "permitted": True, "enabled": True, "interval_seconds": 1800},
         {"kind": "internscan", "slug": "india", "company": "InternScan India feed", "url":"https://internscan.vercel.app/in/api/active.json", "permitted": True, "enabled": True, "interval_seconds": 900},
+        {"kind": "ashby", "slug": "sarvam", "company": "Sarvam AI", "permitted": True, "enabled": True, "interval_seconds": 1800},
     ]
 
 
@@ -122,6 +127,8 @@ async def _request(client: httpx.AsyncClient, url: str, *, headers=None, method=
             remaining = delay - (time.monotonic() - _HOST_LAST.get(host, 0))
             if remaining > 0: await asyncio.sleep(min(remaining, 60))
             _HOST_LAST[host] = time.monotonic()
+            from .rate_limits import throttle
+            await throttle(host,delay)
             try:
                 async with client.stream(method, url, headers=headers, json=payload if method == "POST" else None) as response:
                     chunks, size = [], 0
@@ -146,6 +153,8 @@ async def _request(client: httpx.AsyncClient, url: str, *, headers=None, method=
             continue
         if result.status_code == 429:
             retry = _retry_seconds(result.headers.get("retry-after"))
+            from .rate_limits import cooldown
+            await cooldown(host,retry)
             _HOST_DELAY[host] = max(_HOST_DELAY.get(host, 1), min(retry, 60))
             raise DiscoveryError("Source rate limit reached; retry after the server's requested delay.", retry_after=retry)
         if result.status_code in (401, 403):
@@ -177,10 +186,14 @@ def _job(*, external_id, title, company, location="", url, description="", remot
     except DiscoveryError: return None
     text = plain_text(description)
     req = extract_requirements(text, location=location, title=title)
+    adjacent = bool(ADJACENT_STUDENT_ROLE.search(str(title)) and not re.search(r"\bintern(?:ship)?s?\b", str(title), re.I))
+    if adjacent:
+        req["uncertain"].append("An adjacent trainee/assistant title does not confirm current-student eligibility; review the publisher's requirements.")
     return {"external_id": str(external_id), "title": str(title).strip(), "company": str(company),
             "location": location or "Not specified", "remote": bool(remote), "url": canonical_url(url),
             "description": text[:100000], "skills": req["skills"], "requirements": req,
-            "published_at": _iso(published_at), "source_created_at": _iso(source_created_at), "deadline": _iso(deadline), "compensation": compensation}
+            "published_at": _iso(published_at), "source_created_at": _iso(source_created_at), "deadline": _iso(deadline), "compensation": compensation,
+            "adjacent_student_role": adjacent}
 
 
 def _slug(source):
@@ -305,6 +318,49 @@ def _feed_jobs(text, source, base_url):
     return jobs
 
 
+async def _search_reference(client, value: dict, source: dict, *, verify: bool, candidates=None) -> dict | None:
+    """Search snippets are references; only matching publisher metadata supplies location."""
+    title, url = str(value.get("title") or ""), str(value.get("url") or "")
+    try:
+        _syntax_url(url)
+    except DiscoveryError:
+        return None
+    kind = "hackathon" if HACKATHON.search(title) else "internship" if INTERNSHIP.search(title) else None
+    if kind is None:
+        return None
+    job = {"external_id":url,"opportunity_type":kind,"title":title,"url":canonical_url(url),
+           "company":"Search reference — employer unverified","location":"Not specified","remote":False,
+           "description":"","search_snippet":plain_text(str(value.get("description") or ""))[:2000],"skills":[],"requirements":{},
+           "published_at":None,"deadline":None,"compensation":None,"source":source.get("kind", "search"),
+           "discovery_query":source.get("slug"),"verification_status":"reference_only","application_url_verified":False,
+           "verification_note":"Search reference. Location, eligibility, deadline and current application availability have not been verified."}
+    if kind == "hackathon":
+        job["registration_status"] = "unknown"
+    if not verify:
+        return job
+    try:
+        response = await _request(client,url,headers={"User-Agent":USER_AGENT,"Accept":"text/html"},robots=True)
+        if candidates is not None:
+            from .publisher_discovery import page_candidates
+            candidates.extend(page_candidates(response.text, str(response.url)))
+        parser = _JSONLDParser()
+        parser.feed(response.text)
+        accepted = {canonical_url(url),canonical_url(str(response.url))}
+        for payload in parser.payloads:
+            for item in _jsonld_jobs(payload,("JobPosting",) if kind=="internship" else ("Event","Hackathon")):
+                official = _jsonld_job(item,{},str(response.url)) if kind=="internship" else _event(item,{},str(response.url))
+                if official and canonical_url(official["url"]) in accepted:
+                    job.update(official)
+                    job.update(verification_status="official_metadata_verified",source=source.get("kind", "search"),verification_evidence_url=canonical_url(str(response.url)),
+                               verification_note="Matching structured metadata was read from the linked publisher under its robots policy. Eligibility still requires review.")
+                    if kind=="internship":
+                        job["application_url_verified"] = True
+                    return job
+    except (DiscoveryError,ValueError,TypeError,KeyError,AttributeError):
+        job["verification_note"] = "Publisher metadata could not be verified under its access policy or supported schema. Review the reference manually."
+    return job
+
+
 async def discover(source: dict, cache: dict | None = None) -> dict:
     if source.get("permitted") is not True:
         raise DiscoveryError("Confirm that this source permits automated read-only discovery before enabling it.")
@@ -333,10 +389,15 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
         token = os.environ.get("BRAVE_SEARCH_API_KEY")
         if not token: raise DiscoveryError("Authorized search requires BRAVE_SEARCH_API_KEY; no search integration is configured.")
         query = source.get("slug") or source.get("query") or "undergraduate software internship India"
-        url = "https://api.search.brave.com/res/v1/web/search?" + urlencode({"q": query, "count": 20, "freshness": "pw"})
+        from .regional_search import search_freshness
+        parameters = {"q": query, "count": 20}
+        freshness = search_freshness(source)
+        if freshness:
+            parameters["freshness"] = freshness
+        url = "https://api.search.brave.com/res/v1/web/search?" + urlencode(parameters)
         headers["X-Subscription-Token"] = token
     else: raise DiscoveryError("Unsupported connector. Use a documented public ATS API, authorized feed, or permitted JobPosting page.")
-    jobs = []
+    jobs, source_candidates = [], []
     async with httpx.AsyncClient(timeout=httpx.Timeout(30), follow_redirects=False, trust_env=True) as client:
         if kind in {"html", "feed"}: await _robots(client, url)
         if kind == "workday":
@@ -346,11 +407,29 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
         if response.status_code == 304:
             return {"jobs": [], "cache": {**cache, "checked_at": next_cache["checked_at"]}, "not_modified": True}
         if kind == "html":
+            from .publisher_discovery import page_candidates, page_links
+            source_candidates.extend(page_candidates(response.text, str(response.url)))
             parser = _JSONLDParser(); parser.feed(response.text)
             for payload in parser.payloads:
                 jobs.extend(_jsonld_job(value,source,str(response.url)) for value in _jsonld_jobs(payload))
                 jobs.extend(_event(value,source,str(response.url)) for value in _jsonld_jobs(payload,("Event","Hackathon")))
-            if not parser.payloads: raise DiscoveryError("This page has no supported public JobPosting/Event JSON-LD. Configure a feed or ATS API instead.")
+            for job in jobs:
+                if job:
+                    job["verification_evidence_url"] = canonical_url(str(response.url))
+            next_cache["publisher_url"] = canonical_url(str(response.url))
+            # A small employer may expose ordinary links rather than JSON-LD.
+            # Follow at most three same-origin opportunity links under robots;
+            # plain links remain explicitly unverified, with no inferred facts.
+            structured_urls = {job["url"] for job in jobs if job}
+            links = [link for link in page_links(response.text, str(response.url))
+                     if (INTERNSHIP.search(link["title"]) or HACKATHON.search(link["title"]))
+                     and urlsplit(link["url"]).netloc == urlsplit(str(response.url)).netloc
+                     and canonical_url(link["url"]) not in structured_urls][:20]
+            for index, link in enumerate(links):
+                jobs.append(await _search_reference(client, link, source, verify=index < 3, candidates=source_candidates))
+            next_cache["truncated"] = True  # One publisher page never proves a complete inventory.
+            if not parser.payloads and not links and not source_candidates:
+                raise DiscoveryError("No supported opportunity metadata or career/feed links were found. PDF-only or script-rendered announcements require manual review or an authorized feed.")
         elif kind == "feed": jobs = _feed_jobs(response.text, source, str(response.url))
         else:
             try: data = response.json()
@@ -412,9 +491,29 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
                                      remote="remote" in value.get("locationsText", "").lower()))
                 next_cache["truncated"] = data.get("total", 0) > 20
             elif kind == "search":
-                for value in (data.get("web") or {}).get("results", []):
-                    jobs.append(_job(external_id=value.get("url"), title=value.get("title", ""), company=company or "Search announcement — verify employer",
-                                     url=value.get("url", ""), description=value.get("description", "")))
+                from .publisher_discovery import page_candidates, source_candidate
+                results = [value for value in (data.get("web") or {}).get("results", []) if isinstance(value,dict)][:20]
+                candidates = [value for value in results if INTERNSHIP.search(str(value.get("title") or "")) or HACKATHON.search(str(value.get("title") or ""))]
+                for index, value in enumerate(candidates):
+                    jobs.append(await _search_reference(client,value,source,verify=index<3,candidates=source_candidates))
+                for value in results:
+                    candidate = source_candidate(str(value.get("url") or ""), str(value.get("title") or ""), str(value.get("url") or ""))
+                    if candidate:
+                        source_candidates.append(candidate)
+                # Employer/incubator search results need not mention internships
+                # in their title. Spend only the remaining publisher-read budget
+                # finding their actual ATS/careers/feed links, never invented jobs.
+                reads_left = max(0, 3 - len(candidates))
+                for value in [item for item in results if item not in candidates][:reads_left]:
+                    try:
+                        page = await _request(client, str(value.get("url") or ""), headers={"User-Agent":USER_AGENT,"Accept":"text/html"}, robots=True)
+                        source_candidates.extend(page_candidates(page.text, str(page.url)))
+                    except (DiscoveryError, ValueError, TypeError):
+                        continue
+                next_cache["truncated"] = True  # Search results never establish a complete employer inventory.
+    if kind in {"search", "html"}:
+        from .publisher_discovery import merge_candidates
+        next_cache["source_candidates"] = merge_candidates(cache.get("source_candidates", []), source_candidates)
     dedup = {}
     for job in jobs:
         if job: dedup[job["url"]] = job

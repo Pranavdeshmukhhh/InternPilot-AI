@@ -51,6 +51,8 @@ class Profile(StrictModel):
     verified_fields: list[str] = Field(default_factory=lambda:["country", "graduation_year"], max_length=50)
     preferred_employers: list[str] = Field(default_factory=lambda:["Microsoft", "Google", "Amazon", "NVIDIA", "Adobe", "Atlassian", "Salesforce"], max_length=100)
     preferred_locations: list[str] = Field(default_factory=lambda:["India", "Remote"], max_length=100)
+    preferred_local_cities: list[str] = Field(default_factory=lambda:["Nagpur", "Pune"], max_length=20)
+    include_nearby_locations: bool = True
     remote_preferred: bool = True
     paid_preferred: bool = True
     work_authorization: list[str] = Field(default_factory=list, max_length=30)
@@ -60,6 +62,18 @@ class Profile(StrictModel):
     experience_level: Literal["beginner", "intermediate", "advanced"] = "beginner"
     availability_start: str | None = Field(default=None, max_length=10)
     availability_end: str | None = Field(default=None, max_length=10)
+
+    @field_validator("preferred_local_cities")
+    @classmethod
+    def valid_local_cities(cls, values):
+        cities = []
+        for value in values:
+            value = value.strip()
+            if len(value) > 100:
+                raise ValueError("Local city names must be at most 100 characters")
+            if value and value.casefold() not in {city.casefold() for city in cities}:
+                cities.append(value)
+        return cities
 
     @field_validator("github", "linkedin", "portfolio")
     @classmethod

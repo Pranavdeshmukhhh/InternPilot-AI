@@ -36,7 +36,12 @@ class Settings:
     public_origin = (os.getenv("PUBLIC_ORIGIN") or os.getenv("RENDER_EXTERNAL_URL", "")).rstrip("/")
     cors_origins = [s.strip() for s in os.getenv("CORS_ORIGINS", public_origin or "http://localhost:3000,http://127.0.0.1:3000").split(",") if s.strip()]
     worker_heartbeat_file = os.getenv("WORKER_HEARTBEAT_FILE", "")
-    concurrency = max(1, min(4, int(os.getenv("WORKER_CONCURRENCY", "2"))))
+    concurrency = max(1, min(32, int(os.getenv("WORKER_CONCURRENCY", "2"))))
+    browser_concurrency = max(1,min(2,int(os.getenv("BROWSER_CONCURRENCY","1"))))
+    worker_kinds = tuple(item.strip() for item in os.getenv("WORKER_KINDS","discovery,application,outreach,gmail_sync").split(",") if item.strip())
+    crawl_batch_size = max(10,min(2000,int(os.getenv("CRAWL_BATCH_SIZE","200"))))
+    crawl_log_retention_days = max(1,min(90,int(os.getenv("CRAWL_LOG_RETENTION_DAYS","14"))))
+    distributed_rate_limits = os.getenv("DISTRIBUTED_RATE_LIMITS","true").lower()=="true"
     task_lease_seconds = max(60, int(os.getenv("TASK_LEASE_SECONDS", "180")))
 
     def validate(self):
@@ -60,6 +65,10 @@ class Settings:
                 break
         if not self.worker_heartbeat_file:
             errors.append("production requires a worker heartbeat file")
+        if not self.distributed_rate_limits:
+            errors.append("production requires shared source-host rate budgets")
+        if not self.worker_kinds or set(self.worker_kinds)-{"discovery","application","outreach","gmail_sync"}:
+            errors.append("worker roles must use the documented supported task kinds")
         if errors:
             raise RuntimeError("Unsafe hosting configuration: " + "; ".join(errors))
 

@@ -1,6 +1,10 @@
 # Existing-project upgrade
 
-Updated in place on 21 October 2026. Next.js, React, FastAPI, SQLAlchemy, PostgreSQL/SQLite, encrypted documents and the existing Playwright workflow were preserved. No repository was created, no Git changes were committed, and no service was deployed.
+The current production upgrade supersedes the earlier regional snapshot below: floating rounded UI, Kanban/list tracking, Gmail-reviewed outreach, India source catalog and strict filters, distributed host budgets and source jobs, real scan metrics, migration 5, HTTPS cloud configuration and encrypted backups. **434 backend tests and 41 browser checks passed.** See [implementation/setup](PRODUCTION_UPGRADE.md) and [current test evidence](TEST_REPORT.md). No deployment or real outbound email/application is claimed.
+
+Updated in place through 23 October 2026. Next.js, React, FastAPI, SQLAlchemy, PostgreSQL/SQLite, encrypted documents and the existing Playwright workflow were preserved. No repository was created, no Git changes were committed, and no service was deployed.
+
+The latest change adds separate nearby, India, international, worldwide-location and unknown-location views to both explorers, editable Nagpur/Pune preferences and named nearby groups, plus opt-in regional search queries. Search now supports both internship and hackathon references and bounded publisher metadata verification. See [regional setup and limits](REGIONAL_DISCOVERY.md). Current validation: **397 backend tests in 120.40 seconds**, **31 browser checks** across the existing and regional suites, frontend lint/typecheck/build, and Ruff passed. [Live read-only checks](../artifacts/regional-live-sources.json) returned 10 Figma listings, 70 MLH announcements and 11 InternScan India references. Counts are a timestamped snapshot, not eligibility or open-registration guarantees. Brave live search remains untested without an API key. The remaining sections retain earlier upgrade evidence.
 
 ## What works now
 

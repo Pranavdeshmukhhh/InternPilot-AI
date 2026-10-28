@@ -37,6 +37,14 @@ def passed(name):
     report["checks"].append({"name": name, "passed": True})
     print(name + ": passed", flush=True)
 
+
+def navigate(page,name):
+    expect(page.locator(".detail-sheet[data-state='closed']")).to_have_count(0)
+    target=page.get_by_role("button",name=name,exact=True)
+    if not target.is_visible() and name in {"Discovery sources","Application policies","Activity & logs"}:
+        page.get_by_role("button",name="Automation center",exact=True).click()
+    target.click()
+
 with sync_playwright() as pw:
     browser = pw.chromium.launch(executable_path=os.getenv("PLAYWRIGHT_CHROMIUM_EXECUTABLE") or shutil.which("chromium"), headless=True, args=["--no-sandbox"])
     context = browser.new_context(viewport={"width": 1440, "height": 1050}, accept_downloads=True)
@@ -65,20 +73,20 @@ with sync_playwright() as pw:
     assert facts["skills"] == ["Python", "TypeScript", "Git"]
     assert "skills" in facts["verified_fields"]
     passed("Profile editing, comma-separated skills, explicit verification and persistence")
-    page.get_by_role("button", name="Application policies", exact=True).click()
+    navigate(page, "Application policies")
     page.get_by_text("Assisted Apply", exact=True).click()
     page.get_by_role("button", name="Save application policies", exact=True).click()
     page.get_by_role("status").filter(has_text="Application policies saved").wait_for()
     policy = context.request.get(BASE + "/api/policy").json()
     assert policy["mode"] == "assisted" and policy["auto_consent"] is False
     passed("Assisted mode saved; Auto Apply remains inactive")
-    page.get_by_role("button", name="Discovery sources", exact=True).click()
+    navigate(page, "Discovery sources")
     page.get_by_role("heading", name="Configured sources").wait_for()
     assert page.locator(".source-row").count() > 0
     passed("Actual configured source health renders")
     page.get_by_role("button", name="Overview", exact=True).click()
     page.screenshot(path=str(OUT / "dashboard-desktop.png"), full_page=True)
-    page.get_by_role("button", name="Application policies", exact=True).click()
+    navigate(page, "Application policies")
     page.get_by_role("button", name="Run local application test", exact=True).click()
     deadline = time.monotonic() + 75
     local = None
@@ -100,13 +108,13 @@ with sync_playwright() as pw:
     page.get_by_text("LOCAL TEST", exact=True).first.wait_for()
     page.get_by_text("Confirmation:", exact=False).wait_for()
     passed("Application list labels synthetic test and displays authoritative confirmation")
-    page.get_by_role("button", name="Documents", exact=True).click()
+    page.get_by_role("button", name="Resume studio", exact=True).click()
     with page.expect_download() as d:
         page.get_by_role("link", name="Download", exact=True).filter(has_text="Download").first.click()
     download = d.value
     download.save_as(OUT / ("ui-" + download.suggested_filename))
     passed("Authenticated document download")
-    page.get_by_role("button",name="Discovery sources",exact=True).click()
+    navigate(page, "Discovery sources")
     synthetic = [{"title":f"Software Engineering Intern — SYNTHETIC UI {index:02d}",
                   "company":"Local Acceptance Fixture","job_url":f"https://acceptance.example.invalid/intern/{index}",
                   "location":"India","is_remote":index%2==0,"compensation":"INR 10000 / month" if index%2==0 else None,"description":"Local synthetic metadata fixture; Python."} for index in range(25)]
@@ -151,7 +159,7 @@ with sync_playwright() as pw:
     passed("Saved opportunities and dark theme persist after page reload")
     page.get_by_role("button",name="Hackathon explorer",exact=True).click()
     page.get_by_role("heading",name="Hackathons",exact=True).wait_for()
-    page.get_by_role("button",name="Recommended",exact=True).click()
+    page.get_by_role("button",name="AI matches",exact=True).click()
     page.get_by_role("heading",name="Recommended for you",exact=True).wait_for()
     passed("Dedicated hackathon and recommendation views load without replacing internship view")
     page.get_by_role("button",name="Notifications",exact=True).click()
@@ -161,7 +169,7 @@ with sync_playwright() as pw:
     assert context.request.get(BASE+"/api/notification-settings").json()["quiet_hours_enabled"]
     assert page.get_by_label("Email delivery",exact=True).is_disabled()
     passed("Quiet hours save and unconfigured outbound provider controls stay unavailable")
-    page.get_by_role("button",name="Account security",exact=True).click()
+    page.get_by_role("button",name="Settings",exact=True).click()
     page.get_by_label("Current password",exact=True).fill(password)
     new_password = secrets.token_urlsafe(24)
     page.get_by_label("New password",exact=True).fill(new_password)

@@ -13,6 +13,95 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
+class HostBudget(Base):
+    __tablename__ = "host_budgets"
+    host: Mapped[str] = mapped_column(String(253),primary_key=True)
+    next_allowed: Mapped[str] = mapped_column(String(40))
+
+
+class CrawlRun(Base):
+    __tablename__ = "crawl_runs"
+    id: Mapped[str] = mapped_column(String(36),primary_key=True,default=uid)
+    owner_id: Mapped[str] = mapped_column(String(36),index=True)
+    source_id: Mapped[str] = mapped_column(String(36),index=True)
+    started_at: Mapped[str] = mapped_column(default=now,index=True)
+    finished_at: Mapped[str | None] = mapped_column(nullable=True)
+    seconds: Mapped[float | None] = mapped_column(Float,nullable=True)
+    records: Mapped[int] = mapped_column(default=0)
+    outcome: Mapped[str] = mapped_column(String(30),default="running")
+
+
+class GmailConnection(Base):
+    __tablename__ = "gmail_connections"
+    owner_id: Mapped[str] = mapped_column(String(36),primary_key=True)
+    email_hash: Mapped[str] = mapped_column(String(64),unique=True)
+    data_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    status: Mapped[str] = mapped_column(String(30),default="connected")
+    last_reserved_at: Mapped[str | None] = mapped_column(nullable=True)
+    last_sync_at: Mapped[str | None] = mapped_column(nullable=True)
+    sync_cursor: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[str] = mapped_column(default=now)
+
+
+class GmailOAuthState(Base):
+    __tablename__ = "gmail_oauth_states"
+    state_hash: Mapped[str] = mapped_column(String(64),primary_key=True)
+    owner_id: Mapped[str] = mapped_column(String(36),index=True)
+    session_hash: Mapped[str] = mapped_column(String(64))
+    verifier_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    expires_at: Mapped[str] = mapped_column(String(40))
+
+
+class OutreachSettings(Base):
+    __tablename__ = "outreach_settings"
+    owner_id: Mapped[str] = mapped_column(String(36),primary_key=True)
+    data_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+
+
+class OutreachContact(Base):
+    __tablename__ = "outreach_contacts"
+    __table_args__ = (UniqueConstraint("owner_id","email_hash",name="uq_outreach_contact"),)
+    id: Mapped[str] = mapped_column(String(36),primary_key=True,default=uid)
+    owner_id: Mapped[str] = mapped_column(String(36),index=True)
+    email_hash: Mapped[str] = mapped_column(String(64))
+    data_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    status: Mapped[str] = mapped_column(String(30),default="active")
+    created_at: Mapped[str] = mapped_column(default=now)
+
+
+class OutreachMessage(Base):
+    __tablename__ = "outreach_messages"
+    id: Mapped[str] = mapped_column(String(36),primary_key=True,default=uid)
+    owner_id: Mapped[str] = mapped_column(String(36),index=True)
+    contact_id: Mapped[str] = mapped_column(String(36),index=True)
+    parent_id: Mapped[str | None] = mapped_column(String(36),nullable=True)
+    status: Mapped[str] = mapped_column(String(30),default="draft",index=True)
+    content_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    approval_digest: Mapped[str | None] = mapped_column(String(64),nullable=True)
+    approved_at: Mapped[str | None] = mapped_column(nullable=True)
+    scheduled_at: Mapped[str | None] = mapped_column(nullable=True,index=True)
+    sending_started_at: Mapped[str | None] = mapped_column(nullable=True)
+    sent_at: Mapped[str | None] = mapped_column(nullable=True)
+    provider_id: Mapped[str | None] = mapped_column(String(255),nullable=True)
+    thread_id: Mapped[str | None] = mapped_column(String(255),nullable=True)
+    rfc_message_id: Mapped[str] = mapped_column(String(150),default=lambda:f"<{uid()}@internpilot.local>")
+    reason: Mapped[str] = mapped_column(String(500),default="Draft awaiting review")
+    created_at: Mapped[str] = mapped_column(default=now)
+    updated_at: Mapped[str] = mapped_column(default=now)
+
+
+class OutreachReply(Base):
+    __tablename__ = "outreach_replies"
+    __table_args__ = (UniqueConstraint("owner_id","provider_id",name="uq_outreach_reply"),)
+    id: Mapped[str] = mapped_column(String(36),primary_key=True,default=uid)
+    owner_id: Mapped[str] = mapped_column(String(36),index=True)
+    contact_id: Mapped[str] = mapped_column(String(36),index=True)
+    provider_id: Mapped[str] = mapped_column(String(255))
+    kind: Mapped[str] = mapped_column(String(30))
+    data_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    received_at: Mapped[str] = mapped_column(default=now)
+
+
 class SchemaVersion(Base):
     __tablename__ = "schema_versions"
     version: Mapped[int] = mapped_column(primary_key=True)

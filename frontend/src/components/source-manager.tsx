@@ -1,0 +1,16 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Settings2, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+type Source = Record<string, any>;
+export function SourceManager({ sources, busy, onEdit, onRemove, onToggle }: { sources: Source[]; busy: boolean; onEdit: (source: Source) => void; onRemove: (source: Source) => void; onToggle: (source: Source) => void }) {
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [page, setPage] = useState(1);
+  const filtered = useMemo(() => sources.filter(source => (!search || `${source.company} ${source.kind} ${source.slug}`.toLowerCase().includes(search.toLowerCase())) && (!status || (status === 'disabled' ? !source.enabled : status === 'error' ? !!source.error : source.enabled && source.permitted))), [sources, search, status]);
+  const pages = Math.max(1, Math.ceil(filtered.length / 25));
+  const current = Math.min(page, pages);
+  return <><div className="search-toolbar mx-5 my-4"><input aria-label="Search sources" placeholder="Find a company or connector…" value={search} onChange={event => { setSearch(event.target.value); setPage(1); }} /><select aria-label="Source health filter" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="">All sources</option><option value="enabled">Enabled</option><option value="error">Needs attention</option><option value="disabled">Disabled</option></select></div><div className="source-list">{filtered.slice((current - 1) * 25, current * 25).map(source => <div className="source-row" key={source.id}><span className="company-mark">{source.company.slice(0, 2)}</span><div className="source-main"><strong>{source.company}</strong><span>{source.kind} · {source.slug || source.url || 'No board configured'}</span><small>{source.error || (source.last_success ? `Last success ${new Date(source.last_success).toLocaleString()}` : source.last_attempt ? 'Checked; no successful response yet' : 'Awaiting first check')}</small></div><div className="source-controls"><span className="footnote">{!source.enabled ? 'Disabled' : !source.permitted ? 'Permission needed' : source.status.replaceAll('_', ' ')}</span><button className={`switch ${source.enabled ? 'on' : ''}`} role="switch" aria-checked={!!source.enabled} aria-label={`${source.enabled ? 'Disable' : 'Enable'} ${source.company}`} disabled={busy} onClick={() => onToggle(source)}><span /></button><button className="icon-btn" aria-label={`Edit ${source.company}`} onClick={() => onEdit(source)}><Settings2 size={16} /></button><button className="icon-btn" aria-label={`Remove ${source.company}`} onClick={() => onRemove(source)}><Trash2 size={16} /></button></div></div>)}</div>{!filtered.length && <p className="outreach-empty">No sources match these filters.</p>}{pages > 1 && <div className="pagination"><span>{filtered.length} sources · Page {current} of {pages}</span><div><Button variant="outline" size="sm" disabled={current <= 1} onClick={() => setPage(current - 1)}><ArrowLeft size={13} />Previous</Button><Button variant="outline" size="sm" disabled={current >= pages} onClick={() => setPage(current + 1)}>Next<ArrowRight size={13} /></Button></div></div>}</>;
+}

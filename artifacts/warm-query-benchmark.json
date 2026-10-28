@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-27T00:17:29.081910+00:00",
+  "database": "SQLite",
+  "synthetic_only": true,
+  "records": 10000,
+  "page_size": 20,
+  "matching_evaluations": 20,
+  "orm_hydrations": 20,
+  "query_seconds": 0.470546,
+  "candidate_batch_size": 200,
+  "exact_totals_scan_candidates": true,
+  "http_requests": 0,
+  "browser_launches": 0,
+  "note": "One local newest-page measurement, not cloud throughput, indexed-only pagination or a best-match benchmark."
+}

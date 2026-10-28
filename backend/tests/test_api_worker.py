@@ -116,6 +116,8 @@ def stack(tmp_path, request):
         "REGISTRATION_TOKEN": "", "ENVIRONMENT": "development", "DATABASE_SSLMODE": "",
         "WORKER_HEARTBEAT_FILE": "",
     }
+    for key in ("GMAIL_CLIENT_ID","GMAIL_CLIENT_SECRET","GMAIL_REDIRECT_URI","BRAVE_SEARCH_API_KEY","SMTP_HOST","SMTP_PASSWORD","TELEGRAM_BOT_TOKEN","TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","LLM_API_KEY"):
+        env[key]=""
     env.update({key: str(value).replace("{data_dir}", str(tmp_path)) for key, value in getattr(request, "param", {}).items()})
     log = (tmp_path / "api.log").open("w+")
     process = subprocess.Popen(

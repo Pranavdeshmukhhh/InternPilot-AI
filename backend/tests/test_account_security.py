@@ -56,7 +56,7 @@ def test_password_change_rotates_current_session_and_revokes_all_old_sessions(st
     assert result["csrf_token"] != old_csrf
     assert current.cookies.get("internpilot_session") != old_cookie
     assert "HttpOnly" in response.headers["set-cookie"]
-    assert "samesite=strict" in response.headers["set-cookie"].lower()
+    assert "samesite=lax" in response.headers["set-cookie"].lower()
     assert old_current.get("/api/auth/session").status_code == 401
     assert secondary.get("/api/auth/session").status_code == 401
     assert unrelated.get("/api/auth/session").status_code == 200
