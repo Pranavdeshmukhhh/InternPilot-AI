@@ -1,0 +1,111 @@
+:root {
+  color-scheme: light;
+  --canvas: #f7f7f3;
+  --surface: #ffffff;
+  --surface-inset: #f0f1ee;
+  --surface-hover: #f5f7f5;
+  --text-primary: #20272d;
+  --text-secondary: #58636b;
+  --text-muted: #626f79;
+  --border-subtle: #daddd8;
+  --border-control: #818a84;
+  --action: #365e78;
+  --on-action: #ffffff;
+  --action-soft: #ebf1f5;
+  --focus-ring: #365e78;
+  --success-text: #32634f;
+  --success-soft: #eaf3ed;
+  --warning-text: #805c20;
+  --warning-soft: #fbf3de;
+  --danger-text: #9c3f43;
+  --danger-soft: #fbecef;
+  --radius: 20px;
+  --shadow-menu: 0 12px 40px #20272d14;
+  /* Compatibility aliases for preserved provider/admin components. */
+  --paper: var(--canvas);
+  --white: var(--surface);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --faint: var(--text-muted);
+  --line: var(--border-subtle);
+  --teal: var(--action);
+  --teal-dark: var(--action);
+  --accent-soft: var(--action-soft);
+  --surface-muted: var(--surface-inset);
+  --field-bg: var(--surface);
+  --button-ink: var(--on-action);
+  --red: var(--danger-text);
+  --amber: var(--warning-text);
+  --focus: var(--focus-ring);
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #171b1f;
+  --surface: #1f252a;
+  --surface-inset: #252d33;
+  --surface-hover: #29323a;
+  --text-primary: #edf0f2;
+  --text-secondary: #b7c1c7;
+  --text-muted: #aab7c0;
+  --border-subtle: #414d56;
+  --border-control: #72838f;
+  --action: #a2c5dc;
+  --on-action: #172630;
+  --action-soft: #283c4a;
+  --focus-ring: #a2c5dc;
+  --success-text: #a6d4b6;
+  --success-soft: #23372c;
+  --warning-text: #e8c57e;
+  --warning-soft: #3c3322;
+  --danger-text: #f0b2b6;
+  --danger-soft: #3e282c;
+  --shadow-menu: 0 12px 40px #00000030;
+}
+:root .brand-symbol.brand-mark-shell {
+  background: transparent;
+  color: var(--text-primary);
+}
+:root .brand-symbol.brand-mark-shell svg {
+  width: 34px;
+  height: 34px;
+}
+
+.invitation-form {
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+}
+.invitation-result {
+  margin-top: 24px;
+  padding-block: 20px;
+  border-block: 1px solid var(--border-subtle);
+  overflow-wrap: anywhere;
+}
+.invitation-list {
+  padding: 0;
+  margin: 24px 0;
+  list-style: none;
+}
+.invitation-list li {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.invitation-list strong,
+.invitation-list small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.invitation-list small {
+  margin-top: 5px;
+  color: var(--text-secondary);
+}
+@media (max-width: 600px) {
+  .invitation-list li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

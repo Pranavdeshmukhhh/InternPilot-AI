@@ -3,7 +3,7 @@
 Version 1 is the initial schema. Future schema changes must add numbered migration
 functions instead of modifying existing persisted schema with create_all.
 """
-from sqlalchemy import text, inspect
+from sqlalchemy import text, inspect, Table, MetaData
 from .database import Base, engine
 from . import models  # noqa: F401
 
@@ -41,7 +41,11 @@ def migrate():
                 for kind,company,url,interval in (("mlh","Major League Hacking",None,1800),("internscan","InternScan India feed","https://internscan.vercel.app/in/api/active.json",900)):
                     exists = conn.execute(models.Source.__table__.select().with_only_columns(models.Source.id).where(models.Source.owner_id==owner,models.Source.kind==kind)).first()
                     if not exists:
-                        conn.execute(models.Source.__table__.insert().values(owner_id=owner,kind=kind,slug="",company=company,url=url,permitted=True,enabled=True,interval_seconds=interval))
+                        # Freeze legacy data-migration inputs: current ORM defaults
+                        # can contain columns absent from a genuine v1/v2 schema.
+                        legacy = Table("sources", MetaData(), autoload_with=conn)
+                        conn.execute(legacy.insert().values(id=models.uid(),owner_id=owner,kind=kind,slug="",company=company,url=url,
+                            permitted=True,enabled=True,interval_seconds=interval,status="pending",failures=0,cache={},discovered_count=0))
             conn.execute(models.SchemaVersion.__table__.insert().values(version=3, applied_at=models.now()))
         if 4 not in versions:
             existing = {column["name"] for column in inspect(conn).get_columns("users")}
@@ -61,8 +65,17 @@ def migrate():
             ):
                 conn.execute(text(statement))
             conn.execute(models.SchemaVersion.__table__.insert().values(version=5,applied_at=models.now()))
+        if 6 not in versions:
+            from .catalog_migrations import upgrade_schema
+            upgrade_schema(conn)
+            conn.execute(models.SchemaVersion.__table__.insert().values(version=6, applied_at=models.now()))
+
+        if 7 not in versions:
+            for table in (models.CoordinationState, models.RequestLease, models.DiscoveryHealth):
+                table.__table__.create(conn, checkfirst=True)
+            conn.execute(models.SchemaVersion.__table__.insert().values(version=7, applied_at=models.now()))
 
 
 if __name__ == "__main__":
     migrate()
-    print("Database schema is current (version 5).")
+    print("Database schema is current (version 7). Run python -m app.catalog_migrations backfill for existing projections.")

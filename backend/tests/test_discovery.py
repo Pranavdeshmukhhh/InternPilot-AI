@@ -128,7 +128,7 @@ def test_hackathon_rss_is_a_reference_and_preserves_missing_remote(network):
     assert jobs[0]["remote"] is None and jobs[0]["deadline"] is None
 
 
-@pytest.mark.parametrize("url", ["http://example.com/jobs", "https://127.0.0.1/", "https://[::1]/", "https://169.254.169.254/latest", "https://user:secret@example.com", "https://example.com:8080/", "https://example.local/", "https://linkedin.com/jobs", "https://www.indeed.com/jobs", "file:///etc/passwd"])
+@pytest.mark.parametrize("url", ["http://example.com/jobs", "https://127.0.0.1/", "https://[::1]/", "https://[fd00::1]/", "https://[fe80::1]/", "https://[::ffff:10.0.0.1]/", "https://169.254.169.254/latest", "https://user:secret@example.com", "https://example.com:8080/", "https://example.local/", "https://linkedin.com/jobs", "https://www.indeed.com/jobs", "file:///etc/passwd"])
 def test_unsafe_and_restricted_destinations_blocked(url):
     with pytest.raises(discovery.DiscoveryError): discovery._syntax_url(url)
 

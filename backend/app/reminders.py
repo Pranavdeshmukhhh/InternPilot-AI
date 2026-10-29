@@ -1,11 +1,11 @@
 """In-app deadline alerts, deduplicated durably across worker restarts."""
 from datetime import datetime, timedelta, timezone
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.exc import IntegrityError
 from .database import SessionLocal
-from .models import User, Application, DeadlineReminder, Notification
+from .models import User, Application, DeadlineReminder, Notification, Opportunity
 from .security import decrypt, digest
-from .services import visible_jobs, job_view, timestamp, event, has_current_permitted_source
+from .services import job_view, timestamp, event, permitted_opportunity_ids
 from .schemas import Policy
 
 
@@ -24,12 +24,19 @@ def schedule_deadline_reminders(at=None):
             if not allowance:
                 continue
             profile = decrypt(user.profile_encrypted)
-            applied = set(db.scalars(select(Application.opportunity_id).where(Application.owner_id == user.id)))
+            histories = list(db.execute(select(Application.opportunity_id, Opportunity.canonical_id, Opportunity.url_key)
+                .join(Opportunity, Opportunity.id == Application.opportunity_id).where(Application.owner_id == user.id)))
+            applied = {ident for original, canonical, _ in histories for ident in (original, canonical) if ident}
+            applied_urls = {key for _, _, key in histories if key}
             candidates = []
-            for job in visible_jobs(db, user.id):
+            from .catalog_query import visible_ids
+            jobs = list(db.scalars(select(Opportunity).where(Opportunity.id.in_(visible_ids(user.id)),
+                or_(Opportunity.projection_version != 1, (Opportunity.deadline_at > at) & (Opportunity.deadline_at <= at + timedelta(hours=policy.deadline_reminder_hours))))))
+            permitted = permitted_opportunity_ids(db, user.id, [job.id for job in jobs])
+            for job in jobs:
                 deadline = timestamp(job.data.get("deadline"))
                 verified_at = timestamp(job.last_verified)
-                if not has_current_permitted_source(db, user.id, job.id) or job.id in applied or job.data.get("is_demo") or job.data.get("active") is False or not deadline:
+                if job.id not in permitted or job.id in applied or job.url_key and job.url_key in applied_urls or job.data.get("is_demo") or job.data.get("active") is False or not deadline:
                     continue
                 if not verified_at or verified_at < at - timedelta(hours=48):
                     continue

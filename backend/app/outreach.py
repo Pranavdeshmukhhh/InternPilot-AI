@@ -124,9 +124,17 @@ async def send_message(message_id,*,task_id=None,lease_owner=None):
     from .services import valid_lease
     with SessionLocal() as db:
         candidate = db.get(OutreachMessage,message_id)
-        followup_owner = candidate.owner_id if candidate and candidate.parent_id else None
+        followup_owner = candidate.owner_id if candidate and candidate.parent_id and candidate.status == "approved" and not candidate.sending_started_at else None
     if followup_owner:
-        await sync_replies(followup_owner)
+        try:
+            await refresh_followup_recipient(followup_owner, message_id)
+        except Exception:
+            with SessionLocal() as db:
+                row = db.get(OutreachMessage, message_id)
+                if row and row.status == "approved" and not row.sending_started_at:
+                    row.status, row.reason = "needs_review", "Recipient thread verification failed; review before approving again"
+                    db.commit()
+            return
     with SessionLocal() as db:
         row = db.get(OutreachMessage,message_id)
         if not row or row.status!="approved" or row.sending_started_at:
@@ -224,32 +232,48 @@ def _plain_payload(payload):
     return "\n".join(result)[:16000]
 
 
-async def sync_replies(owner_id):
-    """Inspect only known outreach threads; bounded rotating pages, never the whole inbox."""
+async def refresh_followup_recipient(owner_id, message_id):
+    """Fail closed unless this recipient's actual prior threads were inspected.
+
+    A rotating background page cannot authorize sending. All known contact
+    threads are checked (up to 25); oversized/unsupported responses require
+    human review. The subsequent transaction rechecks persisted suppression.
+    """
     with SessionLocal() as db:
-        connection = db.get(GmailConnection,owner_id)
-        user = db.get(User,owner_id)
-        if not connection or not user or user.disabled or connection.status!="connected":
-            return
-        rows = list(db.scalars(select(OutreachMessage).where(OutreachMessage.owner_id==owner_id,OutreachMessage.thread_id!=None).order_by(OutreachMessage.created_at)))
-        if not rows:
-            connection.last_sync_at = now();db.commit()
-            await sync_bounces(owner_id)
-            return
-        start = connection.sync_cursor%len(rows)
-        selected = (rows[start:]+rows[:start])[:25]
-        connection.sync_cursor = (start+len(selected))%len(rows)
-        sent_ids = {row.provider_id for row in rows}
+        row = db.get(OutreachMessage, message_id)
+        if not row or row.owner_id != owner_id or not row.parent_id:
+            raise ValueError("Follow-up is unavailable")
+        parent = db.get(OutreachMessage, row.parent_id)
+        connection = db.get(GmailConnection, owner_id)
+        if not parent or parent.owner_id != owner_id or parent.contact_id != row.contact_id or parent.status != "sent" or not parent.provider_id or not parent.thread_id or not connection or connection.status != "connected":
+            raise ValueError("Parent thread or sender is unavailable")
+        rows = list(db.scalars(select(OutreachMessage).where(OutreachMessage.owner_id == owner_id,
+            OutreachMessage.contact_id == row.contact_id, OutreachMessage.thread_id != None)
+            .order_by(OutreachMessage.id).limit(1001)))
+        threads = {sent.thread_id: sent for sent in rows}
+        if len(rows) > 1000 or len(threads) > 25:
+            raise ValueError("Recipient history exceeds the safe verification budget")
         identity = decrypt(connection.data_encrypted)["email"]
-        db.commit()
+        sent_ids = {sent.provider_id for sent in rows}
+    await _sync_threads(owner_id, list(threads.values()), identity, sent_ids, require_sent_evidence=True)
+
+
+async def _sync_threads(owner_id, selected, identity, sent_ids, *, require_sent_evidence=False):
     for sent in selected:
         thread = await gmail.request(owner_id,"GET","threads/"+str(sent.thread_id),params={"format":"full"})
-        for reply in (thread.get("messages") or [])[:100]:
+        messages = thread.get("messages")
+        if not isinstance(messages, list) or len(messages) > 1000 or any(not isinstance(item, dict) or not item.get("id") or not isinstance(item.get("payload"), dict) for item in messages):
+            raise ValueError("Thread inventory could not be verified completely")
+        if require_sent_evidence and (thread.get("id") != sent.thread_id or not sent.provider_id or sent.provider_id not in {message["id"] for message in messages}):
+            raise ValueError("The thread did not confirm the known sent message")
+        for reply in messages:
             if not isinstance(reply,dict) or not reply.get("id") or reply["id"] in sent_ids:
                 continue
             payload = reply.get("payload") or {}
             headers = {str(h.get("name","")).casefold():str(h.get("value","")) for h in payload.get("headers",[]) if isinstance(h,dict)}
             addresses = {address.casefold() for _,address in getaddresses([headers.get("from","")])}
+            if not addresses and require_sent_evidence:
+                raise ValueError("Thread sender metadata is incomplete")
             if identity in addresses or not addresses:
                 continue
             body = _plain_payload(payload)
@@ -257,6 +281,8 @@ async def sync_replies(owner_id):
                 if db.scalar(select(OutreachReply.id).where(OutreachReply.owner_id==owner_id,OutreachReply.provider_id==str(reply["id"]))):
                     continue
                 contact = db.get(OutreachContact,sent.contact_id)
+                if not contact or contact.owner_id != owner_id:
+                    raise ValueError("Recipient is unavailable")
                 address = decrypt(contact.data_encrypted)["email"]
                 bounce = any("mailer-daemon@" in item or "postmaster@" in item for item in addresses) and (address.casefold() in body.casefold() or sent.rfc_message_id in body)
                 # Gmail thread membership alone does not authorize unrelated senders
@@ -277,6 +303,27 @@ async def sync_replies(owner_id):
                     pending.status,pending.reason = "cancelled","A reply, bounce or opt-out stopped outreach"
                 event(db,owner_id,"outreach_"+kind,"Recruiter thread updated; further outreach stopped",notify=True)
                 db.commit()
+
+
+async def sync_replies(owner_id):
+    """Inspect only known outreach threads; bounded rotating pages, never the whole inbox."""
+    with SessionLocal() as db:
+        connection = db.get(GmailConnection,owner_id)
+        user = db.get(User,owner_id)
+        if not connection or not user or user.disabled or connection.status!="connected":
+            return
+        rows = list(db.scalars(select(OutreachMessage).where(OutreachMessage.owner_id==owner_id,OutreachMessage.thread_id!=None).order_by(OutreachMessage.created_at)))
+        if not rows:
+            connection.last_sync_at = now();db.commit()
+            await sync_bounces(owner_id)
+            return
+        start = connection.sync_cursor%len(rows)
+        selected = (rows[start:]+rows[:start])[:25]
+        connection.sync_cursor = (start+len(selected))%len(rows)
+        sent_ids = {row.provider_id for row in rows}
+        identity = decrypt(connection.data_encrypted)["email"]
+        db.commit()
+    await _sync_threads(owner_id, selected, identity, sent_ids)
     await sync_bounces(owner_id)
     with SessionLocal() as db:
         row = db.get(GmailConnection,owner_id)

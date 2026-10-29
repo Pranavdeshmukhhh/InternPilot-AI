@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from urllib.parse import parse_qs, urlsplit
+from zoneinfo import ZoneInfo
 
 import httpx
 import pytest
@@ -145,7 +146,12 @@ def test_gap_and_daily_cap_are_enforced_before_checkpoint(mailbox,monkeypatch):
     asyncio.run(outreach.send_message(message))
     with mailbox.db() as db:
         assert db.get(OutreachMessage,message).sending_started_at is None
-        assert services.timestamp(db.get(OutreachMessage,message).scheduled_at)>datetime.now(timezone.utc)+timedelta(hours=1)
+        # A daily quota resets at sender-local midnight, which can be less than
+        # an hour away. Check the calendar boundary, not time of day on CI.
+        scheduled = services.timestamp(db.get(OutreachMessage,message).scheduled_at)
+        zone = ZoneInfo(mailbox.policy["timezone"])
+        assert scheduled > datetime.now(timezone.utc)
+        assert scheduled.astimezone(zone).date() > datetime.now(zone).date()
 
 
 def test_provider_timeout_and_restart_never_retry_uncertain_send(mailbox,monkeypatch):

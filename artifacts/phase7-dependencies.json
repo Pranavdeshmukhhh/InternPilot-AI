@@ -1,0 +1,113 @@
+{
+  "at": "2026-10-28",
+  "python_audit_command": "pip-audit -r backend/requirements.lock --disable-pip --no-deps -f json",
+  "python_packages_audited": 46,
+  "before": [
+    {
+      "name": "cryptography",
+      "version": "46.0.5",
+      "advisory_records": 11,
+      "distinct_ids": [
+        "GHSA-537c-gmf6-5ccf",
+        "PYSEC-2026-35",
+        "PYSEC-2026-3552",
+        "PYSEC-2026-3553",
+        "PYSEC-2026-3554",
+        "PYSEC-2026-36"
+      ]
+    },
+    {
+      "name": "pypdf",
+      "version": "6.9.1",
+      "advisory_records": 64,
+      "distinct_ids": [
+        "CVE-2026-113786",
+        "CVE-2026-113789",
+        "CVE-2026-113790",
+        "CVE-2026-113791",
+        "CVE-2026-113792",
+        "CVE-2026-113793",
+        "CVE-2026-113794",
+        "CVE-2026-113795",
+        "CVE-2026-115572",
+        "CVE-2026-115580",
+        "CVE-2026-115585",
+        "CVE-2026-57204",
+        "PYSEC-2026-3004",
+        "PYSEC-2026-3006",
+        "PYSEC-2026-3007",
+        "PYSEC-2026-3009",
+        "PYSEC-2026-3010",
+        "PYSEC-2026-3011",
+        "PYSEC-2026-3012",
+        "PYSEC-2026-3016",
+        "PYSEC-2026-3018",
+        "PYSEC-2026-3020",
+        "PYSEC-2026-3021",
+        "PYSEC-2026-3022",
+        "PYSEC-2026-3025",
+        "PYSEC-2026-3026",
+        "PYSEC-2026-3610",
+        "PYSEC-2026-3611",
+        "PYSEC-2026-3612",
+        "PYSEC-2026-3613",
+        "PYSEC-2026-3655",
+        "PYSEC-2026-3656",
+        "PYSEC-2026-3910",
+        "PYSEC-2026-3911",
+        "PYSEC-2026-3912",
+        "PYSEC-2026-3913",
+        "PYSEC-2026-4153",
+        "PYSEC-2026-4154",
+        "PYSEC-2026-4155",
+        "PYSEC-2026-4156",
+        "PYSEC-2026-4157",
+        "PYSEC-2026-4158",
+        "PYSEC-2026-4159",
+        "PYSEC-2026-4160"
+      ]
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2",
+      "advisory_records": 2,
+      "distinct_ids": [
+        "PYSEC-2026-1845"
+      ]
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.22",
+      "advisory_records": 10,
+      "distinct_ids": [
+        "PYSEC-2026-3036",
+        "PYSEC-2026-3037",
+        "PYSEC-2026-3038",
+        "PYSEC-2026-3039",
+        "PYSEC-2026-3040"
+      ]
+    }
+  ],
+  "after_vulnerabilities": [],
+  "npm_audit_command": "npm audit --json",
+  "npm": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 49,
+      "dev": 235,
+      "optional": 39,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 321
+    }
+  },
+  "pip_check": "No broken requirements found",
+  "note": "Known-advisory lookup for pinned versions, not proof of exploitability or absence of unknown vulnerabilities. Python audit records contain duplicate advisory IDs."
+}

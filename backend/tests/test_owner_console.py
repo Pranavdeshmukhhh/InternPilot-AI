@@ -160,4 +160,19 @@ def test_version_three_migration_defaults_every_existing_account_to_member(stack
     stack.python('from app.migrate import migrate; migrate();migrate()')
     assert member.get('/api/auth/session').json()['user']['role'] == 'member'
     with stack.db() as db:
-        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4,5]
+        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4,5,6,7]
+
+
+def test_worker_controls_require_owner_action_and_preserve_tenant_diagnostics(stack):
+    owner,_=owner_account(stack)
+    member,_=stack.register('controls-member@example.invalid')
+    assert member.get('/api/owner/workers/control').status_code==403
+    assert owner.post('/api/owner/workers/control',json=approval(paused=True,consent=False)).status_code==422
+    response=owner.post('/api/owner/workers/control',json=approval(paused=True,paused_kinds=['discovery']))
+    assert response.status_code==200,response.text
+    assert owner.get('/api/dashboard').json()['worker']['control']['paused'] is True
+    sources=owner.get('/api/sources').json()
+    source_id=sources[0]['id']
+    assert owner.get(f'/api/sources/{source_id}/diagnostics').status_code==200
+    assert member.get(f'/api/sources/{source_id}/diagnostics').status_code==404
+    assert owner.post('/api/owner/workers/control',json=approval(paused=False)).status_code==200

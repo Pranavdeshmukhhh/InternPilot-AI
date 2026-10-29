@@ -1,0 +1,37 @@
+{
+  "project_id": "appgprj_6ae2c5d885c88191a960d9b661648a37",
+  "version": {
+    "id": "appgprj_6ae2c5d885c88191a960d9b661648a37~appgver_44c7373280508191a8187092a13a1201",
+    "project_id": "appgprj_6ae2c5d885c88191a960d9b661648a37",
+    "version_number": 3,
+    "source": {
+      "commit_sha": "4cf161727ebc198daa06d528cdccf69e02e20c1e"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_000000006ffc8208bfcbc30c9442cc8d",
+      "content_hash": "sha256:d514be6b72d5ad455820c4b24552e6c1a8e5cea81100d4efed90bc8f24286b39",
+      "size_bytes": 1587200,
+      "file_count": 44
+    },
+    "screenshot_url": null,
+    "deployment_id": null
+  },
+  "deployment": {
+    "id": "appgdep_6ae2d01a87ec8191817636c5e4436ec2",
+    "project_id": "appgprj_6ae2c5d885c88191a960d9b661648a37",
+    "title": "InternPilot AI",
+    "version_id": "appgprj_6ae2c5d885c88191a960d9b661648a37~appgver_44c7373280508191a8187092a13a1201",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://internpilot-ai-notebook.antigravityfree101.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6ae2c5d885c88191a960d9b661648a37",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-10-29T04:48:46.213875+00:00"
+  },
+  "audience": "public",
+  "scope": "Static read-only public introduction/demo and dependency notices; no private APIs, accounts, user data or workers"
+}

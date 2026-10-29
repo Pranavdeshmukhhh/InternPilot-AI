@@ -1,0 +1,14 @@
+{
+  "synthetic_environment": true,
+  "images_built": false,
+  "results": {
+    "cloud": {
+      "returncode": 0,
+      "configuration_valid": true
+    },
+    "local": {
+      "returncode": 0,
+      "configuration_valid": true
+    }
+  }
+}

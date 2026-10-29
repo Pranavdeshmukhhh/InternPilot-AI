@@ -1,0 +1,24 @@
+{
+  "synthetic_only": true,
+  "passed": true,
+  "databases_created": 2,
+  "schema_versions": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "encrypted_backup_bytes": 59446,
+  "backup_seconds": 0.16006982500402955,
+  "restore_and_verify_seconds": 0.9933352489970275,
+  "roundtrip_wall_seconds": 3.3479477900036727,
+  "ciphertext_preserved": true,
+  "references_preserved": true,
+  "document_decryption_verified": true,
+  "workers_remain_paused": true,
+  "tampering_rejected_and_partial_plaintext_removed": true,
+  "note": "Small logical backup/restore smoke on local PostgreSQL. Not PITR, full-size RTO/RPO, object storage, offsite or HA recovery certification."
+}

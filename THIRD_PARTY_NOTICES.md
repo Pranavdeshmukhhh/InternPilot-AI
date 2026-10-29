@@ -1,0 +1,11 @@
+# Licensing and third-party obligations
+
+No root project license existed at the start of this release. This work does not invent a copyright holder or relicense prior contributions. **The owner must choose and add a license before describing the project as open source or publishing a reusable source release.** Until then, source availability is not a reuse grant.
+
+Reference repositories were inspected, not copied or executed: see the commit-pinned audits under `docs/research/`. Some have absent or conflicting license notices; do not import their code or datasets without a separate rights review.
+
+Frontend builds run `frontend/scripts/generate-notices.mjs` to preserve installed production dependency and vendored LICENSE/COPYING/NOTICE texts in `public/third-party-notices.txt`, linked from the public footer. Platform-specific optional packages vary by build host; the file is an overinclusive attribution inventory, not a blanket rights determination. Keep it with the corresponding published bundle.
+
+Bundled DejaVu fonts retain `backend/app/assets/fonts/LICENSE-DejaVu.txt`; keep it with source and binary distributions. Runtime dependencies include MIT/BSD/Apache-licensed packages and components with dual/composite terms (notably cryptography, Pillow and ReportLab); identify their exact installed distributions rather than assigning one blanket license. PostgreSQL, Redis, Chromium, Debian and Node container distributions have their own notices and redistribution obligations. Redis version 7's exact image/version licensing must be reviewed before offering a hosted derivative; the default deployment is internal infrastructure, not relicensed application code.
+
+Run `python -m pip inspect > python-sbom.json` in the built image and `npm ls --all --json > node-dependency-tree.json` in a clean frontend install; preserve package license files in images. Container OS/Chromium notices and image digest inventory remain part of the operator's release review. These are inventories, not legal clearance. Credentials, resumes and database volumes are excluded from the source archive. The release scanner checks selected key/token signatures; manual review and a dedicated history secret scanner remain required before public publishing.

@@ -42,7 +42,7 @@ migrate();migrate()
 with SessionLocal() as db:
  assert decrypt(db.get(User,owner).profile_encrypted)['graduation_year']==2029
  versions=list(db.scalars(select(SchemaVersion.version).order_by(SchemaVersion.version)))
- assert versions==[1,2,3,4,5]
+assert versions==[1,2,3,4,5,6,7]
 start=time.perf_counter();schedule_due();schedule_seconds=time.perf_counter()-start
 def claims(index):
  seen=[]

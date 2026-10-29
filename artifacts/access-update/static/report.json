@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-29T05:23:42.452496+00:00",
+  "environment": "local gzip-compressed static export; headless Chromium",
+  "live_browser_test": false,
+  "external_actions": 0,
+  "checks": [
+    "Static landing, no unavailable account links, 320\u20131440px layouts",
+    "Static client navigation, filters, lazy drawer, focus, reload",
+    "Public sign-in explains invitation-only access without collecting credentials; demo stays public",
+    "Policies render; private routes absent; no API traffic or JS exceptions"
+  ],
+  "passed": true
+}

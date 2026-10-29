@@ -4,11 +4,11 @@ import logging
 import time
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
-from sqlalchemy import select, func, update
+from sqlalchemy import select, func, update, or_
 from sqlalchemy.exc import IntegrityError
 from .config import settings
 from .database import SessionLocal
-from .models import User, Source, SourceOpportunity, Opportunity, Application, Document, AuditEvent, Notification, Task, SavedOpportunity, CrawlRun, now
+from .models import User, Source, SourceOpportunity, Opportunity, Application, Document, AuditEvent, Notification, Task, SavedOpportunity, CrawlRun, CatalogSource, CatalogListing, OpportunityArchive, now
 from .security import encrypt, decrypt, encrypt_bytes, decrypt_bytes, digest, approval_digest
 from . import realtime  # noqa: F401 -- registers post-commit Redis wakeups.
 
@@ -26,8 +26,11 @@ def timestamp(value):
 
 
 def event(db, owner_id, kind, message, application_id=None, notify=False, opportunity_id=None, dedupe_key=None):
-    if notify and dedupe_key and db.scalar(select(Notification.id).where(Notification.owner_id==owner_id,Notification.dedupe_key==dedupe_key)):
-        return None
+    if notify and dedupe_key:
+        scoped_key = digest("notification:" + owner_id + ":" + dedupe_key)
+        if db.scalar(select(Notification.id).where(Notification.owner_id==owner_id,Notification.dedupe_key.in_((dedupe_key, scoped_key)))):
+            return None
+        dedupe_key = scoped_key
     message = str(message)[:1500]
     row = AuditEvent(owner_id=owner_id, kind=kind, message=message, application_id=application_id)
     db.add(row)
@@ -45,16 +48,61 @@ def event(db, owner_id, kind, message, application_id=None, notify=False, opport
     return row
 
 
+def bulk_notifications(db, rows):
+    from uuid import uuid4
+    from .catalog import insert_for
+    for offset in range(0, len(rows), 200):
+        batch = [{**row,"id":str(uuid4()),"read":False,"created_at":now(),"message":str(row["message"])[:1500]} for row in rows[offset:offset + 200]]
+        stmt = insert_for(db, Notification.__table__).values(batch)
+        inserted = list(db.execute(stmt.on_conflict_do_nothing(index_elements=["dedupe_key"])
+            .returning(Notification.owner_id, Notification.kind, Notification.message)))
+        if inserted:
+            db.execute(AuditEvent.__table__.insert(), [{"owner_id":owner,"kind":kind,"message":message} for owner,kind,message in inserted])
+            db.info.setdefault("realtime_updates", set()).update(owner for owner, _, _ in inserted)
+
+
+def notify_saved_changes(db, messages, owner_id=None):
+    """Batched private fan-out for shared fact changes; no recipient info leaks.
+
+    Keys are canonical IDs, values are (kind, text, episode fingerprint).
+    Only in-app notifications are created; external delivery approval is unchanged.
+    """
+    if not messages:
+        return
+    target = func.coalesce(Opportunity.canonical_id, Opportunity.id)
+    ids = list(messages)
+    for start in range(0, len(ids), 200):
+        query = select(SavedOpportunity.owner_id, SavedOpportunity.opportunity_id, target).join(Opportunity, Opportunity.id == SavedOpportunity.opportunity_id)
+        query = query.where(target.in_(ids[start:start + 200]))
+        if owner_id:
+            query = query.where(SavedOpportunity.owner_id == owner_id)
+        recipients = list(db.execute(query))
+        for offset in range(0, len(recipients), 200):
+            rows = []
+            for owner, saved_id, canonical in recipients[offset:offset + 200]:
+                kind, message, episode = messages[canonical]
+                rows.append({"owner_id":owner, "opportunity_id":saved_id, "kind":kind,
+                    "message":message[:1500], "read":False, "created_at":now(),
+                    "dedupe_key":digest("notification:" + owner + ":" + episode)})
+            bulk_notifications(db, rows)
+
+
 def visible_jobs(db, user_id):
-    ids = select(SourceOpportunity.opportunity_id).join(Source,Source.id==SourceOpportunity.source_id).where(Source.owner_id==user_id)
+    from .catalog_query import visible_ids
+    ids = visible_ids(user_id)
     return db.scalars(select(Opportunity).where(Opportunity.id.in_(ids))).all()
 
 
 def job_for_user(db, user_id, job_id):
-    row = next((j for j in visible_jobs(db, user_id) if j.id == job_id), None)
-    if row is None and (db.get(SavedOpportunity,(user_id,job_id)) or db.scalar(select(Application.id).where(Application.owner_id==user_id,Application.opportunity_id==job_id))):
-        row = db.get(Opportunity,job_id)
-    return row
+    # Authorize exactly this ID. A private alias is not authorized merely because
+    # another tenant can see its canonical public record.
+    from sqlalchemy import exists
+    from .catalog_query import visible_ids
+    linked = Opportunity.id.in_(visible_ids(user_id))
+    saved = or_(Opportunity.id.in_(visible_ids(user_id, saved=True)), exists(select(SavedOpportunity.owner_id).where(SavedOpportunity.owner_id == user_id, SavedOpportunity.opportunity_id == Opportunity.id)))
+    applied = exists(select(Application.id).where(Application.owner_id == user_id, Application.opportunity_id == Opportunity.id))
+    historical = exists(select(OpportunityArchive.opportunity_id).where(OpportunityArchive.owner_id == user_id, OpportunityArchive.opportunity_id == Opportunity.id))
+    return db.scalar(select(Opportunity).where(Opportunity.id == job_id, or_(linked, saved, applied, historical)))
 
 
 def job_view(job, profile):
@@ -83,8 +131,12 @@ def source_view(row):
     return {key:getattr(row,key) for key in ("id","kind","slug","company","url","permitted","enabled","interval_seconds","last_attempt","last_success","next_run","status","error","failures","discovered_count")} | {"truncated":bool((row.cache or {}).get("truncated"))}
 
 
-def application_view(db, row):
-    job = db.get(Opportunity, row.opportunity_id)
+_NOT_LOADED = object()
+
+
+def application_view(db, row, job=_NOT_LOADED):
+    if job is _NOT_LOADED:
+        job = db.get(Opportunity, row.opportunity_id)
     upload_supported = bool(not row.is_demo and row.document_id and row.status in {"awaiting_review","needs_input"} and not row.upload_started_at and not row.upload_approved_at)
     upload_status = "uncertain" if row.upload_started_at and row.status == "uncertain" else "needs_input" if row.upload_started_at and row.status == "needs_input" else "prepared" if row.upload_started_at else "approved" if row.upload_approved_at else "awaiting_approval"
     return {key:getattr(row,key) for key in ("id","opportunity_id","status","reason","document_id","screenshot_id","confirmation_id","created_at","updated_at","approved_at","is_demo","preparation_seconds","submission_seconds","upload_approved_at","upload_started_at")} | {"upload_supported":upload_supported,"upload_status":upload_status,"title":job.data.get("title", "Unknown") if job else "Unknown", "company":job.data.get("company", "Unknown") if job else "Unknown", "url":job.data.get("url") if job else None, "submission_supported":bool(row.is_demo and settings.test_mode),"confirmation_text":decrypt(row.confirmation_encrypted).get("text") if row.confirmation_encrypted else None,"fields":decrypt(row.snapshot_encrypted).get("form_fields",[]) if row.snapshot_encrypted else []}
@@ -98,6 +150,8 @@ def enqueue(db, owner_id, kind, payload, dedupe_key, priority=0):
     task = db.scalar(select(Task).where(Task.dedupe_key == dedupe_key).with_for_update())
     if task and task.status in ("queued","running"):
         return task
+    from .coordination import admit_task
+    admit_task(db, owner_id)
     if task:
         task.status, task.payload, task.error = "queued", payload, None
         task.available_at, task.updated_at = now(), now()
@@ -144,19 +198,45 @@ def automatic_preparation_ready(policy, profile):
     )
 
 
+def permitted_opportunity_ids(db, owner_id, job_ids):
+    """Batch current source authorization; historical links alone are insufficient."""
+    from .catalog_migrations import source_key
+    sources = list(db.scalars(select(Source).where(Source.owner_id == owner_id, Source.enabled == True,
+        Source.permitted == True, Source.kind != "test")))
+    if not sources or not job_ids:
+        return set()
+    disabled = set(db.scalars(select(CatalogSource.id).where(CatalogSource.enabled == False)))
+    allowed = {s.id:s for s in sources if source_key({k:getattr(s,k) for k in ("kind", "slug", "company", "url")}) not in disabled}
+    if not allowed:
+        return set()
+    active_sets = {}
+    for sid, source in allowed.items():
+        cache = source.cache or {}
+        active = cache.get("active_opportunity_ids")
+        active_sets[sid] = None if "active_opportunity_ids" not in cache else {i for i in active if isinstance(i, str)} if isinstance(active, list) else set()
+    result = set()
+    ids = list(job_ids)
+    for start in range(0, len(ids), 200):
+        chunk = ids[start:start + 200]
+        links = db.execute(select(SourceOpportunity.source_id, Opportunity.id, Opportunity.canonical_id)
+            .join(Opportunity, Opportunity.id == SourceOpportunity.opportunity_id)
+            .where(SourceOpportunity.source_id.in_(allowed), or_(Opportunity.id.in_(chunk), Opportunity.canonical_id.in_(chunk))))
+        for sid, original, canonical in links:
+            active = active_sets[sid]
+            if active is None or original in active or canonical in active:
+                result.update((original, canonical or original))
+    return result
+
+
 def has_current_permitted_source(db, owner_id, job_id):
-    """Require an enabled, permitted source that still lists the opportunity."""
-    permitted_sources = db.scalars(
-        select(Source).join(SourceOpportunity, SourceOpportunity.source_id == Source.id)
-        .where(SourceOpportunity.opportunity_id == job_id, Source.owner_id == owner_id,
-               Source.enabled == True, Source.permitted == True, Source.kind != "test")
-    )
-    # Links retain historical provenance after a job disappears from a source.
-    # A different, disabled source must not make that old link actionable.
-    return any("active_opportunity_ids" not in (source.cache or {}) or job_id in source.cache["active_opportunity_ids"] for source in permitted_sources)
+    job = job_for_user(db, owner_id, job_id)
+    if not job:
+        return False
+    canonical = job.canonical_id or job.id
+    return canonical in permitted_opportunity_ids(db, owner_id, [canonical])
 
 
-def automatic_opportunity_allowed(db, owner_id, job, view, policy, at):
+def automatic_opportunity_allowed(db, owner_id, job, view, policy, at, permitted_ids=None):
     """Automatic preparation only uses current, explicitly permitted sources."""
     if job.data.get("opportunity_type", "internship") != "internship" or job.data.get("is_demo") or job.data.get("active") is False or view.get("status")=="unverified" or view["eligibility"] != "eligible":
         return False
@@ -166,7 +246,7 @@ def automatic_opportunity_allowed(db, owner_id, job, view, policy, at):
         return False
     if view["score"] < policy.get("preparation_minimum_score", 70):
         return False
-    if not has_current_permitted_source(db, owner_id, job.id):
+    if not (job.id in permitted_ids if permitted_ids is not None else has_current_permitted_source(db, owner_id, job.id)):
         return False
     if policy.get("mode") == "auto":
         origin = urlsplit(job.data.get("url", ""))
@@ -207,13 +287,18 @@ def queue_automatic_preparation(owner_id=None, at=None):
                 remaining = max(0, min(50, int(policy.get("daily_preparation_limit", 10))) - used)
                 if not remaining:
                     continue
-                existing = set(db.scalars(select(Application.opportunity_id).where(Application.owner_id == account_id)))
+                histories = list(db.execute(select(Application.opportunity_id, Opportunity.canonical_id, Opportunity.url_key)
+                    .join(Opportunity, Opportunity.id == Application.opportunity_id).where(Application.owner_id == account_id)))
+                existing = {ident for original, canonical, _ in histories for ident in (original, canonical) if ident}
+                existing_urls = {key for _, _, key in histories if key}
                 candidates = []
-                for job in visible_jobs(db, account_id):
-                    if job.id in existing:
+                jobs = visible_jobs(db, account_id)
+                permitted = permitted_opportunity_ids(db, account_id, [job.id for job in jobs])
+                for job in jobs:
+                    if job.id in existing or job.url_key and job.url_key in existing_urls:
                         continue
                     view = job_view(job, profile)
-                    if automatic_opportunity_allowed(db, account_id, job, view, policy, at):
+                    if automatic_opportunity_allowed(db, account_id, job, view, policy, at, permitted_ids=permitted):
                         candidates.append((application_priority(view, at), job.id))
                 created = 0
                 for priority, job_id in sorted(candidates, key=lambda item: (-item[0], item[1])):
@@ -270,7 +355,7 @@ def store_document(db, owner_id, output, kind, opportunity_id=None):
     return row
 
 
-async def process_discovery(owner_id, source_id=None):
+async def process_discovery(owner_id, source_id=None, *, task_id=None, lease_owner=None, task_attempt=None):
     from .discovery import discover
     with SessionLocal() as db:
         user = db.get(User, owner_id)
@@ -286,7 +371,11 @@ async def process_discovery(owner_id, source_id=None):
     async def scan(sid):
         async with semaphore:
             with SessionLocal() as db:
-                source = db.get(Source,sid)
+                if not valid_lease(db, task_id, lease_owner):
+                    return
+                if task_id and db.get(Task, task_id).attempts != task_attempt:
+                    return
+                source = db.scalar(select(Source).where(Source.id == sid).with_for_update())
                 user = db.get(User, owner_id)
                 # A queued scan may outlive a stop, source deletion, permission
                 # change, or a previous scan's server-imposed retry delay.
@@ -296,13 +385,74 @@ async def process_discovery(owner_id, source_id=None):
                         or (source.failures and source.next_run and source.next_run > now())):
                     return
                 source.last_attempt, source.status = now(), "running"
+                source.scan_generation = (source.scan_generation or 0) + 1
+                generation = source.scan_generation
                 crawl = CrawlRun(owner_id=owner_id,source_id=sid)
                 db.add(crawl);db.flush()
                 run_id,scan_started = crawl.id,time.monotonic()
                 source_data, cache = source_view(source), source.cache
+                from .catalog import reviewed_source, claim_public_scan, cached_public_result
+                registry = reviewed_source(db, source)
+                public_id, token, shared_result = None, None, None
+                if registry:
+                    mode, registry, token = claim_public_scan(db, registry, source.interval_seconds)
+                    public_id = registry.id
+                    if mode in {"busy", "paused", "backoff"}:
+                        crawl.finished_at, crawl.outcome = now(), "deferred"
+                        source.status = "paused" if mode == "paused" else "waiting"
+                        from .models import DiscoveryHealth
+                        health = db.get(DiscoveryHealth, registry.id)
+                        if health and health.next_attempt:
+                            source.next_run = health.next_attempt
+                        else:
+                            source.next_run = registry.lease_until if mode == "busy" else (datetime.now(timezone.utc) + timedelta(seconds=900)).isoformat()
+                        db.commit()
+                        return
+                    if mode == "cached":
+                        if (source.cache or {}).get("catalog_generation") == registry.generation and (source.cache or {}).get("profile_signature") == digest(user.profile_encrypted.hex()):
+                            crawl.finished_at, crawl.outcome, crawl.records = now(), "cached", source.discovered_count
+                            source.status = "partial" if (registry.cache or {}).get("truncated") else "reference" if (registry.cache or {}).get("reference_feed") else "healthy"
+                            source.last_success, source.failures = registry.last_success, 0
+                            if source.status == "healthy":
+                                source.error = None
+                            source.next_run = (datetime.now(timezone.utc) + timedelta(seconds=source.interval_seconds)).isoformat()
+                            db.commit()
+                            return
+                        shared_result = cached_public_result(db, registry)
+                    cache = registry.cache
                 db.commit()
             try:
-                result = await discover(source_data, cache=cache)
+                discovery_input = {**source_data, "company":registry.config["company"], "url":registry.config.get("url")} if public_id else source_data
+                from .models import DiscoveryHealth
+                health_key = public_id or sid
+                with SessionLocal() as db:
+                    health = db.get(DiscoveryHealth, health_key)
+                    discovery_input["_pagination_checkpoint"] = health.checkpoint if health else {}
+                async def save_checkpoint(progress):
+                    def persist():
+                        with SessionLocal() as db:
+                            if not valid_lease(db, task_id, lease_owner):
+                                return
+                            current = db.scalar(select(Source).where(Source.id == sid).with_for_update())
+                            if not current or current.scan_generation != generation:
+                                return
+                            if public_id:
+                                publisher = db.scalar(select(CatalogSource).where(CatalogSource.id == public_id).with_for_update())
+                                if publisher.lease_token != token or not publisher.lease_until or publisher.lease_until <= now():
+                                    return
+                            from .catalog import insert_for
+                            stmt = insert_for(db, DiscoveryHealth.__table__).values(key=health_key, checkpoint=progress, failures=0)
+                            db.execute(stmt.on_conflict_do_update(index_elements=["key"],set_={"checkpoint":progress}))
+                            db.commit()
+                    await asyncio.to_thread(persist)
+                discovery_input["_save_checkpoint"] = save_checkpoint
+                async with asyncio.timeout(120):
+                    result = shared_result if shared_result is not None else await discover(discovery_input, cache=cache)
+                if public_id and result.get("not_modified"):
+                    with SessionLocal() as db:
+                        registry = db.get(CatalogSource, public_id)
+                        snapshot = cached_public_result(db, registry)
+                    result = {**result, "jobs":snapshot["jobs"], "shared_verified_at":now()}
                 from .llm import annotate_jobs
                 with SessionLocal() as db:
                     urls = [str(item.get("url")) for item in result["jobs"] if item.get("url")]
@@ -310,19 +460,45 @@ async def process_discovery(owner_id, source_id=None):
                     previous = {j.data.get("url"):j.data for j in matching}
                     account = db.get(User,owner_id)
                     candidate_profile = decrypt(account.profile_encrypted)
-                result["jobs"] = await annotate_jobs(result["jobs"],previous_by_url=previous,profile=candidate_profile)
+                # Shared extraction must never depend on one subscriber's profile.
+                if shared_result is None:
+                    from .coordination import reserve_inference
+                    limit = settings.llm_scan_job_limit
+                    try:
+                        async with asyncio.timeout(30):
+                            result["jobs"] = await annotate_jobs(result["jobs"][:limit],previous_by_url=previous,profile=None if public_id else candidate_profile, reserve_budget=reserve_inference) + result["jobs"][limit:]
+                    except TimeoutError:
+                        logger.warning("Discovery enrichment deadline reached; preserving deterministic facts")
                 added = 0
                 with SessionLocal() as db:
+                    if not valid_lease(db, task_id, lease_owner):
+                        return
+                    if task_id and db.get(Task, task_id).attempts != task_attempt:
+                        return
                     # Serialize cache updates with source-review dismissals.
                     source = db.scalar(select(Source).where(Source.id==sid).with_for_update())
-                    if source is None:
+                    if source is None or not source.enabled or not source.permitted or source.scan_generation != generation:
                         return
+                    account = db.get(User, owner_id)
+                    if account is None or account.disabled or decrypt(account.policy_encrypted).get("emergency_stop", False):
+                        return
+                    # Source edits while the request runs invalidate its result.
+                    if any(getattr(source, key) != source_data[key] for key in ("kind", "slug", "company", "url")):
+                        return
+                    registry = db.scalar(select(CatalogSource).where(CatalogSource.id == public_id).with_for_update()) if public_id else None
+                    if public_id and (registry is None or not registry.enabled or (token and (registry.lease_token != token or timestamp(registry.lease_until) <= datetime.now(timezone.utc)))):
+                        return
+                    if registry and shared_result is not None:
+                        result = cached_public_result(db, registry)
                     crawl = db.get(CrawlRun,run_id)
                     crawl.finished_at,crawl.seconds,crawl.records,crawl.outcome = now(),round(time.monotonic()-scan_started,3),len(result["jobs"]),"cached" if result.get("not_modified") else "success"
                     linked_jobs = list(db.scalars(select(Opportunity).join(SourceOpportunity,SourceOpportunity.opportunity_id==Opportunity.id).where(SourceOpportunity.source_id==sid)))
                     active_ids = set((source.cache or {}).get("active_opportunity_ids",[j.id for j in linked_jobs if j.data.get("active") is not False]))
                     verified_ids = set((source.cache or {}).get("verified_opportunity_ids",active_ids))
                     if result.get("not_modified"):
+                        if registry:
+                            verified = select(CatalogListing.opportunity_id).where(CatalogListing.source_id == registry.id, CatalogListing.active == True, CatalogListing.verified == True)
+                            db.execute(update(Opportunity).where(Opportunity.id.in_(verified)).values(last_verified=now()))
                         for verified_job in linked_jobs:
                             reference = source.kind in {"internscan","jobspy_feed","github_list","search"}
                             evidence = verified_job.data.get("verification_evidence_url")
@@ -332,57 +508,67 @@ async def process_discovery(owner_id, source_id=None):
                                 verified_job.last_verified = now()
                     seen_ids = set()
                     verified_seen_ids = set()
-                    for data in result["jobs"]:
-                        verified_update = True
-                        data = {**data,"active":data.get("active",True),"source":data.get("source") or source.kind,"source_url":data.get("source_url") or source.url or data.get("url"),"opportunity_type":data.get("opportunity_type","internship")}
-                        # Isolate each account's mutable source data.
-                        fingerprint = digest(owner_id+":"+canonical_fingerprint(data))
-                        job = db.scalar(select(Opportunity).where(Opportunity.fingerprint==fingerprint))
-                        if job is None:
-                            published = timestamp(data.get("published_at"))
-                            latency = max(0,(datetime.now(timezone.utc)-published).total_seconds()) if published else None
-                            job = Opportunity(fingerprint=fingerprint,data=data,discovery_latency_seconds=latency)
-                            try:
-                                with db.begin_nested():
-                                    db.add(job)
-                                    db.flush()
-                            except IntegrityError:
-                                job = db.scalar(select(Opportunity).where(Opportunity.fingerprint==fingerprint))
-                        else:
-                            data,verified_update = merge_opportunity_data(job.data,data)
-                            changed = [field for field in ("deadline","active","compensation","eligibility") if job.data.get(field)!=data.get(field)]
-                            if changed and db.get(SavedOpportunity,(owner_id,job.id)):
-                                key = digest(json.dumps({"job":job.id,"before":{k:job.data.get(k) for k in changed},"after":{k:data.get(k) for k in changed}},sort_keys=True,default=str))
-                                event(db,owner_id,"saved_opportunity_changed",f"{data.get('company','Employer')} — {data.get('title','Opportunity')}: updated {', '.join(changed)}. Review the latest source information.",notify=True,opportunity_id=job.id,dedupe_key="changed:"+key)
-                            job.data = data
-                            if verified_update:
-                                job.last_verified = now()
-                        if not db.get(SourceOpportunity,(sid,job.id)):
-                            db.add(SourceOpportunity(source_id=sid,opportunity_id=job.id))
-                            added += 1
-                        seen_ids.add(job.id)
-                        if verified_update:
-                            verified_seen_ids.add(job.id)
+                    from .catalog import ingest, insert_for
+                    jobs, added, changes, aliases = ingest(db, owner_id, source, result["jobs"], public=bool(registry),
+                        verified_at=result.get("shared_verified_at"), link_only=shared_result is not None or bool(registry and result.get("not_modified")))
+                    active_ids = {aliases.get(i, i) for i in active_ids}
+                    linked_jobs = [j for j in linked_jobs if j.id not in aliases]
+                    seen_ids = {j.id for j in jobs}
+                    verified_seen_ids = {j.id for j in jobs if j.data.get("verification_status") not in {"unverified", "reference_only"}}
+                    if registry and result.get("not_modified"):
+                        active_ids |= seen_ids
+                        verified_ids |= verified_seen_ids
+                    changed_messages = {}
+                    for ident, before, after, fields in changes:
+                        key = digest(json.dumps({"job":ident,"before":{k:before.get(k) for k in fields},"after":{k:after.get(k) for k in fields}}, sort_keys=True, default=str))
+                        changed_messages[ident] = ("saved_opportunity_changed", f"{after.get('company','Employer')} — {after.get('title','Opportunity')}: updated {', '.join(fields)}. Review the latest source information.", "changed:" + key)
+                    notify_saved_changes(db, changed_messages, owner_id=None if registry else owner_id)
+                    if registry and token and not result.get("not_modified"):
+                        memberships = [{"source_id":registry.id, "opportunity_id":j.id, "active":True, "verified":j.id in verified_seen_ids} for j in jobs]
+                        for start in range(0, len(memberships), 200):
+                            stmt = insert_for(db, CatalogListing.__table__).values(memberships[start:start + 200])
+                            db.execute(stmt.on_conflict_do_update(index_elements=["source_id", "opportunity_id"], set_={"active":stmt.excluded.active, "verified":stmt.excluded.verified}))
+                        if not result.get("cache", {}).get("truncated"):
+                            db.execute(update(CatalogListing).where(CatalogListing.source_id == registry.id, CatalogListing.opportunity_id.not_in(seen_ids)).values(active=False))
+                    closed_messages = {}
                     if not result.get("not_modified"):
                         if result.get("cache",{}).get("truncated"):
                             active_ids |= seen_ids
                         else:
                             active_ids = seen_ids
-                            other_sources = list(db.scalars(select(Source).where(Source.owner_id==owner_id,Source.id!=sid)))
+                            other_sources = list(db.scalars(select(Source).where(Source.owner_id==owner_id,Source.id!=sid))) if not registry else []
+                            source_ids = select(SourceOpportunity.opportunity_id).where(SourceOpportunity.source_id == sid)
+                            public_active = set(db.scalars(select(CatalogListing.opportunity_id).where(CatalogListing.active == True, CatalogListing.verified == True, CatalogListing.opportunity_id.in_(source_ids)))) if registry else set()
+                            all_active, official_active = set(), set()
+                            for other in other_sources:
+                                if other.enabled and other.permitted:
+                                    all_active.update((other.cache or {}).get("active_opportunity_ids", []))
+                                    if other.kind not in {"internscan","jobspy_feed","github_list","search"}:
+                                        official_active.update((other.cache or {}).get("active_opportunity_ids", []))
                             for missing in linked_jobs:
                                 if missing.id in seen_ids:
                                     continue
                                 reference_kinds = {"internscan","jobspy_feed","github_list","search"}
                                 official_data = missing.data.get("source") not in reference_kinds
-                                still_available = any(other.enabled and other.permitted
-                                    and (not official_data or other.kind not in reference_kinds)
-                                    and missing.id in (other.cache or {}).get("active_opportunity_ids",[]) for other in other_sources)
+                                still_available = missing.id in (public_active if registry else official_active if official_data else all_active)
+                                if missing.catalog_scope == "public" and not registry:
+                                    still_available = True  # Private subscriptions cannot close public facts.
                                 if not still_available:
-                                    was_active = missing.data.get("active") is not False
-                                    missing.data = {**missing.data,"active":False}
-                                    if was_active and db.get(SavedOpportunity,(owner_id,missing.id)):
-                                        event(db,owner_id,"saved_opportunity_closed",f"{missing.data.get('company','Employer')} — {missing.data.get('title','Opportunity')} is no longer listed by the verified source.",notify=True,opportunity_id=missing.id,dedupe_key="closed:"+digest(missing.id+str(missing.last_verified)))
+                                    missing.data = {**missing.data,"active":False,"closing_evidence":{"reason":"absent_from_complete_inventory", "checked_at":now(),"source_id":public_id or sid}}
+                                    closed_messages[missing.id] = ("saved_opportunity_closed", f"{missing.data.get('company','Employer')} — {missing.data.get('title','Opportunity')} is no longer listed by the verified source.", "closed:" + digest(missing.id + str(missing.last_verified)))
+                    notify_saved_changes(db, closed_messages, owner_id=None if registry else owner_id)
                     next_cache = dict(result.get("cache", {}))
+                    if registry:
+                        if token:
+                            registry.cache, registry.last_success = next_cache, now()
+                            registry.lease_token, registry.lease_until = None, None
+                            registry.generation += 1
+                            from .coordination import health_success
+                            health_success(db, registry.id)
+                        # Large detail caches are stored once, not per subscriber.
+                        next_cache = {k:v for k,v in next_cache.items() if k != "details"}
+                        next_cache.update(catalog_source_id=registry.id, catalog_generation=registry.generation,
+                            profile_signature=digest(account.profile_encrypted.hex()))
                     if source.kind in {"search", "html"}:
                         from .publisher_discovery import merge_candidates
                         next_cache["source_candidates"] = merge_candidates((source.cache or {}).get("source_candidates", []), next_cache.get("source_candidates", []))
@@ -390,6 +576,9 @@ async def process_discovery(owner_id, source_id=None):
                     # Preserve the latest user decision instead of scan-start state.
                     next_cache["dismissed_source_candidate_ids"] = (source.cache or {}).get("dismissed_source_candidate_ids", [])[-500:]
                     source.cache = {**next_cache,"active_opportunity_ids":sorted(active_ids),"verified_opportunity_ids":sorted(verified_ids if result.get("not_modified") else verified_seen_ids)}
+                    checkpoint_row = db.get(DiscoveryHealth, health_key)
+                    if checkpoint_row and checkpoint_row.checkpoint.get("pending_rows"):
+                        checkpoint_row.checkpoint = {k:v for k,v in checkpoint_row.checkpoint.items() if k != "pending_rows"}
                     touched_ids.update(active_ids if result.get("not_modified") else seen_ids)
                     source.status, source.error, source.failures = "healthy", None, 0
                     if result.get("cache", {}).get("reference_feed"):
@@ -397,15 +586,26 @@ async def process_discovery(owner_id, source_id=None):
                     elif result.get("cache", {}).get("truncated"):
                         note = "Search references do not establish a complete inventory; publisher verification is bounded" if source.kind == "search" else "Publisher page scan is bounded; linked opportunities may require review" if source.kind == "html" else "Connector page limit reached; some postings may not have been scanned"
                         source.status, source.error = "partial", note
-                    source.last_success, source.discovered_count = now(), len(result["jobs"]) if not result.get("not_modified") else source.discovered_count
-                    source.next_run = (datetime.now(timezone.utc)+timedelta(seconds=source.interval_seconds)).isoformat()
+                    source.last_success, source.discovered_count = registry.last_success if registry else now(), len(result["jobs"]) if not result.get("not_modified") else source.discovered_count
+                    source.next_run = (datetime.now(timezone.utc)+timedelta(seconds=max(source.interval_seconds, int(next_cache.get("pagination_retry_after", 0))))).isoformat()
                     evidence = "reference feed" if source.status=="reference" else "source scan completed"
                     event(db,owner_id,"discovery",f"{source.company}: {evidence}; {added} new opportunities",notify=added>0)
                     db.commit()
             except Exception as exc:
                 with SessionLocal() as db:
+                    if not valid_lease(db, task_id, lease_owner):
+                        return
+                    if task_id and db.get(Task, task_id).attempts != task_attempt:
+                        return
+                    if public_id and token:
+                        released = db.execute(update(CatalogSource).where(CatalogSource.id == public_id, CatalogSource.lease_token == token)
+                            .values(lease_token=None, lease_until=None))
+                        if not released.rowcount:
+                            return
                     source = db.get(Source,sid)
                     if source is None:
+                        return
+                    if source.scan_generation != generation:
                         return
                     source.failures += 1
                     crawl = db.get(CrawlRun,run_id)
@@ -415,20 +615,59 @@ async def process_discovery(owner_id, source_id=None):
                     source.error = f"{type(exc).__name__}: source scan failed; check source permissions and configuration"
                     source.status = "error"
                     backoff = min(86400, source.interval_seconds * 2**min(source.failures,5))
+                    from .coordination import health_failure, retry_delay
+                    if public_id and token:
+                        health_failure(db, public_id, exc, source.interval_seconds)
+                    backoff = retry_delay(source.failures, base=source.interval_seconds)
                     retry_after = max(0, int(getattr(exc,"retry_after",0) or 0))
                     source.next_run = (datetime.now(timezone.utc)+timedelta(seconds=max(backoff,retry_after))).isoformat()
                     event(db,owner_id,"discovery_error",f"{source.company}: discovery failed ({type(exc).__name__})",notify=True)
                     db.commit()
-    await asyncio.gather(*(scan(sid) for sid in source_ids))
+    work = asyncio.Queue(maxsize=16)
+    async def consume():
+        while True:
+            sid = await work.get()
+            try:
+                if sid is None:
+                    return
+                await scan(sid)
+            finally:
+                work.task_done()
+    consumers = [asyncio.create_task(consume()) for _ in range(min(3, len(source_ids)))]
+    async def produce():
+        for sid in source_ids:
+            await work.put(sid)
+        for _ in consumers:
+            await work.put(None)
+    producer = asyncio.create_task(produce())
+    try:
+        await asyncio.gather(producer, *consumers)
+    finally:
+        producer.cancel()
+        await asyncio.gather(producer, return_exceptions=True)
+        for consumer in consumers:
+            consumer.cancel()
+        await asyncio.gather(*consumers, return_exceptions=True)
     with SessionLocal() as db:
         user = db.get(User,owner_id)
         if user:
             policy,profile = decrypt(user.policy_encrypted),decrypt(user.profile_encrypted)
             if policy.get("new_match_alerts",True):
+                already = set()
+                touched = list(touched_ids)
+                canonical = func.coalesce(Opportunity.canonical_id, Opportunity.id)
+                for start in range(0, len(touched), 200):
+                    already.update(db.scalars(select(canonical).join(Notification, Notification.opportunity_id == Opportunity.id)
+                        .where(Notification.owner_id == owner_id, Notification.kind == "high_match", canonical.in_(touched[start:start + 200]))))
+                notifications = []
                 for job in db.scalars(select(Opportunity).where(Opportunity.id.in_(touched_ids))):
+                    if job.id in already:
+                        continue
                     view = job_view(job,profile)
                     if view["eligibility"]!="ineligible" and view["status"] not in {"expired","closed"} and view["score"]>=policy.get("alert_minimum_score",70):
-                        event(db,owner_id,"high_match",f"{view['company']} — {view['title']} matches {view['score']}/100. {view['recommended_action']}",notify=True,opportunity_id=job.id,dedupe_key="match:"+job.id)
+                        notifications.append({"owner_id":owner_id,"kind":"high_match", "message":f"{view['company']} — {view['title']} matches {view['score']}/100. {view['recommended_action']}",
+                            "opportunity_id":job.id,"dedupe_key":digest("notification:" + owner_id + ":match:" + job.id)})
+                bulk_notifications(db, notifications)
             db.commit()
     queue_automatic_preparation(owner_id)
 
@@ -641,8 +880,14 @@ async def process_application(application_id, task_id=None, lease_owner=None, au
             db.commit()
 
 
+from contextvars import ContextVar
+
+execution_attempt = ContextVar("execution_attempt", default=None)
+
+
 def valid_lease(db,task_id,lease_owner):
     if task_id is None:
         return True  # Direct invocation is used only by isolated acceptance tests.
     task = db.scalar(select(Task).where(Task.id==task_id).with_for_update())
-    return bool(task and task.status=="running" and task.lease_owner==lease_owner and task.lease_until and task.lease_until>now())
+    at = db.scalar(select(func.clock_timestamp())).isoformat() if db.get_bind().dialect.name == "postgresql" else now()
+    return bool(task and (execution_attempt.get() is None or task.attempts == execution_attempt.get()) and task.status=="running" and task.lease_owner==lease_owner and task.lease_until and timestamp(task.lease_until)>timestamp(at))

@@ -136,7 +136,7 @@ async def analyze_job(job: dict, **kwargs) -> dict:
     return await analyze_requirements(str(job.get("description", "")), **kwargs)
 
 
-async def annotate_jobs(jobs: list[dict], *, previous_by_url: dict[str, dict] | None = None, concurrency: int = 2, profile: dict | None = None) -> list[dict]:
+async def annotate_jobs(jobs: list[dict], *, previous_by_url: dict[str, dict] | None = None, concurrency: int = 2, profile: dict | None = None, reserve_budget=None) -> list[dict]:
     """Attach `llm_analysis` without modifying deterministic job requirements.
 
     Call after fetching a source and before starting the database write
@@ -179,6 +179,13 @@ async def annotate_jobs(jobs: list[dict], *, previous_by_url: dict[str, dict] | 
         if cached:
             del _ANALYSIS_CACHE[key]
         async with semaphore:
+            if reserve_budget is not None:
+                try:
+                    permitted = await asyncio.to_thread(reserve_budget)
+                except Exception:
+                    permitted = False
+                if not permitted:
+                    return {**job,"llm_analysis":{"status":"skipped","verified":False,"reason":"Inference budget unavailable; deterministic matching remains available."}}
             analysis = await analyze_requirements(description)
         if analysis.get("status") == "available":
             analysis = {**analysis, "analysis_fingerprint": key, "analyzed_at": datetime.now(timezone.utc).isoformat()}

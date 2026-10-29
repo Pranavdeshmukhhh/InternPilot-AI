@@ -1,0 +1,4 @@
+# Retained historical themes; these are not imported by the application.
+src/app/human.css
+src/app/premium.css
+src/app/studio.css

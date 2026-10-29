@@ -1,0 +1,75 @@
+{
+  "at": "2026-10-29T04:47:32.112118+00:00",
+  "checks": [
+    "Public entry renders without signup or any backend API requests",
+    "Landing reflows at 320, 360, 390, 768 and 1440px",
+    "Five public routes pass serious/critical axe gates in both themes on mobile",
+    "Public demo search, region/type filters, empty recovery, detail focus and pipeline are functional",
+    "All public/demo interactions are isolated from private APIs and persistence",
+    "404, robots, vector icon and generated social PNG work without invented canonical URLs",
+    "Sign-in deep link opens sign-in rather than registration",
+    "Touch/in-app user-agent simulation with 150ms latency supports CTA, keyboard input and back navigation",
+    "No JavaScript exceptions observed in the public-page journey"
+  ],
+  "a11y": [
+    {
+      "route": "/",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/demo",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/privacy",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/terms",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/contact",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "route": "/demo",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "route": "/privacy",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "route": "/terms",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "route": "/contact",
+      "theme": "dark",
+      "violations": []
+    }
+  ],
+  "measurements": {
+    "initial_lab_observers": {
+      "lcp": 592,
+      "cls": 0
+    },
+    "initial_js_decoded_bytes": 382386
+  },
+  "public_deployment": false,
+  "passed": true
+}

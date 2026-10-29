@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import String, Text, Integer, Boolean, LargeBinary, JSON, UniqueConstraint, Index, Float
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Text, Integer, Boolean, LargeBinary, JSON, UniqueConstraint, Index, Float, ForeignKey, DateTime, case, select, type_coerce, event, and_
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from .database import Base
 
 
@@ -150,16 +151,93 @@ class Source(Base):
     failures: Mapped[int] = mapped_column(Integer, default=0)
     cache: Mapped[dict] = mapped_column(JSON, default=dict)
     discovered_count: Mapped[int] = mapped_column(Integer, default=0)
+    scan_generation: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
 class Opportunity(Base):
     __tablename__ = "opportunities"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     fingerprint: Mapped[str] = mapped_column(String(64), unique=True)
-    data: Mapped[dict] = mapped_column(JSON)
+    # Historical IDs remain valid aliases. Only canonical rows store fact payloads.
+    # Keeping the physical `data` column preserves old inserts and v5 recovery.
+    _payload: Mapped[dict] = mapped_column("data", JSON)
+    canonical_id: Mapped[str | None] = mapped_column(ForeignKey("opportunities.id"), nullable=True, index=True)
+    canonical: Mapped["Opportunity | None"] = relationship(remote_side="Opportunity.id", lazy="joined", join_depth=1)
+    catalog_scope: Mapped[str] = mapped_column(String(100), default="legacy", server_default="legacy")
+    projection_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    authority_rank: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    kind: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    company_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    search_document: Mapped[str | None] = mapped_column(Text, nullable=True)
+    location_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    url_key: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    remote_flag: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    active_flag: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sort_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     first_discovered: Mapped[str] = mapped_column(default=now, index=True)
     last_verified: Mapped[str] = mapped_column(default=now)
     discovery_latency_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    @hybrid_property
+    def data(self):
+        return self.canonical._payload if self.canonical_id and self.canonical else self._payload
+
+    @data.inplace.setter
+    def _set_data(self, value):
+        # Legacy/private mutation never writes through into a public record.
+        if self.canonical_id:
+            self.canonical_id = None
+            self.canonical = None
+        self._payload = value
+
+    @data.inplace.expression
+    @classmethod
+    def _data_expression(cls):
+        canonical = cls.__table__.alias("canonical_facts")
+        payload = select(canonical.c.data).where(canonical.c.id == cls.canonical_id).correlate(cls).scalar_subquery()
+        return type_coerce(case((cls.canonical_id.is_not(None), payload), else_=cls._payload), JSON)
+
+
+class CatalogSource(Base):
+    """Operator-reviewed public source; user Source rows remain subscriptions."""
+    __tablename__ = "catalog_sources"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    config: Mapped[dict] = mapped_column(JSON)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    cache: Mapped[dict] = mapped_column(JSON, default=dict)
+    generation: Mapped[int] = mapped_column(Integer, default=0)
+    lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    lease_until: Mapped[str | None] = mapped_column(nullable=True)
+    last_success: Mapped[str | None] = mapped_column(nullable=True)
+
+
+class CatalogListing(Base):
+    __tablename__ = "catalog_listings"
+    source_id: Mapped[str] = mapped_column(ForeignKey("catalog_sources.id"), primary_key=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), primary_key=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    verified: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class OpportunityArchive(Base):
+    """Private encrypted pre-consolidation snapshot; never part of public facts."""
+    __tablename__ = "opportunity_archives"
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), primary_key=True)
+    owner_id: Mapped[str] = mapped_column(String(36), index=True)
+    payload_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    archived_at: Mapped[str] = mapped_column(default=now)
+
+
+@event.listens_for(Opportunity, "before_insert")
+@event.listens_for(Opportunity, "before_update")
+def project_opportunity(mapper, connection, target):
+    if not target.canonical_id:
+        from .catalog_projection import projection
+        target.first_discovered = target.first_discovered or now()
+        for key, value in projection(target._payload or {}, target.first_discovered).items():
+            setattr(target, key, value)
 
 
 class SourceOpportunity(Base):
@@ -299,3 +377,34 @@ class DeadlineReminder(Base):
 
 
 Index("ix_task_claim", Task.status, Task.available_at, Task.priority)
+Index("ix_catalog_newest", Opportunity.projection_version, Opportunity.canonical_id, Opportunity.kind, Opportunity.sort_at.desc(), Opportunity.id.desc())
+Index("ix_catalog_deadline", Opportunity.projection_version, Opportunity.canonical_id, Opportunity.kind, Opportunity.deadline_at, Opportunity.id)
+Index("ix_catalog_unprojected", Opportunity.id,
+    postgresql_where=and_(Opportunity.canonical_id.is_(None), Opportunity.projection_version != 1),
+    sqlite_where=and_(Opportunity.canonical_id.is_(None), Opportunity.projection_version != 1))
+Index("ix_source_opportunity_reverse", SourceOpportunity.opportunity_id, SourceOpportunity.source_id)
+Index("ix_application_owner_created", Application.owner_id, Application.created_at, Application.id)
+Index("ix_saved_owner_created", SavedOpportunity.owner_id, SavedOpportunity.created_at, SavedOpportunity.opportunity_id)
+
+
+class CoordinationState(Base):
+    __tablename__ = "coordination_state"
+    key: Mapped[str] = mapped_column(String(160), primary_key=True)
+    value: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class RequestLease(Base):
+    __tablename__ = "request_leases"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    host: Mapped[str] = mapped_column(String(253), index=True)
+    expires_at: Mapped[str] = mapped_column(String(40), index=True)
+
+
+class DiscoveryHealth(Base):
+    __tablename__ = "discovery_health"
+    key: Mapped[str] = mapped_column(String(100), primary_key=True)
+    failures: Mapped[int] = mapped_column(default=0)
+    next_attempt: Mapped[str | None] = mapped_column(nullable=True)
+    last_checked: Mapped[str | None] = mapped_column(nullable=True)
+    last_error: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    checkpoint: Mapped[dict] = mapped_column(JSON, default=dict)

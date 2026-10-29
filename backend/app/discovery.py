@@ -40,8 +40,8 @@ INTERNSHIP = re.compile(INTERNSHIP.pattern + "|" + ADJACENT_STUDENT_ROLE.pattern
 
 
 class DiscoveryError(ValueError):
-    def __init__(self, message: str, retry_after: int | None = None):
-        super().__init__(message); self.retry_after = retry_after
+    def __init__(self, message: str, retry_after: int | None = None, *, permanent: bool = False):
+        super().__init__(message); self.retry_after = retry_after; self.permanent = permanent
 
 
 def default_sources() -> list[dict]:
@@ -72,9 +72,14 @@ def _syntax_url(url: str) -> str:
         if host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
             raise ValueError
         try:
-            if not ipaddress.ip_address(host).is_global: raise ValueError
+            address = ipaddress.ip_address(host)
         except ValueError:
             if re.fullmatch(r"[\d.:]+", host): raise ValueError
+        else:
+            # Do not catch our own private-address rejection as a DNS parse
+            # failure (IPv6 literals containing a–f passed the numeric regex).
+            if not address.is_global:
+                raise ValueError
         if any(host == blocked or host.endswith("." + blocked) for blocked in RESTRICTED_PLATFORMS):
             raise DiscoveryError("This platform requires an authorized API/feed integration; direct page crawling is disabled.")
         return url
@@ -121,25 +126,28 @@ async def _request(client: httpx.AsyncClient, url: str, *, headers=None, method=
         if robots:
             await _robots(client, url)
         host = urlsplit(url).hostname
+        from .coordination import http_slot
+        from .config import settings
         lock = _HOST_LOCKS.setdefault(host, asyncio.Lock())
         async with lock:
-            delay = _HOST_DELAY.get(host, 1.0)
+            delay = max(_HOST_DELAY.get(host, 1.0), float(settings.http_host_policies.get(host, {}).get("min_interval", 0)))
             remaining = delay - (time.monotonic() - _HOST_LAST.get(host, 0))
             if remaining > 0: await asyncio.sleep(min(remaining, 60))
             _HOST_LAST[host] = time.monotonic()
             from .rate_limits import throttle
             await throttle(host,delay)
             try:
-                async with client.stream(method, url, headers=headers, json=payload if method == "POST" else None) as response:
-                    chunks, size = [], 0
-                    async for chunk in response.aiter_bytes():
-                        size += len(chunk)
-                        if size > MAX_BYTES: raise DiscoveryError("Source response exceeds the 12 MiB safety limit.")
-                        chunks.append(chunk)
-                    # aiter_bytes already decoded compression; do not decode again.
-                    decoded_headers = {k: v for k, v in response.headers.items() if k.lower() not in {"content-encoding", "transfer-encoding", "content-length"}}
-                    result = httpx.Response(response.status_code, headers=decoded_headers, content=b"".join(chunks), request=response.request)
-            except httpx.HTTPError as exc:
+                async with http_slot(host), asyncio.timeout(settings.http_request_timeout):
+                    async with client.stream(method, url, headers=headers, json=payload if method == "POST" else None) as response:
+                        chunks, size = [], 0
+                        async for chunk in response.aiter_bytes():
+                            size += len(chunk)
+                            if size > MAX_BYTES: raise DiscoveryError("Source response exceeds the 12 MiB safety limit.")
+                            chunks.append(chunk)
+                        # aiter_bytes already decoded compression; do not decode again.
+                        decoded_headers = {k: v for k, v in response.headers.items() if k.lower() not in {"content-encoding", "transfer-encoding", "content-length"}}
+                        result = httpx.Response(response.status_code, headers=decoded_headers, content=b"".join(chunks), request=response.request)
+            except (httpx.HTTPError, TimeoutError) as exc:
                 raise DiscoveryError(f"Source request failed ({type(exc).__name__}); no access restriction was bypassed.") from exc
         if result.status_code in (301, 302, 303, 307, 308):
             target = result.headers.get("location")
@@ -151,14 +159,14 @@ async def _request(client: httpx.AsyncClient, url: str, *, headers=None, method=
             url = new_url
             if result.status_code == 303: method, payload = "GET", None
             continue
-        if result.status_code == 429:
+        if result.status_code in (429, 503):
             retry = _retry_seconds(result.headers.get("retry-after"))
             from .rate_limits import cooldown
             await cooldown(host,retry)
             _HOST_DELAY[host] = max(_HOST_DELAY.get(host, 1), min(retry, 60))
             raise DiscoveryError("Source rate limit reached; retry after the server's requested delay.", retry_after=retry)
         if result.status_code in (401, 403):
-            raise DiscoveryError("Source requires authorization or disallows access; configure an authorized feed instead.")
+            raise DiscoveryError("Source requires authorization or disallows access; configure an authorized feed instead.", permanent=True)
         if result.status_code == 304: return result
         if result.is_error: raise DiscoveryError(f"Source returned HTTP {result.status_code}.")
         return result
@@ -401,6 +409,7 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
     async with httpx.AsyncClient(timeout=httpx.Timeout(30), follow_redirects=False, trust_env=True) as client:
         if kind in {"html", "feed"}: await _robots(client, url)
         if kind == "workday":
+            headers = {k:v for k,v in headers.items() if not k.lower().startswith("if-")}
             response = await _request(client, url, headers=headers, method="POST", payload={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "intern"})
         else: response = await _request(client, url, headers=headers)
         next_cache = {"etag": response.headers.get("etag"), "last_modified": response.headers.get("last-modified"), "checked_at": datetime.now(timezone.utc).isoformat()}
@@ -434,6 +443,15 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
         else:
             try: data = response.json()
             except ValueError as exc: raise DiscoveryError("The source did not return valid API JSON.") from exc
+            if kind == "workday" and isinstance(data, dict) and isinstance(data.get("jobPostings"), list):
+                from .pagination import workday_pages
+                data, progress, partial, delay = await workday_pages(client, url, data, headers, source, cache)
+                next_cache.update(pagination=progress, truncated=partial)
+                if delay:
+                    next_cache["pagination_retry_after"] = delay
+            collection = {"greenhouse":"jobs", "ashby":"jobs", "smartrecruiters":"content", "workday":"jobPostings"}.get(kind)
+            if collection and (not isinstance(data, dict) or not isinstance(data.get(collection), list)):
+                raise DiscoveryError(f"Unexpected {kind} response schema; previous inventory was preserved.")
             if kind == "greenhouse":
                 for value in data.get("jobs", []):
                     location = (value.get("location") or {}).get("name", "")
@@ -479,7 +497,7 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
                                      description=description, remote=loc.get("remote") is True, published_at=released))
                     if len(new_details) >= 20: break
                 next_cache["details"] = new_details
-                next_cache["truncated"] = data.get("totalFound", 0) > 100
+                next_cache["truncated"] = data.get("totalFound", 0) > 100 or sum(bool(INTERNSHIP.search(v.get("name", ""))) for v in postings) > len(new_details)
             elif kind == "workday":
                 # Public listing metadata is enough for discovery; detail eligibility remains review.
                 board_base = url.split("/wday/cxs/")[0]
@@ -489,7 +507,7 @@ async def discover(source: dict, cache: dict | None = None) -> dict:
                     jobs.append(_job(external_id=path, title=value.get("title", ""), company=company,
                                      location=value.get("locationsText", ""), url=board_base + "/" + board + "/" + path.lstrip("/"), description="",
                                      remote="remote" in value.get("locationsText", "").lower()))
-                next_cache["truncated"] = data.get("total", 0) > 20
+                next_cache["truncated"] = next_cache.get("truncated", data.get("total", 0) > 20)
             elif kind == "search":
                 from .publisher_discovery import page_candidates, source_candidate
                 results = [value for value in (data.get("web") or {}).get("results", []) if isinstance(value,dict)][:20]

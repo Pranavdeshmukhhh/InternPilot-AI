@@ -16,7 +16,7 @@ from sqlalchemy import String, case, cast, func, literal, or_, select
 from .discovery_filters import matches as matches_criteria
 from .geography import classify, location_matches
 from .matching import _disclosed_paid
-from .models import Application, Opportunity, SavedOpportunity, Source, SourceOpportunity
+from .models import Application, Opportunity, SavedOpportunity
 from .opportunity_intelligence import _positive_prize
 from .security import decrypt
 from .services import job_view, timestamp
@@ -41,7 +41,8 @@ def candidate_query(db, owner_id, *, saved=False, kind="", remote="", company=""
     if saved:
         ids = select(SavedOpportunity.opportunity_id).where(SavedOpportunity.owner_id == owner_id)
     else:
-        ids = select(SourceOpportunity.opportunity_id).join(Source, Source.id == SourceOpportunity.source_id).where(Source.owner_id == owner_id)
+        from .catalog_query import visible_ids
+        ids = visible_ids(owner_id)
     query = select(Opportunity).where(Opportunity.id.in_(ids))
     if kind:
         query = query.where(func.coalesce(Opportunity.data["opportunity_type"].as_string(), "internship") == kind)
@@ -125,10 +126,17 @@ def _decorate(db, owner_id, rows):
     # application/bookmark history for a single page.
     saved, statuses = set(), {}
     ids = [row["id"] for row in rows]
+    target = func.coalesce(Opportunity.canonical_id, Opportunity.id)
     for start in range(0, len(ids), BATCH_SIZE):
         chunk = ids[start:start + BATCH_SIZE]
-        saved.update(db.scalars(select(SavedOpportunity.opportunity_id).where(SavedOpportunity.owner_id == owner_id, SavedOpportunity.opportunity_id.in_(chunk))))
-        statuses.update(db.execute(select(Application.opportunity_id, Application.status).where(Application.owner_id == owner_id, Application.opportunity_id.in_(chunk))).all())
+        saved_rows = db.execute(select(SavedOpportunity.opportunity_id, target).join(Opportunity, Opportunity.id == SavedOpportunity.opportunity_id)
+            .where(SavedOpportunity.owner_id == owner_id, or_(SavedOpportunity.opportunity_id.in_(chunk), target.in_(chunk))))
+        for legacy, canonical in saved_rows:
+            saved.update((legacy, canonical))
+        application_rows = db.execute(select(Application.opportunity_id, target, Application.status).join(Opportunity, Opportunity.id == Application.opportunity_id)
+            .where(Application.owner_id == owner_id, or_(Application.opportunity_id.in_(chunk), target.in_(chunk))).order_by(Application.created_at))
+        for legacy, canonical, status in application_rows:
+            statuses[legacy] = statuses[canonical] = status
     return [{**row, "saved": row["id"] in saved, "application_status": statuses.get(row["id"], "not_started")} for row in rows]
 
 
@@ -142,6 +150,24 @@ def query_opportunities(db, user, *, page=None, page_size=20, view=job_view, **o
     window = offset + page_size if page is not None else None
     computed_filter = bool(options.get("eligibility") or options.get("recommended") or options.get("min_score", 0))
     chronological = page is not None and sort in {"newest", "deadline"} and not computed_filter
+    criteria = options.get("criteria")
+    criteria_active = bool(criteria and any(criteria.model_dump().values()))
+    simple = chronological and not criteria_active and not options.get("location") and options.get("region", "all") == "all" and not options.get("paid")
+    if simple:
+        # Exact legacy totals remain SQL COUNT, not a Python facts/evaluation scan.
+        # Unprojected or historical-alias fixtures retain the v1 fallback until
+        # explicitly backfilled; this preserves every existing API contract.
+        needs_fallback = db.scalar(base.with_only_columns(Opportunity.id).order_by(None)
+            .where(or_(Opportunity.projection_version != 1, Opportunity.canonical_id.is_not(None))).limit(1))
+        if needs_fallback is None:
+            from .catalog_query import indexed_query
+            query = indexed_query(user.id, saved=options.get("saved", False), kind=options.get("kind", ""),
+                company=options.get("company", ""), search=options.get("search", ""),
+                remote=str(options.get("remote", "")).lower() in {"true", "1"}, include_closed=options.get("include_closed", False), deadline_before=cutoff, at=at)
+            total = db.scalar(select(func.count()).select_from(query.order_by(None).subquery()))
+            ordered = query.order_by(Opportunity.deadline_at.asc().nulls_last(), Opportunity.id.asc()) if sort == "deadline" else query.order_by(Opportunity.sort_at.desc(), Opportunity.id.asc())
+            chosen = [view(job, profile) for job in db.scalars(ordered.offset(offset).limit(page_size))]
+            return {"items":_decorate(db, user.id, chosen), "total":total, "page":page, "page_size":page_size}
     total = 0
 
     def candidates():

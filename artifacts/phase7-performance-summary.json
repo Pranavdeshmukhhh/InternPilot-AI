@@ -1,0 +1,62 @@
+{
+  "synthetic_only": true,
+  "scenarios": [
+    {
+      "records": 10000,
+      "clients": 10,
+      "requests": 663,
+      "p50_ms": 245.70299799961504,
+      "p95_ms": 398.5530520003522,
+      "p99_ms": 448.5485749974032,
+      "rps": 32.80065067565343,
+      "error_rate": 0.0,
+      "process_rss_mib": 495.7421875,
+      "mean_cpu_cores": 1.1561341376880558,
+      "schema_mib": 15.5078125,
+      "old_query_ms": 43.478621999383904,
+      "new_query_ms": 43.74525200546486,
+      "queue_claims_per_second": 144.16785618742762,
+      "queue_p95_lag_seconds": 7.203111
+    },
+    {
+      "records": 100000,
+      "clients": 25,
+      "requests": 402,
+      "p50_ms": 1227.6101829993422,
+      "p95_ms": 1975.1581189993885,
+      "p99_ms": 2432.991232002678,
+      "rps": 18.97623331891931,
+      "error_rate": 0.0,
+      "process_rss_mib": 965.8125,
+      "mean_cpu_cores": 1.3048241108034855,
+      "schema_mib": 140.546875,
+      "old_query_ms": 89.72713099501561,
+      "new_query_ms": 62.43702400388429,
+      "queue_claims_per_second": 128.38428747423507,
+      "queue_p95_lag_seconds": 7.82095
+    },
+    {
+      "records": 1000000,
+      "clients": 25,
+      "requests": 84,
+      "p50_ms": 6843.592600002012,
+      "p95_ms": 11735.932821997267,
+      "p99_ms": 13608.745243996964,
+      "rps": 3.122554834066561,
+      "error_rate": 0.0,
+      "process_rss_mib": 1248.734375,
+      "mean_cpu_cores": 1.519188516391429,
+      "schema_mib": 1426.0703125,
+      "old_query_ms": 637.0741470018402,
+      "new_query_ms": 481.31854600069346,
+      "queue_claims_per_second": 125.87262538094001,
+      "queue_p95_lag_seconds": 8.229016
+    }
+  ],
+  "source_reports": [
+    "phase7-10000-release.json",
+    "phase7-100000-release.json",
+    "phase7-1000000-release.json"
+  ],
+  "verdict": "Large-catalog concurrent latency misses production targets; not a production-scale certification."
+}

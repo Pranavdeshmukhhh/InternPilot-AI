@@ -6,6 +6,17 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,14 +28,31 @@ jobs:
         working-directory: backend
       - run: pip install -r requirements-dev.txt
         working-directory: backend
+      - run: pip install -r requirements-audit.txt
+        working-directory: backend
+      - run: python -m pip_audit -r requirements.lock --disable-pip --no-deps
+        working-directory: backend
       - run: python -m ruff check app tests
         working-directory: backend
+      - run: python -m ruff check scripts/benchmark-production.py scripts/verify-backend.py scripts/verify-recovery.py scripts/prepare-ci-database.py
+      - run: python scripts/export-openapi.py /tmp/current-openapi.json
+      - run: python -c "import json; assert json.load(open('/tmp/current-openapi.json')) == json.load(open('frontend/openapi.json')), 'OpenAPI contract drift; regenerate frontend types'"
       - run: python -m playwright install --with-deps chromium
-      - run: python -m pytest -q
-        working-directory: backend
+      - run: python scripts/prepare-ci-database.py
+        env:
+          CI_POSTGRES_ADMIN_URL: postgresql+psycopg://postgres:synthetic-ci-only@127.0.0.1:5432/postgres
+      - run: python scripts/verify-backend.py --postgres --output-prefix artifacts/backend-ci -- -q -ra
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: |
+            artifacts/backend-ci.xml
+            artifacts/backend-ci.json
+            artifacts/backend-ci.log
   frontend:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,5 +62,30 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
         working-directory: frontend
-      - run: npm run lint && npm run typecheck && npm run build
+      - run: npm audit --audit-level=high
         working-directory: frontend
+      - run: npm run lint && npm run typecheck && npm test && npm run format:check && npm run build
+        working-directory: frontend
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - run: pip install -r backend/requirements.lock
+      - run: python -m playwright install --with-deps chromium
+      - run: python scripts/run-ui-acceptance.py --public-ui
+      - run: python scripts/run-ui-acceptance.py --access-ui
+      - run: python scripts/run-ui-acceptance.py --phase6-ui
+        env:
+          UI_ARTIFACT_DIR: artifacts/ci-workspace-ui
+      - run: python scripts/export-public.py --destination "$RUNNER_TEMP/internpilot-public" --origin https://internpilot-ai-notebook.antigravityfree101.chatgpt.site
+      - run: python scripts/verify-public-export.py --directory "$RUNNER_TEMP/internpilot-public/out" --output artifacts/ci-public-export
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-ui-results
+          path: |
+            artifacts/phase9-public/
+            artifacts/ci-workspace-ui/
+            artifacts/ci-public-export/
+            artifacts/access-update/ui/

@@ -18,7 +18,8 @@ from app.models import Opportunity, Source, SourceOpportunity
 from app.security import digest
 from app.services import canonical_fingerprint
 
-OUT = ROOT / "artifacts"
+OUT = Path(os.getenv("UI_ARTIFACT_DIR", str(ROOT / "artifacts")))
+OUT.mkdir(parents=True, exist_ok=True)
 report = {"at": datetime.now(UTC).isoformat(), "synthetic_data_only": True, "checks": [],
           "external_applications": 0, "external_emails": 0, "crawl_workers": 0}
 
@@ -29,9 +30,11 @@ def checked(name):
 
 
 def navigate(page, label):
-    target = page.get_by_role("button", name=label, exact=True)
-    if not target.is_visible() or not target.evaluate("el=>{const r=el.getBoundingClientRect();return r.right>0&&r.left<innerWidth;}"):
-        page.get_by_role("button", name="Open navigation", exact=True).click()
+    label={"Internship explorer":"Explore","Saved opportunities":"Saved"}.get(label,label)
+    target=page.get_by_role("navigation",name="Main navigation").get_by_role("link",name=label,exact=True)
+    if not target.is_visible():
+        page.get_by_role("button",name="Open navigation",exact=True).click()
+        target=page.get_by_role("dialog").get_by_role("link",name=label,exact=True)
     target.click()
 
 
@@ -42,7 +45,7 @@ try:
         page = context.new_page(); page.set_default_timeout(20000)
         errors = []; page.on("pageerror", lambda error: errors.append(str(error)))
         base = os.getenv("UI_TEST_URL", "http://127.0.0.1:3000")
-        page.goto(base)
+        page.goto(base+"/register")
         expect(page.locator("html")).to_have_attribute("data-theme", "light")
         expect(page.get_by_role("button", name="Create your workspace", exact=True)).to_be_visible()
         page.screenshot(path=str(OUT / "studio-auth.png"), full_page=False)
@@ -50,7 +53,7 @@ try:
         page.get_by_label("Email address", exact=True).fill("studio-" + secrets.token_hex(5) + "@example.test")
         page.get_by_label("Password", exact=False).fill(secrets.token_urlsafe(24))
         page.get_by_role("button", name="Create your workspace", exact=True).click()
-        page.get_by_role("heading", name="Your opportunity notebook.").wait_for()
+        page.get_by_role("heading", name="A clearer next step.").wait_for()
         account = context.request.get(base + "/api/auth/session").json()
         fixtures = [
             ("Example Research", "Research Engineer Intern", "Pune, India", ["Python", "PyTorch"], True),
@@ -72,9 +75,9 @@ try:
                 row = Opportunity(fingerprint=digest(source.owner_id + canonical_fingerprint(data)), data=data)
                 db.add(row); db.flush(); db.add(SourceOpportunity(source_id=source.id, opportunity_id=row.id))
             db.commit()
-        page.reload(); page.get_by_role("heading", name="Your opportunity notebook.").wait_for()
+        page.reload(); page.get_by_role("heading", name="A clearer next step.").wait_for()
         # Demo rows must not inflate real opportunity statistics.
-        expect(page.locator(".metric-value").first).to_have_text("0")
+        expect(page.locator(".brief-counts strong").first).to_have_text("0")
         page.screenshot(path=str(OUT / "studio-overview.png"), full_page=False)
         navigate(page, "Internship explorer")
         expect(page.locator(".results-bar strong")).to_have_text("6")
@@ -82,7 +85,7 @@ try:
         expect(rows).to_have_count(6)
         assert rows.first.bounding_box()["height"] <= 180
         assert page.get_by_label("Search opportunities", exact=True).bounding_box()["y"] < 350
-        assert page.get_by_text("Local places & discovery coverage", exact=True).bounding_box()["y"] > rows.first.bounding_box()["y"]
+        expect(page.get_by_role("link",name="Manage locations and discovery sources",exact=True)).to_have_attribute("href","/automation/sources")
         page.screenshot(path=str(OUT / "studio-explorer-desktop.png"), full_page=False)
         checked("Compact opportunity rows keep title, location, deadline and eligibility ahead of setup controls")
         first = page.locator(".job-card").first

@@ -1,0 +1,10 @@
+{
+  "configs": {
+    "compose.yaml": "validated_with_synthetic_environment",
+    "deploy/compose.cloud.yaml": "validated_with_synthetic_environment"
+  },
+  "engine": "28.4.0",
+  "compose": "2.40.3",
+  "image_builds_executed": false,
+  "blocker": "vfs storage driver and approximately 0.5 GB writable disk; insufficient headroom for image copies/builds"
+}

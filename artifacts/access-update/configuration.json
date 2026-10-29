@@ -1,0 +1,9 @@
+{
+  "compose": {
+    "local": "valid",
+    "cloud": "valid"
+  },
+  "ci_yaml": "valid",
+  "images_built": false,
+  "hosted_ci_executed": false
+}

@@ -1,19 +1,199 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpRight, LoaderCircle, RefreshCw } from 'lucide-react';
+import { useResource } from '@/features/workspace/provider';
 import { Button } from '@/components/ui/button';
 
-type Operations = { sources: number; enabled_sources: number; worker: { status: string; active_workers: number; capacity: number; queued: number; running: number; failed: number }; scans: Record<string, number>; records_received: number; success_rate: number | null; p95_seconds: number | null; duration_sample_size: number; database_mode: string; shared_host_limits: boolean; browser_limit_per_process: number; recent_scans: { id: string; source_id: string; started_at: string; seconds: number | null; records: number; outcome: string }[] };
-export function AutomationCenter({ api, onPolicy, onSources, onActivity }: { api: (path: string, method?: string, body?: unknown) => Promise<any>; onPolicy: () => void; onSources: () => void; onActivity: () => void }) {
-  const [data, setData] = useState<Operations | null>(null);
-  const [error, setError] = useState('');
-  const load = useCallback(async () => { try { setData(await api('/operations')); setError(''); } catch (reason) { setError(reason instanceof Error ? reason.message : 'Operations unavailable.'); } }, [api]);
-  useEffect(() => { load(); const timer = setInterval(load, 15000); return () => clearInterval(timer); }, [load]);
-  return <><div className="page-title-row"><div><h1>Automation center</h1><p className="page-subtitle">Real worker activity, source health and your boundaries.</p></div><Button variant="outline" onClick={load}><RefreshCw size={15} />Refresh</Button></div>{error && <div className="banner danger" role="alert">{error}</div>}{!data ? <div className="loading-panel"><LoaderCircle className="spin" />Loading operations…</div> : <>
-    <div className="operation-metrics"><div><strong>{data.enabled_sources}</strong><span>Enabled sources / {data.sources} configured</span></div><div><strong>{data.worker.active_workers}</strong><span>Active worker processes</span></div><div><strong>{data.worker.running}</strong><span>Tasks running · {data.worker.queued} queued</span></div><div><strong>{data.success_rate === null ? '—' : `${data.success_rate}%`}</strong><span>Completed scan success · past 24h</span></div></div>
-    <div className="split-heading"><h2>Operations</h2><span className="micro-label">{data.worker.status}</span></div><div className="operational-list"><div><div><strong>Persistent queue</strong><small>{data.database_mode.replaceAll('_', ' ')} · {data.worker.capacity} advertised worker slots</small></div><Button variant="ghost" size="sm" onClick={onActivity}>Activity<ArrowUpRight size={13} /></Button></div><div><div><strong>Discovery</strong><small>{data.scans.success || 0} successful scans · {data.scans.cached || 0} cached · {data.scans.error || 0} failed · {data.records_received} records received in 24h</small></div><Button variant="ghost" size="sm" onClick={onSources}>Sources<ArrowUpRight size={13} /></Button></div><div><div><strong>Measured latency</strong><small>{data.p95_seconds === null ? 'No completed scans to measure yet.' : `95th percentile ${data.p95_seconds}s across up to ${data.duration_sample_size} recent completed scans.`}</small></div></div><div><div><strong>Website protection</strong><small>{data.shared_host_limits ? 'Shared PostgreSQL host budgets across crawler replicas' : 'Local host budgets; distributed limits require PostgreSQL'} · up to {data.browser_limit_per_process} browsers per worker process</small></div></div><div><div><strong>Applications</strong><small>Drafts use verified facts. Uploads need specific consent. Final external submission requires a certified employer integration.</small></div><Button variant="ghost" size="sm" onClick={onPolicy}>Policies<ArrowUpRight size={13} /></Button></div></div>
-    <div className="split-heading"><h2>Recent scans</h2><span className="footnote">Observed records, including cache and failure outcomes</span></div>{data.recent_scans.length ? <div className="quiet-table-wrap"><table className="quiet-table"><thead><tr><th>Started</th><th>Source</th><th>Outcome</th><th>Duration</th><th>Records</th></tr></thead><tbody>{data.recent_scans.map(scan => <tr key={scan.id}><td>{new Date(scan.started_at).toLocaleString()}</td><td className="mono">{scan.source_id.slice(0, 8)}</td><td>{scan.outcome}</td><td>{scan.seconds === null ? '—' : `${scan.seconds}s`}</td><td>{scan.records}</td></tr>)}</tbody></table></div> : <p className="outreach-empty">No scans recorded yet. Enable a permitted source and run discovery.</p>}
-    <p className="footnote mt-6">Continuous operation with your laptop off requires deployment to an always-on server. A local worker stops when this machine stops.</p>
-  </>}</>;
+type Operations = {
+  sources: number;
+  enabled_sources: number;
+  worker: {
+    status: string;
+    active_workers: number;
+    capacity: number;
+    queued: number;
+    running: number;
+    failed: number;
+  };
+  scans: Record<string, number>;
+  records_received: number;
+  success_rate: number | null;
+  p95_seconds: number | null;
+  duration_sample_size: number;
+  database_mode: string;
+  shared_host_limits: boolean;
+  browser_limit_per_process: number;
+  recent_scans: {
+    id: string;
+    source_id: string;
+    started_at: string;
+    seconds: number | null;
+    records: number;
+    outcome: string;
+  }[];
+};
+export function AutomationCenter({
+  api,
+  onPolicy,
+  onSources,
+  onActivity,
+}: {
+  api: (path: string, method?: string, body?: unknown) => Promise<any>;
+  onPolicy: () => void;
+  onSources: () => void;
+  onActivity: () => void;
+}) {
+  const resource = useResource<Operations>('/operations');
+  const data = resource.data;
+  const error = resource.error?.message || '';
+  const load = () => resource.refetch();
+  return (
+    <>
+      <div className="page-title-row">
+        <div>
+          <h1>Automation center</h1>
+          <p className="page-subtitle">Real worker activity, source health and your boundaries.</p>
+        </div>
+        <Button variant="outline" onClick={load}>
+          <RefreshCw size={15} />
+          Refresh
+        </Button>
+      </div>
+      {error && (
+        <div className="banner danger" role="alert">
+          {error}
+        </div>
+      )}
+      {!data ? (
+        <div className="loading-panel">
+          <LoaderCircle className="spin" />
+          Loading operations…
+        </div>
+      ) : (
+        <>
+          <div className="operation-metrics">
+            <div>
+              <strong>{data.enabled_sources}</strong>
+              <span>Enabled sources / {data.sources} configured</span>
+            </div>
+            <div>
+              <strong>{data.worker.active_workers}</strong>
+              <span>Active worker processes</span>
+            </div>
+            <div>
+              <strong>{data.worker.running}</strong>
+              <span>Tasks running · {data.worker.queued} queued</span>
+            </div>
+            <div>
+              <strong>{data.success_rate === null ? '—' : `${data.success_rate}%`}</strong>
+              <span>Completed scan success · past 24h</span>
+            </div>
+          </div>
+          <div className="split-heading">
+            <h2>Operations</h2>
+            <span className="micro-label">{data.worker.status}</span>
+          </div>
+          <div className="operational-list">
+            <div>
+              <div>
+                <strong>Persistent queue</strong>
+                <small>
+                  {data.database_mode.replaceAll('_', ' ')} · {data.worker.capacity} advertised worker slots
+                </small>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onActivity}>
+                Activity
+                <ArrowUpRight size={13} />
+              </Button>
+            </div>
+            <div>
+              <div>
+                <strong>Discovery</strong>
+                <small>
+                  {data.scans.success || 0} successful scans · {data.scans.cached || 0} cached ·{' '}
+                  {data.scans.error || 0} failed · {data.records_received} records received in 24h
+                </small>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onSources}>
+                Sources
+                <ArrowUpRight size={13} />
+              </Button>
+            </div>
+            <div>
+              <div>
+                <strong>Measured latency</strong>
+                <small>
+                  {data.p95_seconds === null
+                    ? 'No completed scans to measure yet.'
+                    : `95th percentile ${data.p95_seconds}s across up to ${data.duration_sample_size} recent completed scans.`}
+                </small>
+              </div>
+            </div>
+            <div>
+              <div>
+                <strong>Website protection</strong>
+                <small>
+                  {data.shared_host_limits
+                    ? 'Shared PostgreSQL host budgets across crawler replicas'
+                    : 'Local host budgets; distributed limits require PostgreSQL'}{' '}
+                  · up to {data.browser_limit_per_process} browsers per worker process
+                </small>
+              </div>
+            </div>
+            <div>
+              <div>
+                <strong>Applications</strong>
+                <small>
+                  Drafts use verified facts. Uploads need specific consent. Final external submission requires
+                  a certified employer integration.
+                </small>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onPolicy}>
+                Policies
+                <ArrowUpRight size={13} />
+              </Button>
+            </div>
+          </div>
+          <div className="split-heading">
+            <h2>Recent scans</h2>
+            <span className="footnote">Observed records, including cache and failure outcomes</span>
+          </div>
+          {data.recent_scans.length ? (
+            <div className="quiet-table-wrap">
+              <table className="quiet-table">
+                <thead>
+                  <tr>
+                    <th>Started</th>
+                    <th>Source</th>
+                    <th>Outcome</th>
+                    <th>Duration</th>
+                    <th>Records</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recent_scans.map((scan) => (
+                    <tr key={scan.id}>
+                      <td>{new Date(scan.started_at).toLocaleString()}</td>
+                      <td className="mono">{scan.source_id.slice(0, 8)}</td>
+                      <td>{scan.outcome}</td>
+                      <td>{scan.seconds === null ? '—' : `${scan.seconds}s`}</td>
+                      <td>{scan.records}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="outreach-empty">
+              No scans recorded yet. Enable a permitted source and run discovery.
+            </p>
+          )}
+          <p className="footnote mt-6">
+            Continuous operation with your laptop off requires deployment to an always-on server. A local
+            worker stops when this machine stops.
+          </p>
+        </>
+      )}
+    </>
+  );
 }

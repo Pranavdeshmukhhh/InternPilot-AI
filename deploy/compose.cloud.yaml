@@ -13,7 +13,10 @@ x-core: &core
   COOKIE_SECURE: 'true'
   TEST_MODE: 'false'
   ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
-  REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:?Private invitation token required}
+  INVITATION_ONLY: 'true'
+  AUTH_ADDRESS_LIMIT: ${AUTH_ADDRESS_LIMIT:-20}
+  AUTH_GLOBAL_LIMIT: ${AUTH_GLOBAL_LIMIT:-5000}
+  REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
   WORKER_HEARTBEAT_FILE: /data/crawler-heartbeat
   TASK_LEASE_SECONDS: '180'
   DISTRIBUTED_RATE_LIMITS: 'true'
@@ -29,8 +32,13 @@ x-worker: &worker
   depends_on:
     api: {condition: service_healthy}
   security_opt: [no-new-privileges:true]
+  mem_limit: 1536m
+  pids_limit: 256
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
   healthcheck:
-    test: [CMD, python, -c, "import os,time; assert time.time()-os.stat(os.environ['WORKER_HEARTBEAT_FILE']).st_mtime<60"]
+    test: [CMD, python, -c, "import os,time; assert 0<=time.time()-os.stat(os.environ['WORKER_HEARTBEAT_FILE']).st_mtime<60"]
     interval: 30s
     timeout: 5s
     retries: 3
@@ -73,6 +81,11 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
     volumes: [app_data:/data]
+    mem_limit: 1g
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
     restart: unless-stopped
     init: true
     depends_on:
@@ -85,6 +98,7 @@ services:
       start_period: 20s
     security_opt: [no-new-privileges:true]
   crawler:
+    profiles: [discovery]
     <<: *worker
     environment:
       <<: *core
@@ -98,6 +112,7 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
   applications:
+    profiles: [actions]
     <<: *worker
     environment:
       <<: *core
@@ -107,6 +122,7 @@ services:
       WORKER_HEARTBEAT_FILE: /tmp/application-heartbeat
     shm_size: 1gb
   outreach:
+    profiles: [actions]
     <<: *worker
     environment:
       <<: *core
@@ -121,6 +137,8 @@ services:
       context: ../frontend
       args:
         INTERNAL_API_URL: http://api:8000
+        PUBLIC_SITE_URL: https://${PUBLIC_DOMAIN}
+        PUBLIC_CONTACT_EMAIL: ${PUBLIC_CONTACT_EMAIL:-}
     environment:
       INTERNAL_API_URL: http://api:8000
       PUBLIC_HTTPS: 'true'

@@ -3,7 +3,6 @@ import hmac
 import mimetypes
 import secrets
 import time
-from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePath
@@ -14,7 +13,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response, UploadFi
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func, text, or_, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from .config import settings
@@ -57,7 +56,8 @@ async def security_headers(request, call_next):
     if request.method in {"POST","PUT","PATCH","DELETE"} and request.url.path.startswith("/api/"):
         origin = request.headers.get("origin")
         host_origin = f"{request.url.scheme}://{request.headers.get('host','')}"
-        if origin and origin not in settings.cors_origins and origin != host_origin:
+        allowed = origin in {*settings.cors_origins, settings.public_origin} or (not settings.production and origin == host_origin)
+        if origin and not allowed:
             return JSONResponse(status_code=403,content={"detail":"Request origin is not allowed"})
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -76,15 +76,19 @@ def current_user(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(401,"Sign in to continue")
     if request.method not in {"GET","HEAD","OPTIONS"}:
         csrf = request.headers.get("x-csrf-token", "")
-        if not hmac.compare_digest(csrf,session.csrf_token):
+        if not hmac.compare_digest(csrf.encode("utf-8"),session.csrf_token.encode("utf-8")):
             raise HTTPException(403,"CSRF token is missing or invalid")
     user = db.get(User,session.user_id)
     if not user or user.disabled:
         raise HTTPException(401,"Account no longer exists")
     if not user.last_seen_at or user.last_seen_at < (datetime.now(timezone.utc)-timedelta(minutes=5)).isoformat():
         user.last_seen_at = now()
-        db.commit()
     request.state.session = session
+    # Authentication is its own short unit of work. expire_on_commit=False
+    # retains these read facts without pinning a pool connection while the
+    # endpoint waits for a thread, generates documents or performs network I/O.
+    # Sensitive mutations still re-lock/revalidate through require_locked_session.
+    db.commit()
     return user
 
 
@@ -97,23 +101,20 @@ def issue_session(db, user, response):
     return {"user":{"id":user.id,"email":decrypt(user.email_encrypted),"role":user.role},"csrf_token":csrf}
 
 
-_auth_attempts = defaultdict(deque)
-
-
 def throttle(request):
+    from .auth_limits import admit
     address = request.client.host if request.client else "local"
-    attempts, current = _auth_attempts[address], time.monotonic()
-    while attempts and attempts[0] < current-300:
-        attempts.popleft()
-    if len(attempts)>=20:
-        raise HTTPException(429,"Too many sign-in attempts; retry in five minutes")
-    attempts.append(current)
+    admit(address)
+
+
+# Unknown-account verification must not perform an extra scrypt on every request.
+_DUMMY_PASSWORD_HASH = password_hash("constant-dummy-password")
 
 
 @app.get("/api/health")
 def health(db: Session=Depends(get_db)):
     db.execute(text("SELECT 1"))
-    return {"status":"ok","test_mode":settings.test_mode,"version":"1.0.0","external_submission_adapters":[],"queue":"durable-database","llm_configured":__import__('os').getenv("LLM_PROVIDER","disabled")!="disabled","allow_registration":settings.allow_registration,"registration_requires_invite":bool(settings.registration_token)}
+    return {"status":"ok","test_mode":settings.test_mode,"version":"1.0.0","external_submission_adapters":[],"queue":"durable-database","llm_configured":__import__('os').getenv("LLM_PROVIDER","disabled")!="disabled","allow_registration":settings.allow_registration,"registration_requires_invite":settings.invitation_only or bool(settings.registration_token),"invitation_only":settings.invitation_only}
 
 
 @app.get("/api/ready")
@@ -134,7 +135,10 @@ def register(data:RegistrationCredentials,request:Request,response:Response,db:S
     if not settings.allow_registration:
         raise HTTPException(403,"Account registration is disabled")
     throttle(request)
-    if settings.registration_token and not hmac.compare_digest(digest(data.registration_token),digest(settings.registration_token)):
+    if settings.invitation_only:
+        from .invitations import consume
+        consume(db, data.email, data.registration_token)
+    elif settings.registration_token and not hmac.compare_digest(digest(data.registration_token),digest(settings.registration_token)):
         raise HTTPException(403,"A valid invitation code is required")
     profile = Profile().model_dump()
     # Account email is authenticated for sign-in, but not silently treated as a
@@ -161,7 +165,7 @@ def register(data:RegistrationCredentials,request:Request,response:Response,db:S
 def login(data:Credentials,request:Request,response:Response,db:Session=Depends(get_db)):
     throttle(request)
     user = locked_user(db,email_hash=digest(data.email))
-    if not verify_password(data.password,user.password_hash if user else password_hash("constant-dummy-password")) or user is None:
+    if not verify_password(data.password,user.password_hash if user else _DUMMY_PASSWORD_HASH) or user is None:
         raise HTTPException(401,"Invalid email or password")
     if user.disabled:
         raise HTTPException(403,"This account is disabled; contact the workspace owner")
@@ -271,6 +275,17 @@ def opportunity_rows(db, user, *, search="", eligibility="", remote="", sort="sc
     return query_opportunities(db,user,view=job_view,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,region=region,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score,criteria=criteria)
 
 
+@app.get("/api/v2/opportunities")
+def opportunity_cursor(cursor:str=Query("",max_length=4096),page_size:int=Query(20,ge=1,le=50),
+        sort:Literal["newest","deadline"]="newest",kind:Literal["","internship","hackathon","program"]="",
+        company:str=Query("",max_length=250),search:str=Query("",max_length=500),location:str=Query("",max_length=250),
+        remote:bool=False,saved:bool=False,include_closed:bool=False,search_mode:Literal["substring","text"]="substring",
+        user:User=Depends(current_user),db:Session=Depends(get_db)):
+    from .catalog_query import cursor_page
+    return cursor_page(db,user,cursor=cursor,page_size=page_size,sort=sort,kind=kind,company=company,search=search,
+        location=location,remote=remote,saved=saved,include_closed=include_closed,search_mode=search_mode)
+
+
 @app.get("/api/opportunities")
 def opportunities(search:str="",eligibility:str="",remote:str="",sort:Literal["score","newest","deadline"]="score",company:str="",paid:str="",deadline_before:str="",kind:Literal["","internship","hackathon"]="",location:str="",region:Literal["all","local","india","international","worldwide","unknown"]="all",saved:bool=False,recommended:bool=False,include_closed:bool=False,min_score:int=Query(0,ge=0,le=100),criteria:DiscoveryCriteria=Depends(),user:User=Depends(current_user),db:Session=Depends(get_db)):
     return opportunity_rows(db,user,search=search,eligibility=eligibility,remote=remote,sort=sort,company=company,paid=paid,deadline_before=deadline_before,kind=kind,location=location,region=region,saved=saved,recommended=recommended,include_closed=include_closed,min_score=min_score,criteria=criteria)
@@ -289,8 +304,7 @@ def saved_opportunities(user:User=Depends(current_user),db:Session=Depends(get_d
 @app.post("/api/imports/opportunities")
 async def import_opportunity_export(provider:Literal["jobspy","internscan"]=Query(...),file:UploadFile=File(...),user:User=Depends(current_user),db:Session=Depends(get_db)):
     from .aggregation import records_from_bytes,normalize_record,MAX_IMPORT_BYTES
-    from .models import SourceOpportunity
-    from .services import canonical_fingerprint,merge_opportunity_data
+    from .services import canonical_fingerprint
     content = await file.read(MAX_IMPORT_BYTES+1)
     try:
         records = records_from_bytes(content,file.filename or "export.json")
@@ -301,36 +315,21 @@ async def import_opportunity_export(provider:Literal["jobspy","internscan"]=Quer
     if source is None:
         source = Source(owner_id=user.id,kind=source_kind,slug="uploaded-export",company="JobSpy export" if provider=="jobspy" else "InternScan export",enabled=False,permitted=True,interval_seconds=1800)
         db.add(source);db.flush()
-    added=updated=skipped=0
+    skipped=0
     ids = set((source.cache or {}).get("active_opportunity_ids",[]))
+    normalized = []
     for record in records:
         data = normalize_record(record,source_kind)
         if data is None:
             skipped+=1;continue
-        fingerprint = digest(user.id+":"+canonical_fingerprint(data))
-        job = db.scalar(select(Opportunity).where(Opportunity.fingerprint==fingerprint))
-        if job is None:
-            try:
-                with db.begin_nested():
-                    job = Opportunity(fingerprint=fingerprint,data=data)
-                    db.add(job);db.flush()
-                added+=1
-            except IntegrityError:
-                job = db.scalar(select(Opportunity).where(Opportunity.fingerprint==fingerprint))
-                job.data,_ = merge_opportunity_data(job.data,data)
-                updated+=1
-        else:
-            job.data,verified_update = merge_opportunity_data(job.data,data)
-            if verified_update:
-                job.last_verified = now()
-            updated+=1
-        if db.get(SourceOpportunity,(source.id,job.id)) is None:
-            try:
-                with db.begin_nested():
-                    db.add(SourceOpportunity(source_id=source.id,opportunity_id=job.id));db.flush()
-            except IntegrityError:
-                pass
-        ids.add(job.id)
+        normalized.append(data)
+    fingerprints = {digest(user.id + ":" + canonical_fingerprint(data)) for data in normalized}
+    existing = set(db.scalars(select(Opportunity.fingerprint).where(Opportunity.fingerprint.in_(fingerprints))))
+    from .catalog import ingest
+    jobs, _, _, _ = ingest(db, user.id, source, normalized)
+    added = len(fingerprints - existing)
+    updated = len(normalized) - added
+    ids.update(job.id for job in jobs)
     source.cache = {"active_opportunity_ids":sorted(ids),"truncated":True,"uploaded":True}
     source.status,source.last_success,source.discovered_count = "imported",now(),added+updated
     event(db,user.id,"export_imported",f"{provider}: {added} new references, {updated} duplicates updated, {skipped} unsupported records skipped")
@@ -340,9 +339,13 @@ async def import_opportunity_export(provider:Literal["jobspy","internscan"]=Quer
 
 @app.post("/api/saved/{job_id}")
 def save_opportunity(job_id:str,user:User=Depends(current_user),db:Session=Depends(get_db)):
-    if not job_for_user(db,user.id,job_id):
+    job = job_for_user(db,user.id,job_id)
+    if not job:
         raise HTTPException(404,"Opportunity not found")
-    if db.get(SavedOpportunity,(user.id,job_id)) is None:
+    locked_user(db, user_id=user.id)
+    target = job.canonical_id or job.id
+    family = select(Opportunity.id).where(or_(Opportunity.id == target, Opportunity.canonical_id == target))
+    if db.scalar(select(SavedOpportunity.opportunity_id).where(SavedOpportunity.owner_id == user.id, SavedOpportunity.opportunity_id.in_(family))) is None:
         try:
             with db.begin_nested():
                 db.add(SavedOpportunity(owner_id=user.id,opportunity_id=job_id)); db.flush()
@@ -355,9 +358,12 @@ def save_opportunity(job_id:str,user:User=Depends(current_user),db:Session=Depen
 
 @app.delete("/api/saved/{job_id}")
 def unsave_opportunity(job_id:str,user:User=Depends(current_user),db:Session=Depends(get_db)):
-    row = db.get(SavedOpportunity,(user.id,job_id))
-    if row:
-        db.delete(row); db.commit()
+    job = job_for_user(db, user.id, job_id)
+    if job:
+        target = job.canonical_id or job.id
+        family = select(Opportunity.id).where(or_(Opportunity.id == target, Opportunity.canonical_id == target))
+        db.execute(delete(SavedOpportunity).where(SavedOpportunity.owner_id == user.id, SavedOpportunity.opportunity_id.in_(family)))
+        db.commit()
     return {"saved":False,"opportunity_id":job_id}
 
 
@@ -446,6 +452,7 @@ async def update_source(source_id:str,data:dict,user:User=Depends(current_user),
             raise HTTPException(422,str(exc)) from None
     for key,value in validated.model_dump().items():
         setattr(row,key,value)
+    row.scan_generation = Source.scan_generation + 1
     row.cache, row.next_run = {}, None
     event(db,user.id,"source_updated",f"Discovery source updated: {row.company}")
     db.commit()
@@ -458,8 +465,7 @@ def delete_source(source_id:str,user:User=Depends(current_user),db:Session=Depen
     if not row or row.owner_id!=user.id:
         raise HTTPException(404,"Source not found")
     from .models import SourceOpportunity
-    for link in db.scalars(select(SourceOpportunity).where(SourceOpportunity.source_id==source_id)):
-        db.delete(link)
+    db.execute(delete(SourceOpportunity).where(SourceOpportunity.source_id == source_id))
     db.delete(row)
     event(db,user.id,"source_deleted","Discovery source removed")
     db.commit()
@@ -485,7 +491,9 @@ def discovery_run(user:User=Depends(current_user),db:Session=Depends(get_db)):
 
 @app.get("/api/applications")
 def applications(user:User=Depends(current_user),db:Session=Depends(get_db)):
-    return [application_view(db,r) for r in db.scalars(select(Application).where(Application.owner_id==user.id).order_by(Application.created_at.desc()))]
+    rows = db.execute(select(Application, Opportunity).outerjoin(Opportunity, Opportunity.id == Application.opportunity_id)
+        .where(Application.owner_id == user.id).order_by(Application.created_at.desc())).all()
+    return [application_view(db, row, job=job) for row, job in rows]
 
 
 @app.post("/api/applications")
@@ -500,7 +508,10 @@ def create_application(data:ApplyInput,request:Request,user:User=Depends(current
     view = job_view(job,profile)
     if view["eligibility"]=="ineligible":
         raise HTTPException(422,"Opportunity is ineligible: "+"; ".join(view["reasons"])[:700])
-    if db.scalar(select(Application).where(Application.owner_id==user.id,Application.opportunity_id==job.id)):
+    identity = or_(Opportunity.id == job.id, Opportunity.canonical_id == (job.canonical_id or job.id),
+        Opportunity.url_key == job.url_key if job.url_key else False)
+    if db.scalar(select(Application).join(Opportunity, Opportunity.id == Application.opportunity_id)
+        .where(Application.owner_id==user.id, identity)):
         raise HTTPException(409,"An application already exists for this opportunity")
     row = Application(owner_id=user.id,opportunity_id=job.id)
     db.add(row)
@@ -626,11 +637,13 @@ def documents(user:User=Depends(current_user),db:Session=Depends(get_db)):
 
 @app.post("/api/documents/upload")
 async def upload_document(file:UploadFile=File(...),user:User=Depends(current_user),db:Session=Depends(get_db)):
-    from .documents import parse_resume
+    from .document_processing import parse_resume_isolated, ParserBusyError
     content = await file.read(8*1024*1024+1)
     filename = PurePath((file.filename or "resume.pdf").replace("\\","/")).name[:180]
     try:
-        parsed = await asyncio.to_thread(parse_resume,content,filename)
+        parsed = await parse_resume_isolated(content,filename)
+    except ParserBusyError as exc:
+        raise HTTPException(503, str(exc), headers={"Retry-After": "5"}) from None
     except ValueError as exc:
         raise HTTPException(422,str(exc)) from None
     row = store_document(db,user.id,{"content":content,"filename":filename,**parsed},"original")
@@ -728,7 +741,16 @@ def read_notification(notification_id:str,data:ReadInput,user:User=Depends(curre
 
 
 @app.get("/api/events/stream")
-async def stream_events(request:Request,user:User=Depends(current_user)):
+async def stream_events(request:Request):
+    # Authenticate in a short unit of work, not a yield dependency that retains
+    # a checked-out connection for the entire 55-second stream.
+    def authenticate():
+        with SessionLocal() as auth_db:
+            return current_user(request, auth_db)
+    user = await asyncio.to_thread(authenticate)
+    def latest_event():
+        with SessionLocal() as db:
+            return db.scalar(select(func.max(AuditEvent.created_at)).where(AuditEvent.owner_id==user.id))
     async def updates():
         cursor = now()
         started = time.monotonic()
@@ -755,8 +777,7 @@ async def stream_events(request:Request,user:User=Depends(current_user)):
                     except Exception:
                         await pubsub.aclose()
                         pubsub = None
-                with SessionLocal() as db:
-                    latest = db.scalar(select(func.max(AuditEvent.created_at)).where(AuditEvent.owner_id==user.id))
+                latest = await asyncio.to_thread(latest_event)
                 if wakeup or (latest and latest>cursor):
                     cursor = latest or cursor
                     yield "data: {\"event\":\"refresh\"}\n\n"
@@ -831,3 +852,43 @@ if settings.test_mode:
 app.include_router(create_owner_router(current_user,require_locked_session,throttle))
 app.include_router(create_outreach_router(current_user,require_locked_session))
 app.include_router(create_operations_router(current_user,require_locked_session))
+
+
+from .coordination import QueueCapacityError
+
+
+@app.exception_handler(QueueCapacityError)
+async def queue_overload(request: Request, exc: QueueCapacityError):
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=503, content={"detail":str(exc)}, headers={"Retry-After":"30"})
+
+
+@app.post("/api/tasks/{task_id}/requeue")
+def requeue_task(task_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    task = db.scalar(select(Task).where(Task.id == task_id, Task.owner_id == user.id).with_for_update())
+    if not task:
+        raise HTTPException(404, "Task not found")
+    if task.kind not in {"discovery", "gmail_sync"} or task.status != "failed":
+        raise HTTPException(409, "Use reviewed workflows for external actions")
+    if decrypt(user.policy_encrypted).get("emergency_stop"):
+        raise HTTPException(409, "Clear emergency stop first")
+    enqueue(db, user.id, task.kind, task.payload, task.dedupe_key, task.priority)
+    event(db, user.id, "task_requeued", "Explicitly requeued a failed read-only task")
+    db.commit()
+    return task_view(task)
+
+
+@app.get("/api/sources/{source_id}/diagnostics")
+def source_diagnostics(source_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    source = db.get(Source, source_id)
+    if not source or source.owner_id != user.id:
+        raise HTTPException(404, "Source not found")
+    from .catalog import reviewed_source
+    from .models import DiscoveryHealth
+    registry = reviewed_source(db, source)
+    health = db.get(DiscoveryHealth, registry.id if registry else source.id)
+    return {"source":source_view(source), "shared":bool(registry),
+            "next_attempt":health.next_attempt if health else source.next_run,
+            "consecutive_failures":health.failures if health else source.failures,
+            "last_error_class":health.last_error if health else None,
+            "checkpoint":{k:v for k,v in (health.checkpoint if health else {}).items() if k in {"offset", "updated_at"}}}

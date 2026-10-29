@@ -7,14 +7,15 @@ import mimetypes
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
-from pydantic import Field
+from pydantic import Field, field_validator
 from sqlalchemy import func, select
 
 from .account_security import locked_user, revoke_sessions
+from .config import settings
 from .database import get_db
 from .models import (User, LoginSession, Source, Opportunity, Application, Document, Task,
                      Notification, NotificationDelivery, SavedOpportunity, AuditEvent, now)
-from .schemas import StrictModel
+from .schemas import StrictModel, Credentials
 from .security import decrypt, decrypt_bytes, encrypt, password_hash, verify_password
 from .services import document_view, event, source_view
 
@@ -25,12 +26,27 @@ class OwnerAction(StrictModel):
     consent: bool
 
 
+class WorkerControl(OwnerAction):
+    paused: bool
+    paused_kinds: list[str] = Field(default_factory=list, max_length=4)
+
+
 class OwnerStatus(OwnerAction):
     disabled: bool
 
 
 class OwnerPassword(OwnerAction):
     new_password: str = Field(min_length=12,max_length=256)
+
+
+class OwnerInvitation(OwnerAction):
+    email: str = Field(min_length=5,max_length=254)
+    expires_days: int = Field(default=7,ge=1,le=7)
+
+    @field_validator("email")
+    @classmethod
+    def email_valid(cls, value):
+        return Credentials.email_valid(value)
 
 
 def account_view(row):
@@ -41,13 +57,16 @@ def create_router(current_user, require_locked_session, throttle):
     router = APIRouter(prefix="/api/owner",tags=["Workspace owner"])
 
     def owner(request:Request,user=Depends(current_user),db=Depends(get_db)):
+        # Shared admission uses a separate short transaction. Run it before the
+        # account lock, especially on SQLite (one writer), never inside check().
+        if request.method not in {"GET", "HEAD", "OPTIONS"}:
+            throttle(request)
         user = require_locked_session(request,user,db)
         if user.disabled or user.role!="owner":
             raise HTTPException(403,"Workspace owner access is required")
         return user
 
     def check(request,actor,data):
-        throttle(request)
         if data.consent is not True or len(data.purpose.strip())<8:
             raise HTTPException(422,"Confirm this specific action and give a meaningful access reason")
         if not verify_password(data.current_password,actor.password_hash):
@@ -68,6 +87,65 @@ def create_router(current_user, require_locked_session, throttle):
         event(db,actor.id,"owner_"+kind,f"Account {subject.id}: {purpose.strip()}")
         if subject.id!=actor.id:
             event(db,subject.id,"owner_account_access","Workspace owner action recorded: "+kind.replace("_"," "),notify=True)
+
+    @router.get("/invitations")
+    def invitations(actor=Depends(owner),db=Depends(get_db)):
+        from .invitations import PREFIX, view
+        from .models import CoordinationState
+        from sqlalchemy import case
+        rows = db.scalars(select(CoordinationState).where(CoordinationState.key.startswith(PREFIX),
+                          CoordinationState.value["actor_id"].as_string()==actor.id)
+                          .order_by(case((((CoordinationState.value["status"].as_string()=="pending") &
+                                          (CoordinationState.value["expires_at"].as_string()>now())),0),else_=1),
+                                    CoordinationState.value["created_at"].as_string().desc(),CoordinationState.key).limit(100)).all()
+        return {"items":[view(row) for row in rows],"limit":100,"invitation_only":settings.invitation_only}
+
+    @router.post("/invitations")
+    def invite(data:OwnerInvitation,request:Request,actor=Depends(owner),db=Depends(get_db)):
+        check(request,actor,data)
+        from .invitations import create, view
+        from .security import digest
+        if not settings.invitation_only or not settings.allow_registration:
+            raise HTTPException(409,"Enable INVITATION_ONLY=true and ALLOW_REGISTRATION=true to issue invitations")
+        if db.scalar(select(User.id).where(User.email_hash==digest(data.email))):
+            raise HTTPException(409,"This account already exists; manage its access in Accounts")
+        row,token = create(db,actor.id,data.email,data.expires_days)
+        result = {**view(row),"token":token}
+        event(db,actor.id,"owner_invitation_created","Created email-bound invitation "+result["id"])
+        db.commit()
+        return result
+
+    @router.post("/invitations/{invitation_id}/revoke")
+    def revoke_invitation(invitation_id:str,data:OwnerAction,request:Request,actor=Depends(owner),db=Depends(get_db)):
+        check(request,actor,data)
+        from .invitations import locked
+        row = locked(db,invitation_id)
+        if row is None:
+            raise HTTPException(404,"Invitation not found")
+        if row.value["status"] != "pending":
+            raise HTTPException(409,"Only an unused invitation can be revoked")
+        row.value = {**row.value,"status":"revoked","revoked_at":now()}
+        event(db,actor.id,"owner_invitation_revoked","Revoked invitation "+invitation_id)
+        db.commit()
+        return {"ok":True}
+
+    @router.post("/workers/control")
+    def control_workers(data:WorkerControl,request:Request,actor=Depends(owner),db=Depends(get_db)):
+        check(request,actor,data)
+        if set(data.paused_kinds)-{"discovery","application","outreach","gmail_sync"}:
+            raise HTTPException(422,"Unsupported worker role")
+        from .coordination import locked_state
+        row = locked_state(db,"workers")
+        row.value = {"paused":data.paused,"paused_kinds":data.paused_kinds}
+        event(db,actor.id,"worker_control",data.purpose.strip())
+        db.commit()
+        return row.value
+
+    @router.get("/workers/control")
+    def worker_control(actor=Depends(owner),db=Depends(get_db)):
+        from .models import CoordinationState
+        row = db.get(CoordinationState,"workers")
+        return row.value if row else {"paused":False,"paused_kinds":[]}
 
     @router.get("/overview")
     def overview(actor=Depends(owner),db=Depends(get_db)):

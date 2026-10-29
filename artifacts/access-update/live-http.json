@@ -1,0 +1,105 @@
+{
+  "at": "2026-10-29T05:26:39.346284+00:00",
+  "url": "https://internpilot-ai-notebook.antigravityfree101.chatgpt.site",
+  "tls_verified": true,
+  "browser_test": false,
+  "checks": {
+    "/demo": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/login": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/privacy": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/terms": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/contact": {
+      "status": 200,
+      "type": "text/html"
+    },
+    "/icon.svg": {
+      "status": 200,
+      "type": "image/svg+xml"
+    },
+    "/apple-icon.png": {
+      "status": 200,
+      "type": "image/png"
+    },
+    "/social-preview.png": {
+      "status": 200,
+      "type": "image/png"
+    },
+    "/third-party-notices.txt": {
+      "status": 200,
+      "type": "text/plain"
+    }
+  },
+  "asset_checks": {
+    "/_next/static/chunks/428-f5adbb9c1ae9e443.js": {
+      "status": 200,
+      "sha256": "fa2374a644aef8073e9d056aac11326936a0db5712bba745e5272ccfda9aa05c",
+      "matches_export": true
+    },
+    "/_next/static/chunks/889-ced48df65ee1f714.js": {
+      "status": 200,
+      "sha256": "d77102b2e6b8a486b3dacd1662fb18f9faffbcf8e50f7dee11a3dbf466652cc5",
+      "matches_export": true
+    },
+    "/_next/static/chunks/931-5705a5e721d97fa9.js": {
+      "status": 200,
+      "sha256": "38915c30d3feeb831e53dcd0555c8972dfd061d05b6e3332b1e726ff4159d109",
+      "matches_export": true
+    },
+    "/_next/static/chunks/app/layout-2916b2af9005d9f7.js": {
+      "status": 200,
+      "sha256": "363f40ff8e2459cd22b18dc8ed3f23ca143ee2c6f7ea7d3eccaedfcd272b419c",
+      "matches_export": true
+    },
+    "/_next/static/chunks/app/page-d264834ac380579f.js": {
+      "status": 200,
+      "sha256": "b2e04c3ed95d5648e4b18f22f05e451a0f837aa9e5644e787a1a3e03c73cd591",
+      "matches_export": true
+    },
+    "/_next/static/chunks/b49824b4-be77cfbdd67c3ab5.js": {
+      "status": 200,
+      "sha256": "e118752c69575eea3d53fe50573d83754c1d95e25e934a9f239232be11deea08",
+      "matches_export": true
+    },
+    "/_next/static/chunks/main-app-bc8d75dac9892b92.js": {
+      "status": 200,
+      "sha256": "0832dea1e83802e1ff6e775af1e1313fbb77c78fd90485d73ddf9b7210272da9",
+      "matches_export": true
+    },
+    "/_next/static/chunks/polyfills-42372ed130431b0a.js": {
+      "status": 200,
+      "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+      "matches_export": true
+    },
+    "/_next/static/chunks/webpack-5a5971674083a93a.js": {
+      "status": 200,
+      "sha256": "e963a93b1f10d9db4bfc472b7784b723f32059f06e81244660498f8d5c72dcee",
+      "matches_export": true
+    },
+    "/_next/static/css/e2deac61c039402e.css": {
+      "status": 200,
+      "sha256": "70e0cdf891d1d8145ff92f6035480fcf45e698da7c79591b7e8311383034f617",
+      "matches_export": true
+    },
+    "/_next/static/css/fa342ec9a26adfdd.css": {
+      "status": 200,
+      "sha256": "ccf795b655fd760b1111dbe8e31cd494ab540d8de86b436fdbafabc34ef74aea",
+      "matches_export": true
+    }
+  },
+  "public_response": 200,
+  "no_public_registration": true,
+  "absolute_social_url": true,
+  "passed": true
+}

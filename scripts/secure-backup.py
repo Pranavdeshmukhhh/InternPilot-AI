@@ -8,6 +8,7 @@ import base64
 import os
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -51,7 +52,10 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("output",type=Path)
     parser.add_argument("--decrypt",type=Path)
+    parser.add_argument("--timeout",type=int,default=120,help="Hard pg_dump wall-time budget in seconds")
     args=parser.parse_args()
+    if not 1 <= args.timeout <= 86400:
+        parser.error("Backup timeout must be between 1 and 86400 seconds")
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"backend"))
     from app.config import settings
     from app.security import _load_key
@@ -66,11 +70,21 @@ def main():
             else:
                 url=urlsplit(settings.database_url.replace("postgresql+psycopg://","postgresql://",1))
                 if url.scheme!="postgresql":raise ValueError("Use PostgreSQL for cloud database backups")
-                env={**os.environ,"PGHOST":url.hostname or "","PGPORT":str(url.port or 5432),"PGUSER":unquote(url.username or ""),"PGPASSWORD":unquote(url.password or ""),"PGDATABASE":url.path.lstrip("/")}
+                env={**os.environ,"PGHOST":url.hostname or "","PGPORT":str(url.port or 5432),"PGUSER":unquote(url.username or ""),"PGPASSWORD":unquote(url.password or ""),"PGDATABASE":url.path.lstrip("/"),"PGCONNECT_TIMEOUT":"10"}
                 if settings.database_sslmode:env["PGSSLMODE"]=settings.database_sslmode
                 with subprocess.Popen(["pg_dump","--format=custom","--no-owner","--no-acl"],env=env,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL) as process:
+                    # wait(timeout) alone does not bound a blocking stdout read.
+                    watchdog=threading.Timer(args.timeout,process.kill)
+                    watchdog.daemon=True;watchdog.start()
                     try:encrypt_stream(process.stdout,target,key)
-                    finally:process.stdout.close()
+                    except BaseException:
+                        # A disk error/cancellation must not leave __exit__
+                        # waiting forever for an otherwise stalled pg_dump.
+                        process.kill()
+                        raise
+                    finally:
+                        watchdog.cancel()
+                        process.stdout.close()
                     if process.wait(timeout=120)!=0:raise RuntimeError("pg_dump failed; inspect database connectivity without exposing credentials")
         print("Authenticated encrypted backup completed." if not args.decrypt else "Backup authenticated and decrypted. No database was modified.")
     except BaseException:

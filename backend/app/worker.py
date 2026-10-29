@@ -16,9 +16,10 @@ from sqlalchemy import select, update, func, delete, case, exists
 from .config import settings
 from .database import SessionLocal
 from .migrate import migrate
-from .models import Task, Source, User, Application, OutreachMessage, CrawlRun, now, uid
+from .models import Task, Source, User, Application, OutreachMessage, CrawlRun, CoordinationState, now, uid
 from .security import decrypt
-from .services import enqueue, event, process_application, process_discovery, queue_automatic_preparation
+from .services import enqueue, event, process_application, process_discovery, queue_automatic_preparation, execution_attempt
+from .coordination import QueueCapacityError, paused, retry_delay
 from .monitoring import record_heartbeat
 from .reminders import schedule_deadline_reminders
 
@@ -90,12 +91,16 @@ def recover_expired():
             elif app and app.status not in {"queued","preparing","approved"}:
                 task.status = "completed"
             else:
-                task.status = "queued"
+                task.status = "failed" if task.attempts >= settings.task_max_attempts else "queued"
+                task.error = "Lease recovery attempt budget exhausted" if task.status == "failed" else task.error
                 task.available_at = now()
                 if app:
                     app.status = "approved" if app.approved_at else "queued"
                     app.reason = "Recovered safe preparation after worker lease expired"
-                event(db,task.owner_id,"worker_recovery","Recovered pre-submission task after worker restart",app.id if app else None)
+                    if task.status == "failed":
+                        app.status, app.reason = "needs_input", "Worker retry budget exhausted; explicit review/retry required"
+                event(db,task.owner_id,"worker_deadletter" if task.status == "failed" else "worker_recovery",
+                    "Retry budget exhausted; explicit retry required" if task.status == "failed" else "Recovered pre-submission task after worker restart",app.id if app else None)
             task.lease_owner,task.lease_until,task.updated_at = None,None,now()
         db.commit()
         return len(rows)
@@ -103,6 +108,8 @@ def recover_expired():
 
 def schedule_due():
     with SessionLocal() as db:
+        if paused(db, "discovery"):
+            return 0
         at = now()
         filters = (Source.enabled==True, Source.permitted==True,
                    (Source.next_run==None) | (Source.next_run<=at))
@@ -127,7 +134,7 @@ def schedule_due():
         tier = case((Source.last_attempt==None, 0), (Source.discovered_count<=10, 1), else_=2)
         due_at = func.coalesce(Source.next_run, Source.last_attempt, at)
         active = exists(select(Task.id).where(
-            Task.dedupe_key=="source:" + Source.id, Task.status.in_(("queued", "running"))))
+            Task.dedupe_key=="source:" + Source.id, Task.status.in_(("queued", "running", "failed"))))
         ranked = select(Source.id.label("id"), due_at.label("due_at"),
             func.row_number().over(partition_by=(Source.owner_id, tier),
                 order_by=(due_at, Source.id)).label("turn")).where(
@@ -137,6 +144,7 @@ def schedule_due():
         due = list(db.scalars(select(Source).join(ranked, ranked.c.id==Source.id)
             .order_by(ranked.c.turn, ranked.c.due_at, Source.id)
             .with_for_update(skip_locked=True, of=Source).limit(settings.crawl_batch_size)))
+        scheduled = 0
         for source in due:
             user = db.get(User,source.owner_id)
             if not user or user.disabled:
@@ -147,45 +155,63 @@ def schedule_due():
             except Exception as exc:
                 log.error("Cannot schedule an account's sources (%s)", type(exc).__name__)
                 continue
-            enqueue(db,user.id,"discovery",{"source_id":source.id},f"source:{source.id}")
+            try:
+                enqueue(db,user.id,"discovery",{"source_id":source.id},f"source:{source.id}")
+                scheduled += 1
+            except QueueCapacityError:
+                break
             if not source.failures:
                 source.next_run = (datetime.now(timezone.utc)+timedelta(seconds=source.interval_seconds)).isoformat()
         db.commit()
-        return len(due)
+        return scheduled
 
 
 def claim_task(worker_id):
     with SessionLocal() as db:
-        candidate = db.scalar(select(Task).where(Task.status=="queued",Task.available_at<=now(),Task.kind.in_(settings.worker_kinds)).order_by(Task.priority.desc(),Task.created_at).with_for_update(skip_locked=True).limit(1))
+        kinds = [kind for kind in settings.worker_kinds if not paused(db, kind)]
+        if not kinds:
+            return None
+        candidate = db.scalar(select(Task).outerjoin(CoordinationState, CoordinationState.key == "dispatch:" + Task.owner_id).where(Task.status=="queued",Task.available_at<=now(),Task.kind.in_(kinds)).order_by(func.coalesce(CoordinationState.value["last"].as_string(), ""),Task.priority.desc(),Task.created_at,Task.id).with_for_update(skip_locked=True, of=Task).limit(1))
         if not candidate:
             return None
         lease = (datetime.now(timezone.utc)+timedelta(seconds=settings.task_lease_seconds)).isoformat()
         result = db.execute(update(Task).where(Task.id==candidate.id,Task.status=="queued").values(status="running",lease_owner=worker_id,lease_until=lease,attempts=Task.attempts+1,updated_at=now()).execution_options(synchronize_session=False))
-        db.commit()
         if result.rowcount!=1:
+            db.rollback()
             return None
+        from .coordination import locked_state
+        dispatch = locked_state(db, "dispatch:" + candidate.owner_id)
+        dispatch.value = {"last":now()}
+        db.commit()
         db.refresh(candidate)
         return {"id":candidate.id,"owner_id":candidate.owner_id,"kind":candidate.kind,"payload":candidate.payload,"attempts":candidate.attempts}
 
 
-async def heartbeat(task_id,worker_id):
+def renew_lease(task_id, worker_id, attempt=None):
+    with SessionLocal() as db:
+        result = db.execute(update(Task).where(Task.id==task_id,Task.status=="running",Task.lease_owner==worker_id,
+            Task.lease_until>now(), Task.attempts==attempt if attempt is not None else True)
+            .values(lease_until=(datetime.now(timezone.utc)+timedelta(seconds=settings.task_lease_seconds)).isoformat(),updated_at=now()))
+        db.commit()
+        return bool(result.rowcount)
+
+
+async def heartbeat(task_id,worker_id,attempt=None):
     while True:
         await asyncio.sleep(max(5,settings.task_lease_seconds//3))
         try:
-            with SessionLocal() as db:
-                result = db.execute(update(Task).where(Task.id==task_id,Task.status=="running",Task.lease_owner==worker_id,Task.lease_until>now()).values(lease_until=(datetime.now(timezone.utc)+timedelta(seconds=settings.task_lease_seconds)).isoformat(),updated_at=now()))
-                db.commit()
-                if not result.rowcount:
-                    return  # A lost or expired lease must never be revived.
+            if not await asyncio.to_thread(renew_lease,task_id,worker_id,attempt):
+                return
         except Exception as exc:
             log.error("Task lease heartbeat failed (%s)", type(exc).__name__)
 
 
 async def execute_task(task, worker_id):
-    pulse = asyncio.create_task(heartbeat(task["id"],worker_id))
+    context = execution_attempt.set(task["attempts"])
+    pulse = asyncio.create_task(heartbeat(task["id"],worker_id,task["attempts"]))
     try:
         if task["kind"]=="discovery":
-            await process_discovery(task["owner_id"],task["payload"].get("source_id"))
+            await process_discovery(task["owner_id"],task["payload"].get("source_id"), task_id=task["id"], lease_owner=worker_id, task_attempt=task["attempts"])
         elif task["kind"]=="application":
             async with browser_pool():
                 await process_application(task["payload"]["application_id"],task_id=task["id"],lease_owner=worker_id,automatic=bool(task["payload"].get("automatic_preparation")))
@@ -198,14 +224,14 @@ async def execute_task(task, worker_id):
         else:
             raise ValueError("Unsupported task kind")
         with SessionLocal() as db:
-            db.execute(update(Task).where(Task.id==task["id"],Task.lease_owner==worker_id,Task.status=="running").values(status="completed",lease_owner=None,lease_until=None,updated_at=now()))
+            db.execute(update(Task).where(Task.id==task["id"],Task.lease_owner==worker_id,Task.status=="running",Task.attempts==task["attempts"],Task.lease_until>now()).values(status="completed",lease_owner=None,lease_until=None,updated_at=now()))
             db.commit()
     except asyncio.CancelledError:
         raise
     except Exception as exc:
         with SessionLocal() as db:
-            row = db.get(Task,task["id"])
-            if row and row.status=="running" and row.lease_owner==worker_id:
+            row = db.scalar(select(Task).where(Task.id==task["id"]).with_for_update())
+            if row and row.status=="running" and row.lease_owner==worker_id and row.attempts==task["attempts"]:
                 app = db.get(Application,task["payload"].get("application_id")) if task["kind"]=="application" else None
                 if app and app.submission_started_at:
                     if app.status=="submitting":
@@ -215,9 +241,9 @@ async def execute_task(task, worker_id):
                 elif app and app.upload_started_at:
                     app.status,app.reason,app.updated_at = "uncertain","Worker failed after the upload checkpoint; reconcile the official form before any further upload",now()
                     row.status = "failed"
-                elif task["attempts"]<3:
+                elif task["attempts"]<settings.task_max_attempts:
                     row.status = "queued"
-                    row.available_at = (datetime.now(timezone.utc)+timedelta(seconds=5*2**task["attempts"])).isoformat()
+                    row.available_at = (datetime.now(timezone.utc)+timedelta(seconds=retry_delay(task["attempts"]))).isoformat()
                 else:
                     row.status = "failed"
                 row.error = f"{type(exc).__name__}: task failed; inspect source health or application record"
@@ -225,6 +251,7 @@ async def execute_task(task, worker_id):
                 event(db,row.owner_id,"worker_error",row.error,app.id if app else None,notify=True)
                 db.commit()
     finally:
+        execution_attempt.reset(context)
         pulse.cancel()
         await asyncio.gather(pulse,return_exceptions=True)
 
@@ -279,34 +306,34 @@ async def run_worker():
     try:
         while not stopped.is_set():
             if tick%3600==0 and "discovery" in settings.worker_kinds:
-                maintenance("scan history retention",prune_scan_history)
+                await asyncio.to_thread(maintenance, "scan history retention",prune_scan_history)
             if tick%30==0:
-                capacity = maintenance("adaptive capacity",adaptive_capacity,capacity) or capacity
+                capacity = await asyncio.to_thread(maintenance, "adaptive capacity",adaptive_capacity,capacity) or capacity
             if tick%5==0:
-                maintenance("presence heartbeat", record_heartbeat, worker_id, capacity)
+                await asyncio.to_thread(maintenance, "presence heartbeat", record_heartbeat, worker_id, capacity)
             if tick%300==0:
                 if "discovery" in settings.worker_kinds:
-                    maintenance("deadline reminders", schedule_deadline_reminders)
+                    await asyncio.to_thread(maintenance, "deadline reminders", schedule_deadline_reminders)
             if tick%15==0:
-                maintenance("expired lease recovery", recover_expired)
+                await asyncio.to_thread(maintenance, "expired lease recovery", recover_expired)
                 if "discovery" in settings.worker_kinds:
-                    maintenance("source scheduling", schedule_due)
-                maintenance("notification drafts", prepare_notification_drafts)
+                    await asyncio.to_thread(maintenance, "source scheduling", schedule_due)
+                await asyncio.to_thread(maintenance, "notification drafts", prepare_notification_drafts)
                 if {"outreach","gmail_sync"}.intersection(settings.worker_kinds):
                     from .outreach import schedule_outreach
-                    maintenance("outreach scheduling",schedule_outreach)
+                    await asyncio.to_thread(maintenance, "outreach scheduling",schedule_outreach)
             if tick%60==0:
                 if "application" in settings.worker_kinds:
-                    maintenance("automatic preparation", queue_automatic_preparation)
+                    await asyncio.to_thread(maintenance, "automatic preparation", queue_automatic_preparation)
             while len(running)<capacity:
-                task = maintenance("task claim", claim_task, worker_id)
+                task = await asyncio.to_thread(maintenance, "task claim", claim_task, worker_id)
                 if not task:
                     break
                 execution = asyncio.create_task(execute_task(task,worker_id))
                 running.add(execution)
                 execution.add_done_callback(lambda finished: completed_task(finished, running))
             if settings.worker_heartbeat_file:
-                maintenance("supervisor heartbeat", Path(settings.worker_heartbeat_file).touch, mode=0o600)
+                await asyncio.to_thread(maintenance, "supervisor heartbeat", Path(settings.worker_heartbeat_file).touch, mode=0o600)
             tick += 1
             try:
                 await asyncio.wait_for(stopped.wait(),timeout=1)
@@ -316,7 +343,7 @@ async def run_worker():
         try:
             await drain_tasks(running)
         finally:
-            maintenance("stopped heartbeat", record_heartbeat, worker_id, settings.concurrency, stopped=True)
+            await asyncio.to_thread(maintenance, "stopped heartbeat", record_heartbeat, worker_id, settings.concurrency, stopped=True)
 
 
 if __name__ == "__main__":

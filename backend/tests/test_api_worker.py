@@ -113,7 +113,7 @@ def stack(tmp_path, request):
         "TEST_MODE": "true", "TEST_PORTAL_ORIGIN": origin,
         "ALLOW_REGISTRATION": "true", "COOKIE_SECURE": "false",
         "CORS_ORIGINS": "http://localhost:3000", "REDIS_URL": "", "LLM_PROVIDER": "disabled",
-        "REGISTRATION_TOKEN": "", "ENVIRONMENT": "development", "DATABASE_SSLMODE": "",
+        "REGISTRATION_TOKEN": "", "INVITATION_ONLY":"false", "ENVIRONMENT": "development", "DATABASE_SSLMODE": "",
         "WORKER_HEARTBEAT_FILE": "",
     }
     for key in ("GMAIL_CLIENT_ID","GMAIL_CLIENT_SECRET","GMAIL_REDIRECT_URI","BRAVE_SEARCH_API_KEY","SMTP_HOST","SMTP_PASSWORD","TELEGRAM_BOT_TOKEN","TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","LLM_API_KEY"):

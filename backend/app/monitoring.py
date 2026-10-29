@@ -24,7 +24,9 @@ def worker_status(db, owner_id):
     workers = list(db.scalars(select(WorkerHeartbeat).where(WorkerHeartbeat.last_seen >= cutoff, WorkerHeartbeat.stopped == False)))
     last_seen = db.scalar(select(func.max(WorkerHeartbeat.last_seen)))
     counts = dict(db.execute(select(Task.status, func.count()).where(Task.owner_id == owner_id).group_by(Task.status)).all())
-    return {"status": "online" if workers else "offline", "active_workers": len(workers),
+    from .models import CoordinationState
+    control = db.get(CoordinationState, "workers")
+    return {"control":control.value if control else {"paused":False,"paused_kinds":[]}, "status": "online" if workers else "offline", "active_workers": len(workers),
             "capacity": sum(w.concurrency for w in workers), "last_seen": last_seen,
             "queued": counts.get("queued", 0), "running": counts.get("running", 0),
             "failed": counts.get("failed", 0)}

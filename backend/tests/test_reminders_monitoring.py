@@ -172,7 +172,7 @@ with engine.begin() as c:
  c.execute(text("INSERT INTO notifications(id,owner_id,message,kind,read,created_at) VALUES ('old','owner','Preserved notice','existing',0,'2026-10-01')"))
 migrate();migrate()
 with engine.connect() as c:
- assert list(c.execute(text('SELECT version FROM schema_versions ORDER BY version')).scalars())==[1,2,3,4,5]
+ assert list(c.execute(text('SELECT version FROM schema_versions ORDER BY version')).scalars())==[1,2,3,4,5,6,7]
  assert c.execute(text("SELECT message, opportunity_id FROM notifications WHERE id='old'")).one()==('Preserved notice',None)
  assert {'worker_heartbeats','deadline_reminders'}.issubset(set(inspect(c).get_table_names()))
 print('version-1 upgrade preserved existing records')

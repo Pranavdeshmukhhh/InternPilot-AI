@@ -7,6 +7,9 @@ x-backend-environment: &backend-environment
   REDIS_URL: redis://:${REDIS_PASSWORD:?Run the setup script first}@redis:6379/0
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
   ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+  INVITATION_ONLY: ${INVITATION_ONLY:-true}
+  AUTH_ADDRESS_LIMIT: ${AUTH_ADDRESS_LIMIT:-20}
+  AUTH_GLOBAL_LIMIT: ${AUTH_GLOBAL_LIMIT:-5000}
   REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
   CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000},http://localhost:${APP_PORT:-3000},http://127.0.0.1:${APP_PORT:-3000}
   WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
@@ -97,11 +100,19 @@ services:
   worker:
     build: ./backend
     command: [python, -m, app.worker]
-    environment: *backend-environment
+    environment:
+      <<: *backend-environment
+      WORKER_HEARTBEAT_FILE: /tmp/worker-heartbeat
     volumes:
       - app_data:/data
     depends_on:
       backend: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import os,time; assert 0<=time.time()-os.stat('/tmp/worker-heartbeat').st_mtime<60"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     shm_size: 1gb
     init: true
     restart: unless-stopped

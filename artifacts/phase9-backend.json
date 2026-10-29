@@ -1,0 +1,15 @@
+{
+  "returncode": 0,
+  "seconds": 204.47009603300103,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=/workspace/internpilot-ai/artifacts/phase9-backend.xml",
+    "-q",
+    "-ra"
+  ]
+}

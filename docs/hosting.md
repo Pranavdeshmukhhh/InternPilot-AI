@@ -1,3 +1,5 @@
+> Current release: see [DEPLOYMENT.md](DEPLOYMENT.md) and [Phase 7 blockers](SECURITY_REVIEW.md). This older single-service option is not a scale recommendation.
+
 # Hosting InternPilot AI
 
 The repository includes a Render Blueprint in `render.yaml` and a complete cloud container in `deploy/Dockerfile`. They provision one always-on application service in Singapore, managed PostgreSQL 16, and a 1 GB persistent disk for encryption-key continuity metadata. The provider supplies the HTTPS URL and certificate. There is no published deployment until a Render account and source repository are connected and the paid resources are provisioned.
@@ -34,7 +36,7 @@ For a custom domain, first configure it in Render and finish its DNS/certificate
 
 - `ENVIRONMENT=production` rejects SQLite, unencrypted database transport, insecure cookies, test mode, missing encryption material, unrestricted signup, missing worker monitoring, and invalid public origins before serving requests.
 - Database URLs in `postgres://` or `postgresql://` format automatically use the installed psycopg 3 driver. `DATABASE_SSLMODE=require` enforces encrypted internal Render connections. Render's internal database certificates are self-signed; this mode relies on the provider's private network for endpoint identity. Public database access is disabled with `ipAllowList: []`.
-- Only Next.js listens on the public service port. FastAPI binds to container loopback; browser requests use the same-origin `/api` proxy. Cookies are Secure, HttpOnly, and SameSite Strict. Mutation requests still require CSRF protection. HTTPS responses include HSTS.
+- Only Next.js listens on the public service port. FastAPI binds to container loopback; browser requests use the same-origin `/api` proxy. Cookies are Secure, HttpOnly, and SameSite Lax. Mutation requests still require CSRF protection. HTTPS responses include HSTS.
 - Account registration requires a random invitation code. The token is not persisted in account records, exposed by the health API, or used in generated application documents.
 - The container briefly starts as root to initialize a new persistent disk directory, then drops to UID/GID 10001 before starting application processes. It does not recursively change arbitrary disk contents.
 - A worker heartbeat drives readiness. An exited child or a stale worker heartbeat stops all three processes so the hosting platform can restart the complete service. PostgreSQL task leases still control recovery. A stopped worker after a submission checkpoint cannot cause an automatic duplicate submission.

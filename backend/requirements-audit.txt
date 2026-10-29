@@ -1,0 +1,2 @@
+# CI/local tooling only; not installed into application images.
+pip-audit==2.10.0

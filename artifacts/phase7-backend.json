@@ -1,0 +1,13 @@
+{
+  "returncode": 2,
+  "seconds": 3.8349783000012394,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=C:\\Users\\prana\\Downloads\\InternPilot-AI\\InternPilot-AI\\artifacts\\phase7-backend.xml"
+  ]
+}

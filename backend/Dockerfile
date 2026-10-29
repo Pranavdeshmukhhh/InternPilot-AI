@@ -6,12 +6,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PLAYWRIGHT_BROWSERS_PATH=/opt/playwright \
     DATA_DIR=/data
 WORKDIR /app
-COPY requirements.txt ./
+COPY requirements.lock ./
 # Optional corporate/session CA: docker build --secret id=proxy_ca,src=<bundle>.
 # The mounted CA is not copied into the image. Normal desktop builds need none.
 RUN --mount=type=secret,id=proxy_ca \
     if [ -s /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi; \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.lock
 RUN --mount=type=secret,id=proxy_ca \
     if [ -s /run/secrets/proxy_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/proxy_ca; fi; \
     python -m playwright install --with-deps chromium && \

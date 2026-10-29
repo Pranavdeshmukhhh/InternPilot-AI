@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-29T04:46:27.839690+00:00",
+  "environment": "local gzip-compressed static export; headless Chromium",
+  "live_browser_test": false,
+  "external_actions": 0,
+  "checks": [
+    "Static landing, no unavailable account links, 320\u20131440px layouts",
+    "Static client navigation, filters, lazy drawer, focus, reload",
+    "Policies render; private routes absent; no API traffic or JS exceptions"
+  ],
+  "passed": true,
+  "lighthouse_exit": 0,
+  "lighthouse_scores": {
+    "performance": 0.98,
+    "accessibility": 1,
+    "best-practices": 1,
+    "seo": 1
+  },
+  "lighthouse_metrics": {
+    "first-contentful-paint": 904.6491000000001,
+    "largest-contentful-paint": 1915.6491,
+    "total-blocking-time": 128,
+    "cumulative-layout-shift": 0,
+    "speed-index": 904.6491000000001
+  }
+}

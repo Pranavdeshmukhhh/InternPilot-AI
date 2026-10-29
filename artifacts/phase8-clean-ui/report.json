@@ -1,0 +1,867 @@
+{
+  "at": "2026-10-29T00:17:24.937258+00:00",
+  "baseline": false,
+  "synthetic_only": true,
+  "external_submissions": 0,
+  "external_emails": 0,
+  "crawl_workers": 0,
+  "checks": [
+    {
+      "name": "Active explorer does not refresh unrelated dashboard/documents/sources on an idle timer",
+      "passed": true
+    },
+    {
+      "name": "Compact explorer uses bounded cursor projections",
+      "passed": true
+    },
+    {
+      "name": "Debounced search and forward/back cursor pages return real results",
+      "passed": true
+    },
+    {
+      "name": "Detail URLs, browser back, focus trap and Escape remain functional",
+      "passed": true
+    },
+    {
+      "name": "Save persists through navigation and reload",
+      "passed": true
+    },
+    {
+      "name": "Global keyboard command search navigates to hackathons",
+      "passed": true
+    },
+    {
+      "name": "Filter dialog cancels drafts and persists applied filters in the URL",
+      "passed": true
+    },
+    {
+      "name": "Explorer automated WCAG checks have no serious/critical findings in both themes",
+      "passed": true
+    },
+    {
+      "name": "Mobile navigation traps focus, closes after navigation and layouts reflow from 320\u20131920px",
+      "passed": true
+    },
+    {
+      "name": "Profile edits remain intact through background workspace activity",
+      "passed": true
+    },
+    {
+      "name": "Documents, outreach, automation, profile, overview and reduced motion render without JavaScript errors",
+      "passed": true
+    },
+    {
+      "name": "Profile verification and document generation/download use actual API records and a real PDF",
+      "passed": true
+    },
+    {
+      "name": "Application preparation creates one queued record and never claims submission",
+      "passed": true
+    },
+    {
+      "name": "Event-driven notification updates preserve unsaved notification preferences",
+      "passed": true
+    },
+    {
+      "name": "Simulated page visibility defers event refresh and catches up without resetting dirty fields",
+      "passed": true
+    },
+    {
+      "name": "Relocated discovery preferences and source create/delete use real APIs without a crawl worker",
+      "passed": true
+    },
+    {
+      "name": "Core feature screens pass serious/critical automated accessibility gates",
+      "passed": true
+    },
+    {
+      "name": "Security and owner screens render access-controlled workflows with no serious/critical accessibility findings",
+      "passed": true
+    },
+    {
+      "name": "Fresh touch viewport has usable targets and a contained full-width drawer",
+      "passed": true
+    },
+    {
+      "name": "Signing into a second account in the same tab reveals none of the prior account cache",
+      "passed": true
+    }
+  ],
+  "vitals": [
+    {
+      "name": "FCP",
+      "value": 280,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 93.19999999552965,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 48.899999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 1064,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 104,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.0006564573688271605,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 42.20000000298023,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 140,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 2.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 460,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 48,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.10144444444444445,
+      "rating": "needs-improvement"
+    },
+    {
+      "name": "TTFB",
+      "value": 10.5,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 76,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 0.6000000014901161,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 208,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 64,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.05028358892746913,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 15.099999994039536,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 100,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 432,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 2.8000000044703484,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 48,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.009454841820987655,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 11.899999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 80,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 416,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.08886255924170616,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 13.5,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 316,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 848,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.06545256557298804,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 17.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 76,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 560,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.15666465234786925,
+      "rating": "needs-improvement"
+    },
+    {
+      "name": "TTFB",
+      "value": 188.39999999850988,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 276,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 820,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.005338399821151816,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 132,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 15.600000001490116,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 444,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.08886255924170616,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 16.700000002980232,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 92,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 512,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 1.5,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 56,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.042755555555555554,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 14.100000001490116,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 76,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 660,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 1.6000000014901161,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 24,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.0001906741898148148,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 12.199999995529652,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 96,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 568,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 1.2000000029802322,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 24,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.07241022448881174,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 196,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 12.899999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 1.5999999940395355,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 656,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 64,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.009454841820987655,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 17.799999997019768,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 156,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 824,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 100,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 10.600000001490116,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 792,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.1049063888888889,
+      "rating": "needs-improvement"
+    },
+    {
+      "name": "FCP",
+      "value": 132,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 33.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 2.1999999955296516,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 656,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 72,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.04939379087094907,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 16.100000001490116,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 116,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 340,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.013404720293209875,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 11.600000001490116,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 84,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 564,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 29.200000002980232,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 152,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 700,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 43.20000000298023,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 136,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 616,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.042755555555555554,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 25.799999997019768,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 216,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 632,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.05037992947048611,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 16.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 116,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 548,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.026177571373456787,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 64,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 11.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 292,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 12.200000002980232,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 96,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 600,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 11.899999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 68,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 212,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 1.6000000014901161,
+      "rating": "good"
+    },
+    {
+      "name": "INP",
+      "value": 16,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.013478439549575616,
+      "rating": "good"
+    },
+    {
+      "name": "TTFB",
+      "value": 17,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 124,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 604,
+      "rating": "good"
+    },
+    {
+      "name": "CLS",
+      "value": 0.22429904357156635,
+      "rating": "needs-improvement"
+    },
+    {
+      "name": "TTFB",
+      "value": 25.700000002980232,
+      "rating": "good"
+    },
+    {
+      "name": "FCP",
+      "value": 196,
+      "rating": "good"
+    },
+    {
+      "name": "FID",
+      "value": 2.399999998509884,
+      "rating": "good"
+    },
+    {
+      "name": "LCP",
+      "value": 196,
+      "rating": "good"
+    }
+  ],
+  "accessibility": [
+    {
+      "view": "explorer",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "view": "explorer",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/overview",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/applications",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/documents",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/settings/profile",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/automation",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/notifications",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "/outreach",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "security",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "view": "owner",
+      "theme": "dark",
+      "violations": []
+    }
+  ],
+  "row_height": 121.4375,
+  "idle_17s_requests": {},
+  "idle_17s_total": 0,
+  "browser_observers": {
+    "lcp": 460,
+    "cls": 0.010643423996913579,
+    "interactions": [
+      24,
+      24,
+      24
+    ]
+  },
+  "resources": [
+    {
+      "path": "/_next/static/css/50f489abe72cc92b.css",
+      "encoded": 10740,
+      "decoded": 51151,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/webpack-45fca61eaf75faf9.js",
+      "encoded": 1987,
+      "decoded": 3766,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "encoded": 54358,
+      "decoded": 173019,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/255-b1e2483a7e02feee.js",
+      "encoded": 46707,
+      "decoded": 174133,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/main-app-a21d49a42af04678.js",
+      "encoded": 557,
+      "decoded": 557,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/977-c68e669675cbc7a9.js",
+      "encoded": 10244,
+      "decoded": 34122,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/app/layout-99df54d6be578679.js",
+      "encoded": 5098,
+      "decoded": 13632,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/458-919be70491336cfa.js",
+      "encoded": 27499,
+      "decoded": 81401,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/app/%5B...workspace%5D/page-265b866ae79e7d8c.js",
+      "encoded": 14749,
+      "decoded": 46905,
+      "transfer": 0
+    },
+    {
+      "path": "/_next/static/chunks/200.769c0b1cfae547d9.js",
+      "encoded": 6893,
+      "decoded": 19788,
+      "transfer": 7193
+    }
+  ],
+  "js_decoded_bytes": 547323,
+  "js_encoded_bytes": 168092,
+  "javascript_errors": [],
+  "passed": true
+}

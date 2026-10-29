@@ -59,7 +59,7 @@ def configuration(tmp_path, changes=None):
            "DATABASE_SSLMODE": "require", "ENCRYPTION_KEY": "",
            "ENCRYPTION_SECRET": "synthetic-encryption-material-0123456789",
            "COOKIE_SECURE": "true", "TEST_MODE": "false", "ALLOW_REGISTRATION": "true",
-           "REGISTRATION_TOKEN": INVITE, "PUBLIC_ORIGIN": "https://app.example.invalid",
+           "REGISTRATION_TOKEN": INVITE, "INVITATION_ONLY":"true", "PUBLIC_ORIGIN": "https://app.example.invalid",
            "CORS_ORIGINS": "https://app.example.invalid", "WORKER_HEARTBEAT_FILE": str(tmp_path / "heartbeat")}
     env.update(changes or {})
     return subprocess.run([sys.executable, "-c", "from app.config import settings; print(settings.database_url.split(':')[0]); print(len(settings.encryption_key))"],
@@ -77,7 +77,7 @@ def test_managed_postgres_urls_use_psycopg3(tmp_path, prefix):
     {"DATABASE_URL": "sqlite:///data.db"}, {"DATABASE_SSLMODE": "disable"},
     {"COOKIE_SECURE": "false"}, {"TEST_MODE": "true"},
     {"ENCRYPTION_SECRET": ""}, {"ENCRYPTION_SECRET": "short"},
-    {"REGISTRATION_TOKEN": ""}, {"REGISTRATION_TOKEN": "short"},
+    {"INVITATION_ONLY": "false"},
     {"PUBLIC_ORIGIN": "http://app.example.invalid"}, {"PUBLIC_ORIGIN": "https://app.example.invalid/path"},
     {"PUBLIC_ORIGIN": "https://user:password@app.example.invalid"},
     {"CORS_ORIGINS": "*"}, {"WORKER_HEARTBEAT_FILE": ""},

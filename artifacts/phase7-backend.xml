@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="18" failures="0" skipped="0" tests="18" time="2.363" timestamp="2026-10-29T19:23:23.178495+05:30" hostname="Pranav"><testcase classname="" name="app.test_portal" time="0.000"><error message="collection failure">app\test_portal.py:76: in &lt;module&gt;
+    @router.post("/submit", response_class=HTMLResponse)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:3004: in decorator
+    self.add_api_route(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:2939: in add_api_route
+    route = route_class(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:1193: in __init__
+    _populate_api_route_state(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:1061: in _populate_api_route_state
+    ) = _build_dependant_with_parameterless_dependencies(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:861: in _build_dependant_with_parameterless_dependencies
+    dependant = get_dependant(path=path, call=call, scope="function")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:296: in get_dependant
+    param_details = analyze_param(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:523: in analyze_param
+    ensure_multipart_is_installed()
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:129: in ensure_multipart_is_installed
+    raise RuntimeError(multipart_not_installed_error) from None
+E   RuntimeError: Form data requires "python-multipart" to be installed. 
+E   You can install "python-multipart" with: 
+E   
+E   pip install python-multipart</error></testcase><testcase classname="" name="tests.test_aggregation" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_aggregation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_aggregation.py:9: in &lt;module&gt;
+    from app.services import merge_opportunity_data
+app\services.py:7: in &lt;module&gt;
+    from sqlalchemy import select, func, update, or_
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_automation" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_automation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_automation.py:17: in &lt;module&gt;
+    from app.automation import _origin, _public_target, run_application
+app\automation.py:21: in &lt;module&gt;
+    from playwright.async_api import Error as PlaywrightError
+E   ModuleNotFoundError: No module named 'playwright'</error></testcase><testcase classname="" name="tests.test_core_catalog" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_core_catalog.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_core_catalog.py:7: in &lt;module&gt;
+    from sqlalchemy import create_engine, select, event
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_discovery_fairness" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_discovery_fairness.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_discovery_fairness.py:4: in &lt;module&gt;
+    from sqlalchemy import select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_distributed_discovery" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_distributed_discovery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_distributed_discovery.py:10: in &lt;module&gt;
+    from sqlalchemy import create_engine, select, func, text
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_documents" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_documents.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_documents.py:5: in &lt;module&gt;
+    from docx import Document
+E   ModuleNotFoundError: No module named 'docx'</error></testcase><testcase classname="" name="tests.test_geography" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_geography.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_geography.py:13: in &lt;module&gt;
+    from app.services import merge_opportunity_data
+app\services.py:7: in &lt;module&gt;
+    from sqlalchemy import select, func, update, or_
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_notification_delivery" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_notification_delivery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_notification_delivery.py:14: in &lt;module&gt;
+    from sqlalchemy import func, select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_opportunity_query" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_opportunity_query.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_opportunity_query.py:6: in &lt;module&gt;
+    from sqlalchemy import create_engine, event, select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_outreach" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_outreach.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_outreach.py:14: in &lt;module&gt;
+    from sqlalchemy import create_engine, select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_phase7_security" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_phase7_security.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_phase7_security.py:9: in &lt;module&gt;
+    from sqlalchemy import select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_production_upgrade" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_production_upgrade.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_production_upgrade.py:9: in &lt;module&gt;
+    from sqlalchemy import create_engine, select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_publisher_discovery" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_publisher_discovery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_publisher_discovery.py:13: in &lt;module&gt;
+    from app.services import merge_opportunity_data
+app\services.py:7: in &lt;module&gt;
+    from sqlalchemy import select, func, update, or_
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_reminders_monitoring" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_reminders_monitoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_reminders_monitoring.py:9: in &lt;module&gt;
+    from sqlalchemy import select, func
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_service_guards" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_service_guards.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_service_guards.py:17: in &lt;module&gt;
+    from sqlalchemy import create_engine, select, func
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_source_candidates" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_source_candidates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_source_candidates.py:8: in &lt;module&gt;
+    from sqlalchemy import create_engine, select
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase><testcase classname="" name="tests.test_worker_reliability" time="0.000"><error message="collection failure">ImportError while importing test module 'C:\Users\prana\Downloads\InternPilot-AI\InternPilot-AI\backend\tests\test_worker_reliability.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_worker_reliability.py:9: in &lt;module&gt;
+    from sqlalchemy import create_engine, select, func
+E   ModuleNotFoundError: No module named 'sqlalchemy'</error></testcase></testsuite></testsuites>

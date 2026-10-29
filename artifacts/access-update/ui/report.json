@@ -1,0 +1,34 @@
+{
+  "checks": [
+    "Terms anchor navigation, 320\u20131440px layouts and reduced-motion behavior",
+    "Owner creates a real email-bound invitation; one-time link can be dismissed",
+    "Invitation link is removed from history; wrong email rejected; approved account activates without owner privileges",
+    "Owner revocation prevents activation through the actual registration form",
+    "Terms/login accessibility gates pass in both themes; no observed JavaScript errors"
+  ],
+  "external_actions": 0,
+  "synthetic_only": true,
+  "a11y": [
+    {
+      "route": "/terms",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/terms",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "route": "/login",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "route": "/login",
+      "theme": "dark",
+      "violations": []
+    }
+  ],
+  "passed": true
+}
