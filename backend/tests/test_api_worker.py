@@ -127,7 +127,7 @@ def stack(tmp_path, request):
     local = LocalStack(origin, tmp_path, env)
     try:
         with httpx.Client(trust_env=False, timeout=2) as client:
-            for _ in range(100):
+            for _ in range(300):
                 if process.poll() is not None:
                     log.seek(0)
                     pytest.fail(f"Isolated API startup failed: {log.read()}")

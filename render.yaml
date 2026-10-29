@@ -23,7 +23,7 @@ services:
           name: internpilot-db
           property: connectionString
       - key: DATABASE_SSLMODE
-        value: require
+        value: verify-full
       - key: ENCRYPTION_SECRET
         generateValue: true
       - key: REGISTRATION_TOKEN

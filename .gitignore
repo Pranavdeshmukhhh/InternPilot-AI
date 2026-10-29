@@ -16,6 +16,17 @@ out/
 *.tsbuildinfo
 data/
 backups/
+exports/
+private/
+.secrets/
+*.dump
+*.bak
+*.p12
+*.pfx
+*.sql
+!backend/tests/fixtures/*.sql
+*.db-wal
+*.db-shm
 *.sqlite*
 *.db
 *.pem

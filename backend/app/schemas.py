@@ -13,6 +13,7 @@ class StrictModel(BaseModel):
 class Credentials(StrictModel):
     email: str = Field(min_length=5, max_length=254)
     password: str = Field(min_length=12, max_length=256)
+    otp: str = Field(default="", max_length=8)
 
     @field_validator("email")
     @classmethod
@@ -30,6 +31,7 @@ class RegistrationCredentials(Credentials):
 class PasswordChange(StrictModel):
     current_password: str = Field(min_length=1, max_length=256)
     new_password: str = Field(min_length=12, max_length=256)
+    otp: str = Field(default="", max_length=8)
 
 
 class Profile(StrictModel):

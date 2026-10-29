@@ -1,6 +1,7 @@
 'use client';
 
 import type { Application } from '@/lib/api-types';
+import { applicationStage } from '@/lib/application-status';
 const columns = [
   { label: 'Preparing', statuses: ['queued', 'preparing', 'ready', 'approved'] },
   { label: 'Review', statuses: ['awaiting_review', 'needs_input', 'uncertain', 'failed'] },
@@ -18,7 +19,9 @@ export function ApplicationBoard({
   return (
     <div className="kanban" aria-label="Application board">
       {columns.map((column) => {
-        const rows = applications.filter((application) => column.statuses.includes(application.status));
+        const rows = applications.filter(
+          (application) => applicationStage(application.status) === column.label,
+        );
         return (
           <section className="kanban-column" key={column.label} aria-label={column.label}>
             <h2 className="kanban-heading">

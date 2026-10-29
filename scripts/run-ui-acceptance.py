@@ -31,6 +31,7 @@ def main():
     parser.add_argument("--phase6-baseline",action="store_true",help="Measure audited pre-redesign frontend in isolation")
     parser.add_argument("--public-ui",action="store_true",help="Public landing/demo and in-app mobile smoke; no crawlers")
     parser.add_argument("--access-ui",action="store_true",help="Owner-issued invitations, sign-in and Terms motion; no crawlers")
+    parser.add_argument("--founder-ui",action="store_true",help="Private founder reports, MFA and recovery; synthetic data only")
     arguments = parser.parse_args()
     frontend = Path(os.getenv("UI_TEST_FRONTEND_DIR", str(ROOT / "frontend")))
     for port in (8000,3000):
@@ -61,7 +62,7 @@ def main():
             ([node,"node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port","3000"],frontend,3000),
             ([sys.executable,"-m","app.worker"],ROOT/"backend",None),
         ]
-        if arguments.access_ui or arguments.public_ui or arguments.source_discovery_ui or arguments.warm_ui or arguments.studio_ui or arguments.phase6_ui or arguments.phase6_baseline:
+        if arguments.founder_ui or arguments.access_ui or arguments.public_ui or arguments.source_discovery_ui or arguments.warm_ui or arguments.studio_ui or arguments.phase6_ui or arguments.phase6_baseline:
             commands = commands[:2]
         try:
             for index,(command,cwd,port) in enumerate(commands):
@@ -83,7 +84,7 @@ def main():
                             time.sleep(0.2)
                         else:
                             raise RuntimeError(f"Isolated service on port {port} did not become ready")
-            driver = "access-ui.py" if arguments.access_ui else "public-ui.py" if arguments.public_ui else "phase6-ui.py" if arguments.phase6_ui or arguments.phase6_baseline else "studio-ui.py" if arguments.studio_ui else "warm-ui.py" if arguments.warm_ui else "source-discovery-ui.py" if arguments.source_discovery_ui else "production_ui.py" if arguments.production_ui else "regional_ui.py" if arguments.regional else "ui_acceptance.py"
+            driver = "founder-ui.py" if arguments.founder_ui else "access-ui.py" if arguments.access_ui else "public-ui.py" if arguments.public_ui else "phase6-ui.py" if arguments.phase6_ui or arguments.phase6_baseline else "studio-ui.py" if arguments.studio_ui else "warm-ui.py" if arguments.warm_ui else "source-discovery-ui.py" if arguments.source_discovery_ui else "production_ui.py" if arguments.production_ui else "regional_ui.py" if arguments.regional else "ui_acceptance.py"
             env["PHASE6_BASELINE"] = "true" if arguments.phase6_baseline else "false"
             return subprocess.call([sys.executable,str(ROOT/"scripts"/driver)],cwd=ROOT,env=env)
         finally:

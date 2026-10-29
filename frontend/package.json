@@ -11,7 +11,7 @@
     "lint": "eslint . --max-warnings 0",
     "format:check": "prettier --check src",
     "types:generate": "openapi-typescript openapi.json -o src/lib/generated-api-types.ts",
-    "test": "node tests/query-runtime.test.mjs",
+    "test": "node --test tests/query-runtime.test.mjs tests/application-status.test.mjs",
     "types:check": "node scripts/check-contract.mjs"
   },
   "dependencies": {

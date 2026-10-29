@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { ApplicationChecklist } from '@/components/application-checklist';
 
 import { ApplicationBoard } from '@/components/application-board';
+import { applicationMatches } from '@/lib/application-status';
 
 import { api } from '@/lib/api-client';
 import type { Perform } from '@/lib/legacy-types';
@@ -56,13 +57,7 @@ export function ApplicationsView({
   const [consent, setConsent] = useState(false);
   const [selected, setSelected] = useState<Item | null>(null);
   const [manualStatus, setManualStatus] = useState('interview');
-  const visible = applications.filter((a) =>
-    !filter || filter === 'attention'
-      ? !filter || ['awaiting_review', 'needs_input', 'uncertain'].includes(a.status)
-      : filter === 'submitted'
-        ? a.status === 'submitted'
-        : ['queued', 'preparing', 'ready'].includes(a.status),
-  );
+  const visible = applications.filter((a) => applicationMatches(a.status, filter));
   return (
     <>
       <PageTitle

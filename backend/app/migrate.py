@@ -75,7 +75,21 @@ def migrate():
                 table.__table__.create(conn, checkfirst=True)
             conn.execute(models.SchemaVersion.__table__.insert().values(version=7, applied_at=models.now()))
 
+        if 8 not in versions:
+            if conn.scalar(text("SELECT count(*) FROM users WHERE role='owner'")) > 1:
+                raise RuntimeError("Multiple owners exist. With all writers stopped, run python -m app.admin select-founder, then migrate again.")
+            for table, additions in {"users":{"reset_required":"BOOLEAN NOT NULL DEFAULT false", "security_version":"INTEGER NOT NULL DEFAULT 0"},
+                                     "sessions":{"mfa_verified_at":"VARCHAR(40)"}}.items():
+                columns = {column["name"] for column in inspect(conn).get_columns(table)}
+                for column, kind in additions.items():
+                    if column not in columns:
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {kind}"))
+            for model in (models.AccountMFA, models.PasswordRecovery, models.SecurityEvent):
+                model.__table__.create(conn, checkfirst=True)
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_single_founder ON users (role) WHERE role='owner'"))
+            conn.execute(models.SchemaVersion.__table__.insert().values(version=8, applied_at=models.now()))
+
 
 if __name__ == "__main__":
     migrate()
-    print("Database schema is current (version 7). Run python -m app.catalog_migrations backfill for existing projections.")
+    print("Database schema is current (version 8). Run python -m app.catalog_migrations backfill for existing projections.")

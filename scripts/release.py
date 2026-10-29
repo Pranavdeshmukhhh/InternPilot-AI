@@ -12,11 +12,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def allowed(name):
     p = Path(name)
-    if any(x in {'.git', '.venv', 'node_modules', 'data', 'backups', '__pycache__'} or x.startswith('.next') for x in p.parts):
+    if any(x in {'.git', '.venv', 'node_modules', 'data', 'backups', 'exports', 'private', '.secrets', '__pycache__'} or x.startswith('.next') for x in p.parts):
         return False
-    if p.suffix.lower() in {'.db', '.sqlite', '.sqlite3', '.p12', '.pfx', '.key', '.pem', '.zip', '.log', '.pyc'} or p.name.startswith('.env') and p.name != '.env.example':
+    if p.suffix.lower() in {'.db', '.sqlite', '.sqlite3', '.p12', '.pfx', '.key', '.pem', '.zip', '.log', '.pyc', '.dump', '.bak'} or p.name.startswith('.env') and p.name != '.env.example':
         return False
     if name.startswith('artifacts/'):
+        if name in {'artifacts/founder/backend.json','artifacts/founder/backend.xml','artifacts/founder/security.json',
+                    'artifacts/founder/migrations.json','artifacts/founder/hosting.json','artifacts/founder/configuration.json',
+                    'artifacts/founder/github-history.json','artifacts/founder/local-history.json','artifacts/founder/secret-triage.json',
+                    'artifacts/founder/ui/report.json','artifacts/founder/ui/overview-desktop.png','artifacts/founder/ui/overview-mobile.png'}:
+            return True
         return name.startswith('artifacts/phase7-ui/') and p.name != 'failure.png' or name in {
             'artifacts/phase7-performance-summary.json', 'artifacts/phase7-final-backend.json', 'artifacts/phase7-recovery.json', 'artifacts/phase7-dependencies.json', 'artifacts/phase8-clean-backend.xml', 'artifacts/phase8-clean-backend.json', 'artifacts/phase8-compose.json', 'artifacts/phase8-license-inventory.json', 'artifacts/phase8-clean-ui/report.json',
             'artifacts/phase9-backend.xml', 'artifacts/phase9-backend.json', 'artifacts/phase9-compose.json',
@@ -31,7 +36,7 @@ def allowed(name):
             'artifacts/access-update/configuration.json', 'artifacts/access-update/deployment.json',
             'artifacts/access-update/live-http.json', 'artifacts/access-update/static/report.json',
         }
-    return name in {'README.md', 'compose.yaml', '.env.example', '.gitignore', '.gitattributes', '.dockerignore', 'render.yaml', 'LICENSE', 'THIRD_PARTY_NOTICES.md'} or name.startswith(('backend/', 'frontend/', 'scripts/', 'docs/', 'deploy/', '.github/'))
+    return name in {'README.md', 'compose.yaml', '.env.example', '.gitignore', '.gitattributes', '.gitleaksignore', '.dockerignore', 'render.yaml', 'LICENSE', 'THIRD_PARTY_NOTICES.md'} or name.startswith(('backend/', 'frontend/', 'scripts/', 'docs/', 'deploy/', '.github/'))
 
 
 def main():

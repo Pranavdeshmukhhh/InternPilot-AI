@@ -1,0 +1,15 @@
+{
+  "returncode": 0,
+  "seconds": 453.9476917610009,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=/workspace/internpilot-ai/artifacts/founder/backend.xml",
+    "-q",
+    "-ra"
+  ]
+}

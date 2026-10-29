@@ -38,7 +38,7 @@ def test_owner_directory_and_presence_are_real_without_credential_material(stack
     assert listing["total"] == 2
     data = next(row for row in listing["items"] if row["id"] == account["user"]["id"])
     assert data["email"] == "member@example.invalid" and data["last_login_at"] and data["last_seen_at"]
-    assert set(data) == {"id","email","role","disabled","created_at","last_login_at","last_seen_at"}
+    assert set(data) == {"id","email","role","disabled","created_at","last_login_at","last_seen_at","display_name","active_sessions","reset_required"}
     assert owner.get("/api/owner/users?search=member%40").json()["total"] == 1
     assert owner.get("/api/owner/users?page_size=1&page=2").json()["items"][0]["id"] != listing["items"][0]["id"]
     summary = owner.get("/api/owner/overview").json()
@@ -155,12 +155,14 @@ def test_version_three_migration_defaults_every_existing_account_to_member(stack
     member,_ = stack.register()
     with stack.db() as db:
         db.execute('DELETE FROM schema_versions WHERE version=4')
+        db.execute('DROP INDEX IF EXISTS uq_single_founder')
+        db.execute('DELETE FROM schema_versions WHERE version=8')
         for name in ('role','disabled','last_login_at','last_seen_at'):
             db.execute(f'ALTER TABLE users DROP COLUMN {name}')
     stack.python('from app.migrate import migrate; migrate();migrate()')
     assert member.get('/api/auth/session').json()['user']['role'] == 'member'
     with stack.db() as db:
-        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4,5,6,7]
+        assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')] == [1,2,3,4,5,6,7,8]
 
 
 def test_worker_controls_require_owner_action_and_preserve_tenant_diagnostics(stack):

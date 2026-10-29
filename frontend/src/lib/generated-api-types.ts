@@ -846,6 +846,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/owner/unlock': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Unlock Console */
+    post: operations['unlock_console_api_owner_unlock_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/owner/report': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Founder Report */
+    get: operations['founder_report_api_owner_report_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/owner/users/{user_id}/recovery': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Recover Account */
+    post: operations['recover_account_api_owner_users__user_id__recovery_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/owner/users': {
     parameters: {
       query?: never;
@@ -959,6 +1010,91 @@ export interface paths {
     get: operations['audit_log_api_owner_audit_get'];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/mfa': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Status */
+    get: operations['status_api_auth_mfa_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/mfa/setup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Setup */
+    post: operations['setup_api_auth_mfa_setup_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/mfa/enable': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Enable */
+    post: operations['enable_api_auth_mfa_enable_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/mfa/disable': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Disable */
+    post: operations['disable_api_auth_mfa_disable_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/recover': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Recover */
+    post: operations['recover_api_auth_recover_post'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1403,6 +1539,11 @@ export interface components {
       email: string;
       /** Password */
       password: string;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
     };
     /** DraftInput */
     DraftInput: {
@@ -1459,6 +1600,11 @@ export interface components {
       purpose: string;
       /** Consent */
       consent: boolean;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
     };
     /** OwnerInvitation */
     OwnerInvitation: {
@@ -1468,6 +1614,11 @@ export interface components {
       purpose: string;
       /** Consent */
       consent: boolean;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
       /** Email */
       email: string;
       /**
@@ -1484,6 +1635,11 @@ export interface components {
       purpose: string;
       /** Consent */
       consent: boolean;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
       /** New Password */
       new_password: string;
     };
@@ -1495,6 +1651,11 @@ export interface components {
       purpose: string;
       /** Consent */
       consent: boolean;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
       /** Disabled */
       disabled: boolean;
     };
@@ -1504,6 +1665,11 @@ export interface components {
       current_password: string;
       /** New Password */
       new_password: string;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
     };
     /** Policy */
     Policy: {
@@ -1698,12 +1864,34 @@ export interface components {
        */
       read: boolean;
     };
+    /** Reauthentication */
+    Reauthentication: {
+      /** Current Password */
+      current_password: string;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
+    };
+    /** RecoveryInput */
+    RecoveryInput: {
+      /** Token */
+      token: string;
+      /** New Password */
+      new_password: string;
+    };
     /** RegistrationCredentials */
     RegistrationCredentials: {
       /** Email */
       email: string;
       /** Password */
       password: string;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
       /**
        * Registration Token
        * @default
@@ -1858,6 +2046,11 @@ export interface components {
       purpose: string;
       /** Consent */
       consent: boolean;
+      /**
+       * Otp
+       * @default
+       */
+      otp: string;
       /** Paused */
       paused: boolean;
       /** Paused Kinds */
@@ -3483,6 +3676,113 @@ export interface operations {
       };
     };
   };
+  unlock_console_api_owner_unlock_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OwnerAction'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  founder_report_api_owner_report_get: {
+    parameters: {
+      query?: {
+        section?:
+          | 'overview'
+          | 'activity'
+          | 'analytics'
+          | 'security'
+          | 'applications'
+          | 'automation'
+          | 'infrastructure'
+          | 'settings';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  recover_account_api_owner_users__user_id__recovery_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OwnerAction'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   users_api_owner_users_get: {
     parameters: {
       query?: {
@@ -3708,6 +4008,158 @@ export interface operations {
         };
         content: {
           'application/json': unknown;
+        };
+      };
+    };
+  };
+  status_api_auth_mfa_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+    };
+  };
+  setup_api_auth_mfa_setup_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Reauthentication'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  enable_api_auth_mfa_enable_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Reauthentication'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  disable_api_auth_mfa_disable_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Reauthentication'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  recover_api_auth_recover_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecoveryInput'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };

@@ -2244,6 +2244,146 @@
         }
       }
     },
+    "/api/owner/unlock": {
+      "post": {
+        "tags": [
+          "Workspace owner"
+        ],
+        "summary": "Unlock Console",
+        "operationId": "unlock_console_api_owner_unlock_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnerAction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owner/report": {
+      "get": {
+        "tags": [
+          "Workspace owner"
+        ],
+        "summary": "Founder Report",
+        "operationId": "founder_report_api_owner_report_get",
+        "parameters": [
+          {
+            "name": "section",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "overview",
+                "activity",
+                "analytics",
+                "security",
+                "applications",
+                "automation",
+                "infrastructure",
+                "settings"
+              ],
+              "type": "string",
+              "default": "overview",
+              "title": "Section"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owner/users/{user_id}/recovery": {
+      "post": {
+        "tags": [
+          "Workspace owner"
+        ],
+        "summary": "Recover Account",
+        "operationId": "recover_account_api_owner_users__user_id__recovery_post",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnerAction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/owner/users": {
       "get": {
         "tags": [
@@ -2581,6 +2721,181 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mfa": {
+      "get": {
+        "tags": [
+          "Account security"
+        ],
+        "summary": "Status",
+        "operationId": "status_api_auth_mfa_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mfa/setup": {
+      "post": {
+        "tags": [
+          "Account security"
+        ],
+        "summary": "Setup",
+        "operationId": "setup_api_auth_mfa_setup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reauthentication"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mfa/enable": {
+      "post": {
+        "tags": [
+          "Account security"
+        ],
+        "summary": "Enable",
+        "operationId": "enable_api_auth_mfa_enable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reauthentication"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mfa/disable": {
+      "post": {
+        "tags": [
+          "Account security"
+        ],
+        "summary": "Disable",
+        "operationId": "disable_api_auth_mfa_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reauthentication"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/recover": {
+      "post": {
+        "tags": [
+          "Account security"
+        ],
+        "summary": "Recover",
+        "operationId": "recover_api_auth_recover_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -3589,6 +3904,12 @@
             "maxLength": 256,
             "minLength": 12,
             "title": "Password"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           }
         },
         "additionalProperties": false,
@@ -3743,6 +4064,12 @@
           "consent": {
             "type": "boolean",
             "title": "Consent"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           }
         },
         "additionalProperties": false,
@@ -3771,6 +4098,12 @@
           "consent": {
             "type": "boolean",
             "title": "Consent"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           },
           "email": {
             "type": "string",
@@ -3814,6 +4147,12 @@
             "type": "boolean",
             "title": "Consent"
           },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
+          },
           "new_password": {
             "type": "string",
             "maxLength": 256,
@@ -3849,6 +4188,12 @@
             "type": "boolean",
             "title": "Consent"
           },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
+          },
           "disabled": {
             "type": "boolean",
             "title": "Disabled"
@@ -3877,6 +4222,12 @@
             "maxLength": 256,
             "minLength": 12,
             "title": "New Password"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           }
         },
         "additionalProperties": false,
@@ -4234,6 +4585,51 @@
         "type": "object",
         "title": "ReadInput"
       },
+      "Reauthentication": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Current Password"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "current_password"
+        ],
+        "title": "Reauthentication"
+      },
+      "RecoveryInput": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 20,
+            "title": "Token"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 12,
+            "title": "New Password"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "title": "RecoveryInput"
+      },
       "RegistrationCredentials": {
         "properties": {
           "email": {
@@ -4247,6 +4643,12 @@
             "maxLength": 256,
             "minLength": 12,
             "title": "Password"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           },
           "registration_token": {
             "type": "string",
@@ -4531,6 +4933,12 @@
           "consent": {
             "type": "boolean",
             "title": "Consent"
+          },
+          "otp": {
+            "type": "string",
+            "maxLength": 8,
+            "title": "Otp",
+            "default": ""
           },
           "paused": {
             "type": "boolean",

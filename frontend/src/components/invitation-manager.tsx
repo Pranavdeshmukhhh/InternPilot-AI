@@ -13,6 +13,7 @@ export function InvitationManager({
   const [items, setItems] = useState<Invite[]>([]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [consent, setConsent] = useState(false);
   const [pending, setPending] = useState(false);
   const [revoking, setRevoking] = useState<Invite | null>(null);
@@ -39,6 +40,7 @@ export function InvitationManager({
     setLink('');
     const body = {
       current_password: password,
+      otp,
       consent,
       purpose: revoking
         ? 'Revoke an unused workspace invitation'
@@ -55,6 +57,7 @@ export function InvitationManager({
         setLink(`${window.location.origin}/register#invitation=${encodeURIComponent(created.token)}`);
       }
       setPassword('');
+      setOtp('');
       setConsent(false);
       setEmail('');
       setRevoking(null);
@@ -75,6 +78,17 @@ export function InvitationManager({
         </div>
       </div>
       <form onSubmit={submit} className="invitation-form">
+        <label className="field">
+          <span className="field-label">Authenticator code for invitation</span>
+          <input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            value={otp}
+            onChange={(event) => setOtp(event.target.value)}
+          />
+        </label>
         {revoking ? (
           <p>
             Revoke access for the unused invitation to <strong>{revoking.email}</strong>.

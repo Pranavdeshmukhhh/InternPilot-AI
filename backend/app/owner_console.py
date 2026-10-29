@@ -4,11 +4,13 @@ Every sensitive read/action requires a fresh password check, purpose and audit.
 There is no anonymous bootstrap, shared master password or arbitrary SQL API.
 """
 import mimetypes
+from typing import Literal
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import Field, field_validator
 from sqlalchemy import func, select
+from sqlalchemy.orm import object_session
 
 from .account_security import locked_user, revoke_sessions
 from .config import settings
@@ -24,6 +26,7 @@ class OwnerAction(StrictModel):
     current_password: str = Field(min_length=1,max_length=256)
     purpose: str = Field(min_length=8,max_length=300)
     consent: bool
+    otp: str = Field(default="",max_length=8)
 
 
 class WorkerControl(OwnerAction):
@@ -71,7 +74,9 @@ def create_router(current_user, require_locked_session, throttle):
             raise HTTPException(422,"Confirm this specific action and give a meaningful access reason")
         if not verify_password(data.current_password,actor.password_hash):
             raise HTTPException(403,"Owner password is incorrect")
-        secrets = [data.current_password,getattr(data,"new_password","")]
+        from .founder_security import sensitive_mfa
+        sensitive_mfa(object_session(actor),actor,request.state.session,data.otp)
+        secrets = [data.current_password,data.otp,getattr(data,"new_password","")]
         if any(secret and secret in data.purpose for secret in secrets):
             raise HTTPException(422,"Do not include passwords in the recorded access reason")
 
@@ -155,16 +160,65 @@ def create_router(current_user, require_locked_session, throttle):
         return {"tables":tables,"active_sessions":active,"disabled_accounts":db.scalar(select(func.count()).select_from(User).where(User.disabled==True)),
                 "credential_access":"Passwords, password hashes, tokens and browser session state are never returned"}
 
+    @router.post("/unlock")
+    def unlock_console(data:OwnerAction,request:Request,actor=Depends(owner),db=Depends(get_db)):
+        check(request,actor,data)
+        from .founder_security import unlock, record
+        unlock(db,actor,request.state.session)
+        record(db,actor.id,"founder_reauthenticated",request)
+        event(db,actor.id,"owner_console_unlocked","Founder console unlocked for five minutes")
+        db.commit()
+        return {"ok":True,"expires_in":300}
+
+    @router.get("/report")
+    def founder_report(request:Request,section:Literal['overview','activity','analytics','security','applications','automation','infrastructure','settings']='overview',actor=Depends(owner),db=Depends(get_db)):
+        from .founder_security import require_unlock
+        from .founder_reports import report
+        require_unlock(db,actor,request.state.session)
+        result=report(db,section)
+        event(db,actor.id,"owner_report_read","Founder report viewed: "+section)
+        db.commit()
+        return result
+
+    @router.post("/users/{user_id}/recovery")
+    def recover_account(user_id:str,data:OwnerAction,request:Request,actor=Depends(owner),db=Depends(get_db)):
+        check(request,actor,data)
+        user=target(db,user_id,change=True)
+        from .founder_security import recovery, record
+        token,expiry=recovery(db,user)
+        record(db,user.id,"recovery_issued",request)
+        audit(db,actor,user,"recovery_issued",data.purpose)
+        db.commit()
+        return {"token":token,"expires_at":expiry,"delivery":"Share privately; no email was sent"}
+
     @router.get("/users")
     def users(search:str=Query("",max_length=254),page:int=Query(1,ge=1),page_size:int=Query(20,ge=1,le=100),actor=Depends(owner),db=Depends(get_db)):
-        rows = [account_view(row) for row in db.scalars(select(User).order_by(User.created_at,User.id))]
+        from .security import digest
+        base=select(User).order_by(User.created_at,User.id)
+        offset=(page-1)*page_size
+        limited=False
         if search.strip():
             term = search.strip().casefold()
-            rows = [row for row in rows if term in row["email"].casefold() or term in row["id"].casefold()]
-        offset = (page-1)*page_size
+            if '@' in term and '.' in term.partition('@')[2]:
+                base=base.where(User.email_hash==digest(term))
+                selected=list(db.scalars(base))
+                total=len(selected)
+                selected=selected[offset:offset+page_size]
+            else:
+                candidates=list(db.scalars(base.limit(1001)))
+                limited=len(candidates)>1000
+                selected=[row for row in candidates[:1000] if term in decrypt(row.email_encrypted).casefold() or term in row.id.casefold()]
+                total=len(selected);selected=selected[offset:offset+page_size]
+        else:
+            total=db.scalar(select(func.count()).select_from(User))
+            selected=list(db.scalars(base.offset(offset).limit(page_size)))
+        identifiers=[row.id for row in selected]
+        counts=dict(db.execute(select(LoginSession.user_id,func.count()).where(LoginSession.user_id.in_(identifiers),LoginSession.expires_at>now()).group_by(LoginSession.user_id)).all()) if identifiers else {}
+        rows=[{**account_view(row),"display_name":decrypt(row.profile_encrypted).get("name", ""),
+               "active_sessions":counts.get(row.id,0),"reset_required":row.reset_required} for row in selected]
         event(db,actor.id,"owner_directory_read","Viewed registered account directory")
         db.commit()
-        return {"items":rows[offset:offset+page_size],"total":len(rows),"page":page,"page_size":page_size}
+        return {"items":rows,"total":total,"page":page,"page_size":page_size,"search_limited":limited}
 
     @router.post("/users/{user_id}/inspect")
     def inspect_user(user_id:str,data:OwnerAction,request:Request,actor=Depends(owner),db=Depends(get_db)):
@@ -178,7 +232,9 @@ def create_router(current_user, require_locked_session, throttle):
         sources = [source_view(row) for row in db.scalars(select(Source).where(Source.owner_id==user.id))]
         audit(db,actor,user,"records_inspected",data.purpose)
         db.commit()
-        return {"account":account_view(user),"profile":profile,"applications":applications,"documents":documents,"sources":sources,
+        from .models import SecurityEvent
+        security_events=[{"kind":row.kind,"at":row.created_at,"address_tag":row.address_tag} for row in db.scalars(select(SecurityEvent).where(SecurityEvent.user_id==user.id).order_by(SecurityEvent.created_at.desc()).limit(100))]
+        return {"account":account_view(user),"profile":profile,"applications":applications,"documents":documents,"sources":sources,"security_events":security_events,
                 "limits":{"applications":200,"documents":200},"excluded":"Credentials, browser state and private custom-answer vault"}
 
     @router.post("/users/{user_id}/documents/{doc_id}/download")
@@ -223,6 +279,8 @@ def create_router(current_user, require_locked_session, throttle):
         check(request,actor,data)
         user = target(db,user_id,change=True)
         user.password_hash = password_hash(data.new_password)
+        user.security_version += 1
+        user.reset_required = False
         revoke_sessions(db,user.id)
         policy = decrypt(user.policy_encrypted)
         policy["emergency_stop"] = True

@@ -1,0 +1,16 @@
+{
+  "returncode": 0,
+  "seconds": 62.14906383899506,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=/workspace/internpilot-ai/artifacts/founder/security.xml",
+    "-q",
+    "-ra",
+    "tests/test_founder_security.py"
+  ]
+}

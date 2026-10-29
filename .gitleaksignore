@@ -1,0 +1,18 @@
+# Exact historical false positives only; no blanket path/test exclusions.
+5cf85b959f6717f432cdcfd30aa6f1ef77147753:backend/tests/test_hosting.py:generic-api-key:60
+71ef94aa69095de55a8262db255fd6a46ffd15f9:backend/tests/test_hosting.py:generic-api-key:60
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:100
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:128
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:162
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:204
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:249
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:257
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:270
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:271
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:272
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:274
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:278
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:283
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:291
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:70
+f5719b46ca6c27fa714a0c56195b786fe831edc5:RELEASE_MANIFEST.json:generic-api-key:95

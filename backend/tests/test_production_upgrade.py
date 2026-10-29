@@ -134,7 +134,7 @@ def test_additive_version_five_migration_preserves_existing_encrypted_records(st
     stack.python('from app.migrate import migrate; migrate();migrate()')
     assert client.get('/api/profile').json()['graduation_year']==2029
     assert client.get('/api/outreach').json()['contacts']==[]
-    with stack.db() as db:assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')]==[1,2,3,4,5,6,7]
+    with stack.db() as db:assert [row[0] for row in db.execute('SELECT version FROM schema_versions ORDER BY version')]==[1,2,3,4,5,6,7,8]
 
 
 def test_outreach_schedule_requires_timezone_and_new_sessions_support_oauth_return(stack):  # noqa: F811

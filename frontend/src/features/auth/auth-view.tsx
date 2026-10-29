@@ -23,6 +23,7 @@ export function Auth({
   const [register, setRegister] = useState(pathname !== '/login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [invite, setInvite] = useState('');
   const [authSettings, setAuthSettings] = useState<Health | null>(null);
   const [busy, setBusy] = useState(false);
@@ -59,6 +60,7 @@ export function Auth({
         await api<Session>(`/auth/${register ? 'register' : 'login'}`, 'POST', {
           email,
           password,
+          ...(!register ? { otp } : {}),
           ...(register ? { registration_token: invite } : {}),
         }),
       );
@@ -162,6 +164,18 @@ export function Auth({
                   autoComplete="off"
                   value={invite}
                   onChange={(e) => setInvite(e.target.value)}
+                />
+              </Field>
+            )}
+            {!register && (
+              <Field label="Authenticator code" hint="If MFA is enabled, enter a fresh six-digit code.">
+                <input
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  value={otp}
+                  onChange={(event) => setOtp(event.target.value)}
                 />
               </Field>
             )}

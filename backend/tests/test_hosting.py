@@ -56,7 +56,7 @@ def test_readiness_observes_worker_progress(stack):
 def configuration(tmp_path, changes=None):
     env = {**os.environ, "DATA_DIR": str(tmp_path), "ENVIRONMENT": "production",
            "DATABASE_URL": "postgres://user:synthetic%40password@db.example.invalid/internpilot",
-           "DATABASE_SSLMODE": "require", "ENCRYPTION_KEY": "",
+           "DATABASE_SSLMODE": "verify-full", "ENCRYPTION_KEY": "",
            "ENCRYPTION_SECRET": "synthetic-encryption-material-0123456789",
            "COOKIE_SECURE": "true", "TEST_MODE": "false", "ALLOW_REGISTRATION": "true",
            "REGISTRATION_TOKEN": INVITE, "INVITATION_ONLY":"true", "PUBLIC_ORIGIN": "https://app.example.invalid",
@@ -75,6 +75,7 @@ def test_managed_postgres_urls_use_psycopg3(tmp_path, prefix):
 
 @pytest.mark.parametrize("changes", [
     {"DATABASE_URL": "sqlite:///data.db"}, {"DATABASE_SSLMODE": "disable"},
+    {"DATABASE_SSLMODE":"require"}, {"DATABASE_SSLMODE":"verify-ca"},
     {"COOKIE_SECURE": "false"}, {"TEST_MODE": "true"},
     {"ENCRYPTION_SECRET": ""}, {"ENCRYPTION_SECRET": "short"},
     {"INVITATION_ONLY": "false"},

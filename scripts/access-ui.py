@@ -88,6 +88,20 @@ try:
         page.get_by_role("button", name="Sign in", exact=True).click()
         expect(page.get_by_role("link", name="InternPilot overview")).to_be_visible()
         page.goto(BASE + "/owner")
+
+        def open_members():
+            page.get_by_label("Founder password", exact=True).fill(PASSWORD)
+            page.get_by_label(
+                "I authorize this audited administration session."
+            ).check()
+            page.get_by_role(
+                "button", name="Unlock founder console", exact=True
+            ).click()
+            page.get_by_role("navigation", name="Founder sections").get_by_role(
+                "button", name="Members", exact=True
+            ).click()
+
+        open_members()
         expect(
             page.get_by_role("heading", name="Workspace invitations", exact=True)
         ).to_be_visible()
@@ -139,6 +153,7 @@ try:
             "Invitation link is removed from history; wrong email rejected; approved account activates without owner privileges"
         )
         page.reload()
+        open_members()
         expect(manager.locator(".invitation-list")).to_contain_text("used")
         revoked = issue("revoked@example.invalid")
         manager.locator(".invitation-list li").filter(

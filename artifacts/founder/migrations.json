@@ -1,0 +1,19 @@
+{
+  "returncode": 0,
+  "seconds": 82.86539774000994,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=/workspace/internpilot-ai/artifacts/founder/migrations.xml",
+    "-q",
+    "-ra",
+    "tests/test_core_catalog.py",
+    "tests/test_owner_console.py",
+    "tests/test_reminders_monitoring.py",
+    "tests/test_production_upgrade.py"
+  ]
+}

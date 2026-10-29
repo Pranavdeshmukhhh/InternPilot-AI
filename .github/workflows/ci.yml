@@ -75,6 +75,7 @@ jobs:
       - run: python -m playwright install --with-deps chromium
       - run: python scripts/run-ui-acceptance.py --public-ui
       - run: python scripts/run-ui-acceptance.py --access-ui
+      - run: python scripts/run-ui-acceptance.py --founder-ui
       - run: python scripts/run-ui-acceptance.py --phase6-ui
         env:
           UI_ARTIFACT_DIR: artifacts/ci-workspace-ui
@@ -89,3 +90,4 @@ jobs:
             artifacts/ci-workspace-ui/
             artifacts/ci-public-export/
             artifacts/access-update/ui/
+            artifacts/founder/ui/

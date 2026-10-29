@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Check, LoaderCircle, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MFASettings } from '@/components/mfa-settings';
 
 type Item = Record<string, any>;
 type Props = {
@@ -18,6 +19,7 @@ export function AccountSecurityView({ api, onSession, notify }: Props) {
   const [busy, setBusy] = useState<'password' | 'sessions' | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -51,10 +53,12 @@ export function AccountSecurityView({ api, onSession, notify }: Props) {
       const session = await api('/auth/password', 'POST', {
         current_password: currentPassword,
         new_password: newPassword,
+        otp,
       });
       onSession(session);
       setCurrentPassword('');
       setNewPassword('');
+      setOtp('');
       setConfirmation('');
       notify('Password updated. Your current session has been renewed.');
       await refreshSessions();
@@ -92,6 +96,7 @@ export function AccountSecurityView({ api, onSession, notify }: Props) {
           <p className="page-subtitle">Manage your password and the sessions that can access your account.</p>
         </div>
       </div>
+      <MFASettings api={api} />
       <section className="panel form-section">
         <div className="form-section-intro">
           <span className="form-section-icon">
@@ -152,6 +157,17 @@ export function AccountSecurityView({ api, onSession, notify }: Props) {
             <p>Use at least 12 characters and choose a password unique to this account.</p>
           </div>
           <div className="form-grid">
+            <label className="field">
+              <span className="field-label">Authenticator code for password change</span>
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                pattern="[0-9]{6}"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+            </label>
             <label className="field">
               <span className="field-label">Current password</span>
               <input

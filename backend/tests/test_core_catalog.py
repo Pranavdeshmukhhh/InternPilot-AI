@@ -377,4 +377,4 @@ def test_frozen_historical_upgrade_preserves_encrypted_data_and_references(catal
         assert decrypt_bytes(document) == b"synthetic original document"
         if legacy_version >= 3:
             assert db.get(SavedOpportunity, ("v5-user", "v5-job"))
-        assert db.scalar(text("SELECT max(version) FROM schema_versions")) == 7
+        assert db.scalar(text("SELECT max(version) FROM schema_versions")) == 8

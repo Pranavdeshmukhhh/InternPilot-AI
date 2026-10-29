@@ -67,8 +67,8 @@ class Settings:
         errors = []
         if not self.database_url.startswith("postgresql+psycopg://"):
             errors.append("production requires PostgreSQL")
-        if self.database_sslmode not in {"require", "verify-ca", "verify-full"}:
-            errors.append("production requires encrypted PostgreSQL transport")
+        if self.database_sslmode != "verify-full":
+            errors.append("production requires DATABASE_SSLMODE=verify-full and a trusted database CA")
         if not self.cookie_secure or self.test_mode:
             errors.append("production requires COOKIE_SECURE=true and TEST_MODE=false")
         if not self.encryption_key or (self.encryption_secret and len(self.encryption_secret) < 32):

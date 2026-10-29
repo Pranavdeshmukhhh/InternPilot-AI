@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import String, Text, Integer, Boolean, LargeBinary, JSON, UniqueConstraint, Index, Float, ForeignKey, DateTime, case, select, type_coerce, event, and_
+from sqlalchemy import String, Text, Integer, Boolean, LargeBinary, JSON, UniqueConstraint, Index, Float, ForeignKey, DateTime, case, select, type_coerce, event, and_, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from .database import Base
@@ -111,6 +111,7 @@ class SchemaVersion(Base):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (Index("uq_single_founder","role",unique=True,sqlite_where=text("role='owner'"),postgresql_where=text("role='owner'")),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     email_hash: Mapped[str] = mapped_column(String(64), unique=True)
     email_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
@@ -119,6 +120,8 @@ class User(Base):
     policy_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
     role: Mapped[str] = mapped_column(String(20), default="member", server_default="member")
     disabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    reset_required: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    security_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     last_login_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
     last_seen_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
     created_at: Mapped[str] = mapped_column(default=now)
@@ -130,6 +133,35 @@ class LoginSession(Base):
     user_id: Mapped[str] = mapped_column(String(36), index=True)
     csrf_token: Mapped[str] = mapped_column(String(100))
     expires_at: Mapped[str] = mapped_column(String(40))
+    mfa_verified_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+class AccountMFA(Base):
+    __tablename__ = "account_mfa"
+    user_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    secret_encrypted: Mapped[bytes] = mapped_column(LargeBinary)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_counter: Mapped[int] = mapped_column(Integer, default=-1)
+    created_at: Mapped[str] = mapped_column(default=now)
+
+
+class PasswordRecovery(Base):
+    __tablename__ = "password_recoveries"
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(36), index=True)
+    security_version: Mapped[int] = mapped_column(Integer)
+    expires_at: Mapped[str] = mapped_column(String(40), index=True)
+    used_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+class SecurityEvent(Base):
+    __tablename__ = "security_events"
+    __table_args__ = (Index("ix_security_user_time", "user_id", "created_at"), Index("ix_security_kind_time", "kind", "created_at"))
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    user_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    kind: Mapped[str] = mapped_column(String(40))
+    address_tag: Mapped[str] = mapped_column(String(24), default="")
+    created_at: Mapped[str] = mapped_column(String(40), default=now)
 
 
 class Source(Base):

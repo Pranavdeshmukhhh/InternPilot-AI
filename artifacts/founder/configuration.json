@@ -1,0 +1,7 @@
+{
+  "frontend_guards": {
+    "INTERNAL_API_URL": "rejected without value disclosure",
+    "NEXT_PUBLIC_API_KEY": "rejected without value disclosure"
+  },
+  "backend": "verify-full production validation passed; no real database TLS handshake certified"
+}

@@ -1,3 +1,11 @@
+let apiOrigin;
+try {
+  const url=new URL(process.env.INTERNAL_API_URL || 'http://127.0.0.1:8000');
+  if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw new Error();
+  apiOrigin=url.origin;
+} catch { throw new Error('INTERNAL_API_URL must be an HTTP(S) origin without credentials, path, query or fragment'); }
+if(Object.keys(process.env).some(name=>name.startsWith('NEXT_PUBLIC_')&&/(SECRET|TOKEN|PASSWORD|(?:^|_)KEY(?:_|$))/.test(name)))
+  throw new Error('Credentials must remain server-side; remove credential-like NEXT_PUBLIC variables');
 const config = {
   output: 'standalone',
   poweredByHeader: false,
@@ -5,7 +13,7 @@ const config = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.INTERNAL_API_URL || 'http://127.0.0.1:8000'}/api/:path*`,
+        destination: `${apiOrigin}/api/:path*`,
       },
     ];
   },

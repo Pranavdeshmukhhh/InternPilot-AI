@@ -79,7 +79,7 @@ def current_user(request: Request, db: Session = Depends(get_db)):
         if not hmac.compare_digest(csrf.encode("utf-8"),session.csrf_token.encode("utf-8")):
             raise HTTPException(403,"CSRF token is missing or invalid")
     user = db.get(User,session.user_id)
-    if not user or user.disabled:
+    if not user or user.disabled or user.reset_required:
         raise HTTPException(401,"Account no longer exists")
     if not user.last_seen_at or user.last_seen_at < (datetime.now(timezone.utc)-timedelta(minutes=5)).isoformat():
         user.last_seen_at = now()
@@ -92,9 +92,9 @@ def current_user(request: Request, db: Session = Depends(get_db)):
     return user
 
 
-def issue_session(db, user, response):
+def issue_session(db, user, response, mfa_verified=False):
     token, csrf = secrets.token_urlsafe(40), secrets.token_urlsafe(32)
-    db.add(LoginSession(token_hash=digest(token),user_id=user.id,csrf_token=csrf,expires_at=(datetime.now(timezone.utc)+timedelta(days=7)).isoformat()))
+    db.add(LoginSession(token_hash=digest(token),user_id=user.id,csrf_token=csrf,expires_at=(datetime.now(timezone.utc)+timedelta(days=7)).isoformat(),mfa_verified_at=now() if mfa_verified else None))
     # Lax permits Google's top-level OAuth return; mutating API calls still
     # require a session-bound CSRF token and exact origin validation.
     response.set_cookie("internpilot_session",token,httponly=True,secure=settings.cookie_secure,samesite="lax",max_age=604800,path="/")
@@ -166,11 +166,25 @@ def login(data:Credentials,request:Request,response:Response,db:Session=Depends(
     throttle(request)
     user = locked_user(db,email_hash=digest(data.email))
     if not verify_password(data.password,user.password_hash if user else _DUMMY_PASSWORD_HASH) or user is None:
+        from .founder_security import record
+        record(db,user.id if user else None,"login_failed",request)
+        db.commit()
         raise HTTPException(401,"Invalid email or password")
     if user.disabled:
+        from .founder_security import record
+        record(db,user.id,"login_locked",request); db.commit()
         raise HTTPException(403,"This account is disabled; contact the workspace owner")
+    if user.reset_required:
+        raise HTTPException(403,"Password recovery is required; request a new link from the owner")
+    from .founder_security import verify_mfa, record
+    try:
+        mfa_verified = verify_mfa(db,user,data.otp)
+    except HTTPException:
+        record(db,user.id,"mfa_failed",request); db.commit()
+        raise
     user.last_login_at,user.last_seen_at = now(),now()
-    result = issue_session(db,user,response)
+    result = issue_session(db,user,response,mfa_verified=mfa_verified)
+    record(db,user.id,"login_success",request)
     event(db,user.id,"sign_in","Signed in")
     db.commit()
     return result
@@ -213,9 +227,13 @@ def change_password(data:PasswordChange,request:Request,response:Response,user:U
         raise HTTPException(403,"Current password is incorrect")
     if hmac.compare_digest(data.current_password.encode(),data.new_password.encode()):
         raise HTTPException(422,"Choose a different new password")
+    from .founder_security import sensitive_mfa, record
+    sensitive_mfa(db,user,request.state.session,data.otp)
     user.password_hash = password_hash(data.new_password)
+    user.security_version += 1
     revoke_sessions(db,user.id)
-    result = issue_session(db,user,response)
+    result = issue_session(db,user,response,mfa_verified=bool(request.state.session.mfa_verified_at))
+    record(db,user.id,"password_changed",request)
     event(db,user.id,"password_changed","Password changed; all previous sessions signed out",notify=True)
     db.commit()
     return result
@@ -850,6 +868,8 @@ if settings.test_mode:
 
 
 app.include_router(create_owner_router(current_user,require_locked_session,throttle))
+from .security_api import create_router as create_security_router
+app.include_router(create_security_router(current_user,require_locked_session,throttle))
 app.include_router(create_outreach_router(current_user,require_locked_session))
 app.include_router(create_operations_router(current_user,require_locked_session))
 
