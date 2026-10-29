@@ -5,6 +5,13 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 import { Suspense } from 'react';
 import { Workspace } from '@/features/workspace/workspace';
 import { Skeleton } from '@/components/ui/skeleton';
+export function generateStaticParams() {
+  const paths = [...Object.values(routes), '/login', '/register'];
+  return paths.map((p) => ({
+    workspace: p.replace(/^\//, '').split('/'),
+  }));
+}
+
 export default async function WorkspacePage({ params }: { params: Promise<{ workspace: string[] }> }) {
   const path = '/' + (await params).workspace.join('/');
   if (![...Object.values(routes), '/login', '/register'].includes(path)) notFound();
