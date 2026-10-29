@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-29T16:38:44.208883+00:00",
+  "synthetic_only": true,
+  "external_submissions": 0,
+  "external_emails": 0,
+  "checks": [
+    {
+      "name": "Fresh account overview loads without a catalog-indexing error",
+      "passed": true
+    },
+    {
+      "name": "Fresh account shows an honest empty application history",
+      "passed": true
+    },
+    {
+      "name": "API outage presents a retry state and recovers without logout",
+      "passed": true
+    },
+    {
+      "name": "Event stream delivers its ready event through the frontend proxy without buffering",
+      "passed": true
+    },
+    {
+      "name": "Worker fills the local form, uploads PDF, confirms submission and updates the pipeline",
+      "passed": true
+    },
+    {
+      "name": "Downloaded resume matches the test portal's actual uploaded document hash",
+      "passed": true
+    },
+    {
+      "name": "Repeating the action returns the same application without duplicate submission",
+      "passed": true
+    },
+    {
+      "name": "Confirmed application survives refresh and mobile pipeline does not overflow",
+      "passed": true
+    },
+    {
+      "name": "Session-service outage retains the URL and recovers the existing session through Retry",
+      "passed": true
+    },
+    {
+      "name": "Logout revokes access; wrong-password login fails and valid login restores saved work",
+      "passed": true
+    }
+  ],
+  "stream_probe": {
+    "ready": true,
+    "seconds": 0.0205,
+    "encoding": null,
+    "cache_control": "private, no-cache, no-store, no-transform"
+  },
+  "click_to_visible_confirmation_seconds": 7.948,
+  "confirmed_local_submission": true,
+  "uploaded_pdf_bytes": 43693,
+  "javascript_errors": [],
+  "passed": true
+}

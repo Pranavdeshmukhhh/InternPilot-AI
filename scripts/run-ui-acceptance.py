@@ -32,6 +32,7 @@ def main():
     parser.add_argument("--public-ui",action="store_true",help="Public landing/demo and in-app mobile smoke; no crawlers")
     parser.add_argument("--access-ui",action="store_true",help="Owner-issued invitations, sign-in and Terms motion; no crawlers")
     parser.add_argument("--founder-ui",action="store_true",help="Private founder reports, MFA and recovery; synthetic data only")
+    parser.add_argument("--user-journey",action="store_true",help="Browser journey with application-only worker and local test portal")
     arguments = parser.parse_args()
     frontend = Path(os.getenv("UI_TEST_FRONTEND_DIR", str(ROOT / "frontend")))
     for port in (8000,3000):
@@ -55,6 +56,9 @@ def main():
         # Synthetic tests never inherit live notification or model credentials.
         if arguments.access_ui:
             env["INVITATION_ONLY"]="true"
+        if arguments.user_journey:
+            env["WORKER_KINDS"]="application"
+            env["WORKER_CONCURRENCY"]="1"
         for key in ("SMTP_HOST","SMTP_PASSWORD","TELEGRAM_BOT_TOKEN","TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","LLM_API_KEY","BRAVE_SEARCH_API_KEY","GMAIL_CLIENT_ID","GMAIL_CLIENT_SECRET","GMAIL_REDIRECT_URI"):
             env[key]=""  # Also prevents dotenv from reloading real provider secrets.
         commands = [
@@ -84,7 +88,7 @@ def main():
                             time.sleep(0.2)
                         else:
                             raise RuntimeError(f"Isolated service on port {port} did not become ready")
-            driver = "founder-ui.py" if arguments.founder_ui else "access-ui.py" if arguments.access_ui else "public-ui.py" if arguments.public_ui else "phase6-ui.py" if arguments.phase6_ui or arguments.phase6_baseline else "studio-ui.py" if arguments.studio_ui else "warm-ui.py" if arguments.warm_ui else "source-discovery-ui.py" if arguments.source_discovery_ui else "production_ui.py" if arguments.production_ui else "regional_ui.py" if arguments.regional else "ui_acceptance.py"
+            driver = "user-journey.py" if arguments.user_journey else "founder-ui.py" if arguments.founder_ui else "access-ui.py" if arguments.access_ui else "public-ui.py" if arguments.public_ui else "phase6-ui.py" if arguments.phase6_ui or arguments.phase6_baseline else "studio-ui.py" if arguments.studio_ui else "warm-ui.py" if arguments.warm_ui else "source-discovery-ui.py" if arguments.source_discovery_ui else "production_ui.py" if arguments.production_ui else "regional_ui.py" if arguments.regional else "ui_acceptance.py"
             env["PHASE6_BASELINE"] = "true" if arguments.phase6_baseline else "false"
             return subprocess.call([sys.executable,str(ROOT/"scripts"/driver)],cwd=ROOT,env=env)
         finally:

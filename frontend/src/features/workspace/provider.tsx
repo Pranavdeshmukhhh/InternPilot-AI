@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, ApiError, sessionEpoch, setApiSession } from '@/lib/api-client';
 import { resourceKey, mutationResources, isPath } from '@/lib/query-keys';
@@ -9,21 +9,33 @@ import type { Session } from '@/lib/api-types';
 const SessionContext = createContext<{
   session: Session | null;
   checking: boolean;
+  sessionError: string | null;
+  retrySession: () => void;
   login: (value: Session) => void;
   clear: () => void;
-}>({ session: null, checking: true, login: () => {}, clear: () => {} });
+}>({
+  session: null,
+  checking: true,
+  sessionError: null,
+  retrySession: () => {},
+  login: () => {},
+  clear: () => {},
+});
 export const useSession = () => useContext(SessionContext);
 
 function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
-  const mounted = useRef(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const retrySession = useCallback(() => setAttempt((value) => value + 1), []);
   const clear = useCallback(() => {
     setApiSession();
     void queryClient.cancelQueries();
     queryClient.clear();
     setSession(null);
+    setSessionError(null);
   }, [queryClient]);
   const login = useCallback(
     (value: Session) => {
@@ -31,27 +43,40 @@ function SessionProvider({ children }: { children: ReactNode }) {
       void queryClient.cancelQueries();
       queryClient.clear();
       setSession(value);
+      setSessionError(null);
     },
     [queryClient],
   );
   useEffect(() => {
-    mounted.current = true;
-    api<Session>('/auth/session')
+    let active = true;
+    const controller = new AbortController();
+    setChecking(true);
+    setSessionError(null);
+    api<Session>('/auth/session', 'GET', undefined, false, controller.signal)
       .then((value) => {
-        if (mounted.current) login(value);
+        if (active) login(value);
       })
-      .catch(() => {})
+      .catch((error: unknown) => {
+        if (!active || (error instanceof ApiError && error.status === 401)) return;
+        // A network failure, throttle, or server error does not invalidate a cookie.
+        setSessionError(
+          'The account service is temporarily unavailable. Try again to reopen your workspace.',
+        );
+      })
       .finally(() => {
-        if (mounted.current) setChecking(false);
+        if (active) setChecking(false);
       });
     window.addEventListener('internpilot:unauthorized', clear);
     return () => {
-      mounted.current = false;
+      active = false;
+      controller.abort();
       window.removeEventListener('internpilot:unauthorized', clear);
     };
-  }, [login, clear]);
+  }, [login, clear, attempt]);
   return (
-    <SessionContext.Provider value={{ session, checking, login, clear }}>{children}</SessionContext.Provider>
+    <SessionContext.Provider value={{ session, checking, sessionError, retrySession, login, clear }}>
+      {children}
+    </SessionContext.Provider>
   );
 }
 

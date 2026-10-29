@@ -79,6 +79,9 @@ jobs:
       - run: python scripts/run-ui-acceptance.py --phase6-ui
         env:
           UI_ARTIFACT_DIR: artifacts/ci-workspace-ui
+      - run: python scripts/run-ui-acceptance.py --user-journey
+        env:
+          UI_ARTIFACT_DIR: artifacts/ci-user-journey
       - run: python scripts/export-public.py --destination "$RUNNER_TEMP/internpilot-public" --origin https://internpilot-ai-notebook.antigravityfree101.chatgpt.site
       - run: python scripts/verify-public-export.py --directory "$RUNNER_TEMP/internpilot-public/out" --output artifacts/ci-public-export
       - uses: actions/upload-artifact@v4
@@ -88,6 +91,7 @@ jobs:
           path: |
             artifacts/phase9-public/
             artifacts/ci-workspace-ui/
+            artifacts/ci-user-journey/
             artifacts/ci-public-export/
             artifacts/access-update/ui/
             artifacts/founder/ui/

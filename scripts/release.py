@@ -17,6 +17,22 @@ def allowed(name):
     if p.suffix.lower() in {'.db', '.sqlite', '.sqlite3', '.p12', '.pfx', '.key', '.pem', '.zip', '.log', '.pyc', '.dump', '.bak'} or p.name.startswith('.env') and p.name != '.env.example':
         return False
     if name.startswith('artifacts/'):
+        if name in {
+            'artifacts/user-check/backend.xml',
+            'artifacts/user-check/secret-scan.json',
+            'artifacts/user-check/journey/report.json',
+            'artifacts/user-check/journey/confirmed-application.png',
+            'artifacts/user-check/journey/pipeline-mobile.png',
+            'artifacts/user-check/journey/session-outage.png',
+            'artifacts/user-check/workspace/report.json',
+            'artifacts/user-check/workspace/explorer-desktop.png',
+            'artifacts/user-check/workspace/touch-explorer-light.png',
+            'artifacts/user-check/access/report.json',
+            'artifacts/user-check/founder/report.json',
+        }:
+            return True
+        if name in {'artifacts/catalog-startup.json','artifacts/catalog-startup.xml'}:
+            return True
         if name in {'artifacts/founder/backend.json','artifacts/founder/backend.xml','artifacts/founder/security.json',
                     'artifacts/founder/migrations.json','artifacts/founder/hosting.json','artifacts/founder/configuration.json',
                     'artifacts/founder/github-history.json','artifacts/founder/local-history.json','artifacts/founder/secret-triage.json',

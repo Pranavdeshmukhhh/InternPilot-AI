@@ -12,7 +12,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ["UI_TEST_URL"]
-OUT = ROOT / "artifacts/access-update/ui"
+OUT = Path(os.getenv("UI_ARTIFACT_DIR", str(ROOT / "artifacts/access-update/ui")))
 OUT.mkdir(parents=True, exist_ok=True)
 PASSWORD = "synthetic-only-password-2049!"
 report = {"checks": [], "external_actions": 0, "synthetic_only": True}

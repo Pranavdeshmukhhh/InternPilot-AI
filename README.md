@@ -1,5 +1,9 @@
 # InternPilot AI
 
+Seeing **“Catalog indexing is pending”** on an upgraded installation? [Run the safe backfill repair](docs/CATALOG_STARTUP_FIX.md). The current local startup performs it automatically and verifies API readiness before opening the app.
+
+**Latest user QA:** [browser findings, fixes and reproducible tests](docs/USER_JOURNEY_QA.md). Corrects session-outage handling and delayed live application updates; includes a real local submission/upload/confirmation test without contacting employers.
+
 **Latest founder/security release:** [secure first-run login, MFA, recovery, migration and verification](docs/FOUNDER_SECURITY.md). On Windows with Docker Desktop running, double-click `scripts/run_local.bat`. It starts the complete stack and prompts for your founder email/password if none exists. There is no hardcoded master credential. Existing accounts, keys and database volumes are preserved; see the guide before upgrading multiple legacy owner accounts.
 
 An India-first internship and hackathon discovery workspace built with Next.js, FastAPI and PostgreSQL. It combines explainable eligibility checks, a shared opportunity catalog, durable background tasks, factual PDF documents and review-based application/outreach workflows.

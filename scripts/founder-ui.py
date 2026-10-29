@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app.founder_security import totp
 
 BASE = os.environ["UI_TEST_URL"]
-OUT = ROOT / "artifacts/founder/ui"
+OUT = Path(os.getenv("UI_ARTIFACT_DIR", str(ROOT / "artifacts/founder/ui")))
 OUT.mkdir(parents=True, exist_ok=True)
 PASSWORD = "synthetic-only-password-2049!"
 assert (

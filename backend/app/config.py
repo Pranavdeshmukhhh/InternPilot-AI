@@ -28,6 +28,7 @@ class Settings:
         # Hosting providers generate opaque random strings, not Fernet keys.
         encryption_key = base64.urlsafe_b64encode(hashlib.sha256(encryption_secret.encode()).digest()).decode()
     production = os.getenv("ENVIRONMENT", "development") == "production"
+    auto_catalog_backfill = os.getenv("AUTO_CATALOG_BACKFILL", "false" if production else "true").lower() == "true"
     cookie_secure = os.getenv("COOKIE_SECURE", "false").lower() == "true"
     test_mode = os.getenv("TEST_MODE", "false").lower() == "true"
     test_portal_origin = os.getenv("TEST_PORTAL_ORIGIN", "http://127.0.0.1:8000").rstrip("/")

@@ -36,6 +36,12 @@ from . import security_logs  # noqa: F401 -- installs OAuth access-log redaction
 @asynccontextmanager
 async def lifespan(app):
     migrate()
+    if settings.auto_catalog_backfill:
+        from .catalog_migrations import backfill
+        from .database import engine
+        # Resumable, non-destructive batches repair upgraded local databases
+        # before the API advertises readiness or serves catalog-dependent views.
+        backfill(engine)
     yield
 
 
@@ -63,7 +69,9 @@ async def security_headers(request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Cache-Control"] = "no-store"
+    cache_control = response.headers.get("Cache-Control", "")
+    if "no-store" not in {part.strip().lower() for part in cache_control.split(",")}:
+        response.headers["Cache-Control"] = ", ".join(filter(None, (cache_control, "no-store")))
     if settings.production:
         response.headers["Strict-Transport-Security"] = "max-age=31536000"
     return response
@@ -120,6 +128,8 @@ def health(db: Session=Depends(get_db)):
 @app.get("/api/ready")
 def readiness(db: Session=Depends(get_db)):
     db.execute(text("SELECT 1"))
+    if db.scalar(select(Opportunity.id).where(Opportunity.canonical_id.is_(None),Opportunity.projection_version!=1).limit(1)):
+        raise HTTPException(503,"Catalog upgrade is pending; run python -m app.catalog_migrations backfill")
     if settings.worker_heartbeat_file:
         try:
             age = time.time() - Path(settings.worker_heartbeat_file).stat().st_mtime
@@ -807,7 +817,13 @@ async def stream_events(request:Request):
                 await pubsub.aclose()
             if client:
                 await client.aclose()
-    return StreamingResponse(updates(),media_type="text/event-stream",headers={"X-Accel-Buffering":"no"})
+    # Compression intermediaries otherwise buffer this small stream until close,
+    # delaying application status updates for the full 55-second stream lifetime.
+    # The stream contains account-specific invalidation hints and must not cache.
+    return StreamingResponse(updates(),media_type="text/event-stream",headers={
+        "X-Accel-Buffering":"no",
+        "Cache-Control":"private, no-cache, no-store, no-transform",
+    })
 
 
 @app.get("/api/tasks")

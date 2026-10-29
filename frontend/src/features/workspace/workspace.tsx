@@ -80,7 +80,7 @@ const Automation = dynamic(() => import('@/components/automation-center').then((
 const CommandMenu = dynamic(() => import('@/features/workspace/command-menu').then((m) => m.CommandMenu));
 
 export function Workspace() {
-  const { session, checking, login, clear } = useSession();
+  const { session, checking, sessionError, retrySession, login, clear } = useSession();
   const queryClient = useQueryClient();
   const updateNotificationSettings = useCallback(
     (value: LegacyItem) => {
@@ -142,10 +142,10 @@ export function Workspace() {
     authenticated && !notifications.isPending,
   );
   useEffect(() => {
-    if (checking) return;
+    if (checking || sessionError) return;
     if (!session && pathname !== '/login' && pathname !== '/register') router.replace('/login');
     if (session && (pathname === '/login' || pathname === '/register')) router.replace('/overview');
-  }, [session, checking, pathname, router]);
+  }, [session, checking, sessionError, pathname, router]);
   useEffect(() => {
     document.title = `${view === 'discover' ? 'Internships' : view === 'recommended' ? 'Your matches' : view.charAt(0).toUpperCase() + view.slice(1)} · InternPilot`;
   }, [view]);
@@ -231,6 +231,21 @@ export function Workspace() {
         router.replace('/login');
       },
       'Signed out.',
+    );
+  if (sessionError)
+    return (
+      <main className="boot">
+        <div className="resource-error" role="alert">
+          <XCircle size={24} />
+          <h1>We couldn’t check your session.</h1>
+          <p>{sessionError}</p>
+          <Button onClick={retrySession}>
+            <RefreshCw size={15} />
+            Try again
+          </Button>
+          <Link href="/">Back to home</Link>
+        </div>
+      </main>
     );
   if (checking)
     return (

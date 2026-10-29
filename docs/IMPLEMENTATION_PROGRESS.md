@@ -1,3 +1,43 @@
+# User journey QA — 29 October 2026
+
+Ran the current production frontend in real Chromium with temporary synthetic
+data, FastAPI and an application-only worker. Preserved existing functionality
+and all pre-existing data. See [USER_JOURNEY_QA.md](USER_JOURNEY_QA.md) for exact
+reproduction, environment, defects and limits.
+
+- Fixed session bootstrap: a temporary service/network error now shows Retry
+  at the current URL instead of redirecting a valid-cookie user to login. Only
+  a verified unauthenticated response follows the login path. Abandoned session
+  checks are canceled; private content still requires successful authentication.
+- Fixed buffered SSE status updates through the Next.js proxy. The event endpoint
+  sends private/no-store/no-transform directives; security middleware retains
+  endpoint directives while still enforcing no-store. A new backend test caught
+  the middleware overwrite before the complete fix. Final local stream ready
+  delivery: 20.5 ms; action-to-visible local confirmation: 7.948 s versus an
+  observed 59.500 s before correction. Individual synthetic local observations,
+  not production benchmarks.
+- Added `--user-journey` browser regression and CI invocation: real local form
+  filling, PDF upload hash comparison, screenshot, confirmation, duplicate action,
+  reload, mobile pipeline, API/session outage recovery, logout and login. Crawling
+  and outreach workers are disabled. Access/founder drivers accept isolated output
+  directories so repeat QA preserves prior screenshots.
+- Final backend selection: **31 passed in 67.44 s**. Final browser results:
+  **20 workspace + 10 worker journey + 5 invitation/Terms + 4 founder/MFA groups
+  passed**, zero uncaught JavaScript errors in the checked flows. Frontend build,
+  lint, TypeScript, formatting, both Node test files, backend Ruff, CI YAML parse
+  and diff whitespace check passed. The full backend suite and hosted CI were
+  not rerun. Evidence: `artifacts/user-check/`.
+- Local milestone: `fa9bd85`. Reachable-history Gitleaks 8.24.3 scan completed
+  with zero unresolved findings; tracked-path hygiene passed. The source-only
+  archive passed ZIP CRC and per-file SHA-256 manifest verification. These
+  checks do not establish absence of all secrets or validate hosted deployment.
+- Initial browser driver route/alert selector errors were corrected in the
+  harness. The initial backend run had 30 passes and one failure proving the
+  SSE header overwrite; the final same selection has zero failures.
+- No external submissions, emails, cloud deployment, live provider tests, Windows
+  execution or user-device repair performed. Existing security/capacity gates
+  remain; current source is packaged without inventing a founder password.
+
 # Phase 4 implementation progress
 
 2026-10-28. Implemented directly in the existing repository after reading the engineering audit, production architecture, implementation handoff and actual source. No production data migration, external application, outreach or deployment performed.
@@ -145,6 +185,8 @@ Limitations: live browser blocked by managed proxy CA; automatic approval review
 Source milestone: `fffe0e8` (public product routes and preserved workspace flows). Release validation/notices/docs follow as a separate milestone. Regenerated the 305-file source-only archive with CRC and per-file SHA-256 verification; external digest/report retained. No GitHub push, full backend deployment or hosted CI success is claimed.
 
 # Terms motion and invitation-only accounts
+
+Catalog startup follow-up: user screenshot exposed an older-database path missed by fresh fixtures. Local lifespan now runs resumable catalog backfill after schema migration, readiness checks pending projections, and the Windows launcher checks readiness before opening. Production automatic backfill remains off by default. Added legacy-row HTTP/startup regression and opt-out tests. No user database/keys were deleted or changed by this agent. See [CATALOG_STARTUP_FIX.md](CATALOG_STARTUP_FIX.md).
 
 Subsequent founder/security work: see [FOUNDER_SECURITY.md](FOUNDER_SECURITY.md). Implemented schema 8 singleton founder enforcement, trusted offline selection/recovery CLI, encrypted RFC 6238 MFA with replay prevention, fresh privileged reauthentication, single-use forced recovery, private nine-section reports, security events and bounded retention. Full backend run 546 passed/2 skipped; later 44 migration checks and 22 hosting checks passed, plus targeted security and browser workflows. No production credentials were confirmed in the fetched Git history; exact synthetic/checksum findings were verified and scoped. No GitHub push or backend cloud deployment. The environment disconnected during final verification, then resumed with files intact; final migration checks, docs and packaging continued. Follow-up fixes prevent application board omissions and replace the broken dependency/worker-skipping Windows launcher with complete Compose startup and private founder provisioning.
 

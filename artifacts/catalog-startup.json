@@ -1,0 +1,16 @@
+{
+  "returncode": 0,
+  "seconds": 26.741643733010278,
+  "postgres_variants": false,
+  "isolated_data": true,
+  "external_actions_authorized": false,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--junitxml=/workspace/internpilot-ai/artifacts/catalog-startup.xml",
+    "-q",
+    "tests/test_catalog_startup.py",
+    "tests/test_hosting.py"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "Founder unlock, seven live report projections and 320\u20131440px layout",
+    "Founder issues a one-time recovery link and recipient chooses a new password through the real UI",
+    "Authenticator setup/confirmation and MFA-required sign-in work without seed readback",
+    "MFA change invalidates report grant; fresh unlock and automated accessibility gates pass"
+  ],
+  "external_actions": 0,
+  "synthetic_only": true,
+  "a11y": [],
+  "passed": true
+}

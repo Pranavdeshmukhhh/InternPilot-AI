@@ -115,6 +115,7 @@ def stack(tmp_path, request):
         "CORS_ORIGINS": "http://localhost:3000", "REDIS_URL": "", "LLM_PROVIDER": "disabled",
         "REGISTRATION_TOKEN": "", "INVITATION_ONLY":"false", "ENVIRONMENT": "development", "DATABASE_SSLMODE": "",
         "WORKER_HEARTBEAT_FILE": "",
+        "AUTO_CATALOG_BACKFILL":"true",
     }
     for key in ("GMAIL_CLIENT_ID","GMAIL_CLIENT_SECRET","GMAIL_REDIRECT_URI","BRAVE_SEARCH_API_KEY","SMTP_HOST","SMTP_PASSWORD","TELEGRAM_BOT_TOKEN","TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","LLM_API_KEY"):
         env[key]=""
@@ -209,6 +210,17 @@ def test_owner_boundaries_and_resume_import_never_verifies_facts(stack):
     with stack.db() as db:
         blob = db.execute("SELECT content_encrypted FROM documents WHERE id=?", (document["id"],)).fetchone()[0]
         assert b"imported@example.invalid" not in blob
+
+
+def test_account_event_stream_is_private_untransformed_and_immediately_ready(stack):
+    client, _ = stack.register()
+    with client.stream("GET", "/api/events/stream") as response:
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/event-stream")
+        assert response.headers["x-accel-buffering"] == "no"
+        directives = {part.strip() for part in response.headers["cache-control"].split(",")}
+        assert {"private", "no-store", "no-transform"} <= directives
+        assert next(response.iter_lines()) == "event: ready"
 
 
 def test_real_worker_demo_confirms_upload_screenshot_and_prevents_duplicates(stack):
